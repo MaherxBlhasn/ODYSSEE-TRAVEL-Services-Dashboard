@@ -2,7 +2,6 @@
 
 import { MapPin, Calendar, Star, Trash2 } from 'lucide-react'
 import Image from 'next/image'
-import { useState } from 'react'
 
 interface Offer {
   id: number
