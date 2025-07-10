@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 Travel Dashboard
 
-## Getting Started
+A modern, responsive dashboard for **Odyssee Travel Services**, built with Next.js, React, and Tailwind CSS. This dashboard provides travel agencies with a comprehensive overview of bookings, offers, analytics, customer contacts, and agency settings—all in one place.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## ✨ Features
+
+- 📊 **Dashboard Overview:** Key stats on bookings, website visits, active offers, and revenue.
+- 📈 **Analytics:** Visualize monthly bookings and traffic sources.
+- 🏷️ **Offers Management:** Add, edit, and manage travel offers with ease.
+- 👥 **Customer Contacts:** View and manage recent customer inquiries.
+- ⚙️ **Settings:** Update agency information and contact details.
+- 📱 **Responsive Design:** Optimized for desktop and mobile devices.
+
+---
+
+## 🛠️ Tech Stack
+
+- [Next.js 15](https://nextjs.org/) ⚡
+- [React 19](https://react.dev/) ⚛️
+- [Tailwind CSS 4](https://tailwindcss.com/) 🎨
+- [Lucide React Icons](https://lucide.dev/icons/) 🖼️
+
+---
+
+## 🚦 Getting Started
+
+### 📋 Prerequisites
+
+- Node.js 18+
+- npm, yarn, pnpm, or bun
+
+### ⚡ Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/MaherxBlhasn/ODYSSEE-TRAVEL-Services-Dashboard.git
+   cd travel-dashboard
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. 🌐 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## 🗂️ Project Structure
+
+```
+app/
+  dashboard/
+    analytics/         # 📊 Analytics page & charts
+    components/        # 🧩 Reusable UI components
+    contacts/          # 👥 Customer contacts page
+    home/              # 🏠 Dashboard home/overview
+    offers/            # 🏷️ Offers management
+    sections/          # 📦 Section containers for each dashboard area
+    settings/          # ⚙️ Agency settings page
+  login/               # 🔐 Login page
+public/                # 🖼️ Static assets (images, icons)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠️ Customization
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- 🏷️ **Add new offers:** Use the "Add Offer" button in the Offers section.
+- ⚙️ **Edit agency info:** Update details in the Settings section.
+- 📊 **Modify stats/data:** Update mock data in `app/dashboard/data.ts`.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 📜 Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `npm run dev` – Start the development server
+- `npm run build` – Build for production
+- `npm start` – Start the production server
+- `npm run lint` – Lint the codebase
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 📝 License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is for internal use by Odyssee Travel Services.
