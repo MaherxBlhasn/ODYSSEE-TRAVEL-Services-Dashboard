@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { Plus, X } from 'lucide-react'
-import OfferCard from '../components/OfferCard'
-import { offers as initialOffers } from '../data'
+import OfferCard from '../OfferCard'
+import { offers as initialOffers } from '../../data'
 
 export default function OffersSection() {
   const [offers, setOffers] = useState(initialOffers)

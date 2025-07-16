@@ -1,4 +1,4 @@
-import AnalyticsSection from '../sections/AnalyticsSection'
+import AnalyticsSection from '../components/sections/AnalyticsSection'
 
 export default function AnalyticsPage() {
   return <AnalyticsSection />

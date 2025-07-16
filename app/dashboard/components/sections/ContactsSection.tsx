@@ -1,4 +1,4 @@
-import ContactRow from '../components/ContactRow';
+import ContactRow from '../ContactRow';
 
 interface Contact {
   id: number;

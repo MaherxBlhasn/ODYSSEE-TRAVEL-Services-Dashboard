@@ -1,6 +1,6 @@
 import { Package, Eye, Globe, TrendingUp } from 'lucide-react'
-import StatsCard from '../components/StatsCard'
-import { offers, contacts } from '../data'
+import StatsCard from '../StatsCard'
+import { offers, contacts } from '../../data'
 
 export default function DashboardSection() {
   const stats = [

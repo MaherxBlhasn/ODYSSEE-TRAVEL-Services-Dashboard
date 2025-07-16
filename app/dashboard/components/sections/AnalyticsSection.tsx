@@ -1,5 +1,5 @@
-import AnalyticsChart from '../components/AnalyticsChart'
-import TrafficSource from '../components/TrafficSource'
+import AnalyticsChart from '../AnalyticsChart'
+import TrafficSource from '../TrafficSource'
 
 export default function AnalyticsSection() {
   return (
