@@ -3,18 +3,33 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import React from 'react'
+import { authService } from '@/lib/services/auth.service';
+
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const router = useRouter()
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const handleLogin = (e: { preventDefault: () => void }) => {
-    e.preventDefault()
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
     // Your login logic here
-    // redirect to dashboard
-    router.push('/dashboard')
-  }
+    try{
+      const response = await authService.login({Email: email, password: password});
+      console.log('response handlelogin:',response);
+      router.push('/dashboard');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setIsLoading(false);
+    }
+
+  };
 
   return (
         <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900">
@@ -121,8 +136,8 @@ export default function LoginPage() {
                   required
                 />
               </div>
-              <button className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-lg font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                Sign In
+              <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-lg font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                {isLoading ? 'Logining in...' : 'Login'}
               </button>
             </form>
             <div className="mt-6 text-center">
