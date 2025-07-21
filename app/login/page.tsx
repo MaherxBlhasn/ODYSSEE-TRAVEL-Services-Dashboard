@@ -1,10 +1,11 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import React from 'react'
 import { authService } from '@/lib/services/auth.service';
 import Spinner from '@/components/ui/Spinner';
+import { Bounce, ToastContainer, toast } from 'react-toastify';
 
 
 export default function LoginPage() {
@@ -14,6 +15,19 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  useEffect(()=>{
+    console.log("before auth")
+    const check = async () => {
+      const { authenticated } = await authService.checkAuth();
+
+      if (authenticated) {
+        console.log("authenticated AuthGuard(login):",authenticated)
+
+        router.push('/dashboard'); // Redirect if authenticated
+      }
+    }
+    check();
+  });
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -25,14 +39,39 @@ export default function LoginPage() {
       console.log('response handlelogin:', response);
       router.push('/dashboard');
     } catch (err) {
+      toast.error('Invalid credentials !', {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Bounce,
+        });
       setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setIsLoading(false);
     }
 
   };
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900">
-
+    <ToastContainer
+      position="top-right"
+      autoClose={5000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick={false}
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme="dark"
+      transition={Bounce}
+    />
       {/* Animated Plane Shapes */}
       <div className="absolute inset-0">
         {/* Plane 1 */}
@@ -139,6 +178,7 @@ export default function LoginPage() {
                 {isLoading ? <Spinner /> : 'Login'}
               </button>
             </form>
+
             <div className="mt-6 text-center">
               <a href="#" className="text-slate-400 hover:text-orange-400 text-sm transition-colors duration-300">
                 Forgot your password?

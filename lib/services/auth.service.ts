@@ -28,10 +28,11 @@ export const authService = {
 
  async logout(): Promise<void> {
      try {
-        await fetch(`${API_BASE_URL}/auth/logout`, {
+        const response =await fetch(`${API_BASE_URL}/auth/logout`, {
            method: 'POST',
            credentials: 'include', 
         });
+        console.log('Logout response:', response);
      }  catch (error) {
         throw new Error('Logout failed');
     }
@@ -39,11 +40,11 @@ export const authService = {
 
    async checkAuth(): Promise<{ authenticated: boolean; userId?: string }> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/check`, {
+      const response = await fetch(`${API_BASE_URL}/auth/check`, {
         method: 'GET',
         credentials: 'include' // For cookie-based auth
       });
-
+      console.log('Auth check response:', response);
       if (!response.ok) {
         return { authenticated: false };
       }
