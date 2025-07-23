@@ -5,8 +5,8 @@ import {
   Package,
   Mail,
   BarChart3,
-  Settings,
-  LogOut
+  LogOut,
+  User
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -18,7 +18,7 @@ const sidebarItems = [
   { id: 'offers', label: 'Offers', icon: Package },
   { id: 'contacts', label: 'Contacts', icon: Mail },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-  { id: 'settings', label: 'Settings', icon: Settings },
+  { id: 'users', label: 'Users', icon: User },
 ]
 
 export default function Sidebar() {
