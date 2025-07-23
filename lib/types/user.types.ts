@@ -1,8 +1,16 @@
+export interface UserDataFetch {
+  id: string;
+  username: string;
+  Email: string;
+  phone?: string;
+  createdAt: string;
+}
 export interface UserData {
   id: string;
   username: string;
   Email: string;
   phone?: string;
+  password:string;
   createdAt: string;
 }
 
@@ -22,7 +30,7 @@ export interface PaginatedResponse<T> {
 }
 
 export interface UserServices {
-  getUsers: (params: QueryParams) => Promise<PaginatedResponse<UserData>>;
+  getUsers: (params: QueryParams) => Promise<PaginatedResponse<UserDataFetch>>;
   createUser: (user: Omit<UserData, 'id' | 'createdAt'>) => Promise<UserData>;
   updateUser: (id: string, user: Partial<Omit<UserData, 'id' | 'createdAt'>>) => Promise<UserData>;
   deleteUser: (id: string) => Promise<void>;

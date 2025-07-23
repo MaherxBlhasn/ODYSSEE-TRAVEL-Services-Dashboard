@@ -1,9 +1,10 @@
-import { UserData, QueryParams, PaginatedResponse, UserServices } from '@/lib/types/user.types';
+import { UserDataFetch , UserData , QueryParams, PaginatedResponse, UserServices } from '@/lib/types/user.types';
+import { cp } from 'fs';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ;
 
-export const userServices: UserServices = {
-  async getUsers(params: QueryParams): Promise<PaginatedResponse<UserData>> {
+export const userService: UserServices = {
+  async getUsers(params: QueryParams): Promise<PaginatedResponse<UserDataFetch>> {
     try {
       // Convert params to URL query string
       const queryParams = new URLSearchParams();
@@ -42,7 +43,10 @@ export const userServices: UserServices = {
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to create user: ${response.statusText}`);
+        const errorData = await response.json();
+        console.log("FULL ERROR RESPONSE: ", errorData);
+
+        throw new Error(errorData.message);
       }
 
       return await response.json();

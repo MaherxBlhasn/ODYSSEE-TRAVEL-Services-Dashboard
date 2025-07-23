@@ -5,14 +5,14 @@ import { Plus } from 'lucide-react';
 import { DataTable } from '@/components/ui/data-table';
 import { SearchBar } from '@/components/ui/search-bar';
 import { Pagination } from '@/components/ui/pagination';
-import { Modal } from '@/components/ui/modal';
-import { UserForm } from '@/components/ui/user-form';
-import { UserData } from '@/lib/types/user.types';
-import { userServices } from '@/lib/services/user.services';
-
+import { UserDataFetch , UserData } from '@/lib/types/user.types';
+import { userService } from '@/lib/services/user.services';
+import { useRouter } from 'next/navigation'
+import { Bounce, toast, ToastContainer } from 'react-toastify';
 export default function UsersPage() {
+
   // State management
-  const [users, setUsers] = useState<UserData[]>([]);
+  const [users, setUsers] = useState<UserDataFetch[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,34 +21,31 @@ export default function UsersPage() {
   const [itemsPerPage] = useState(5);
   const [sortField, setSortField] = useState<'Email' | 'username' | 'createdAt'>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editingUser, setEditingUser] = useState<UserData | null>(null);
-
+  const router = useRouter();
   // Table columns configuration
   const columns = [
     {
       key: 'username' as const,
       label: 'Username',
       sortable: true,
-      render: (user: UserData) => <div className="font-medium text-gray-900">{user.username}</div>
+      render: (user: UserDataFetch) => <div className="font-medium text-gray-900">{user.username}</div>
     },
     {
       key: 'Email' as const,
       label: 'Email',
       sortable: true,
-      render: (user: UserData) => <div className="text-gray-600">{user.Email}</div>
+      render: (user: UserDataFetch) => <div className="text-gray-600">{user.Email}</div>
     },
     {
       key: 'phone' as const,
       label: 'Phone',
-      render: (user: UserData) => <div className="text-gray-600">{user.phone || '-'}</div>
+      render: (user: UserDataFetch) => <div className="text-gray-600">{user.phone || '-'}</div>
     },
     {
       key: 'createdAt' as const,
       label: 'Created At',
       sortable: true,
-      render: (user: UserData) => (
+      render: (user: UserDataFetch) => (
         <div className="text-gray-600">{new Date(user.createdAt).toLocaleString()}</div>
       )
     },
@@ -70,7 +67,7 @@ export default function UsersPage() {
         sortOrder: sortDirection
       };
 
-      const response = await userServices.getUsers(params);
+      const response = await userService.getUsers(params);
       console.log('responce :',response)
       setUsers(response.data);
       setTotalPages(response.totalPages);
@@ -108,40 +105,31 @@ export default function UsersPage() {
   };
 
   // CRUD Operations
-  const handleAddUser = async (userData: Omit<UserData, 'id' | 'createdAt'>) => {
-    try {
-      await userServices.createUser(userData);
-      setShowAddModal(false);
-      fetchUsers(); // Refresh the list
-    } catch (error) {
-      console.error('Error creating user:', error);
-      // TODO: Add error notification
-    }
+  const handleAddUser =  () => {
+    router.push('/dashboard/users/create');
   };
 
-  const handleEditUser = (user: UserData) => {
-    setEditingUser(user);
-    setShowEditModal(true);
+  const handleEditUser = (user: UserDataFetch) => {
+    router.push(`/dashboard/users/edit/${user.id}`);
+
   };
 
-  const handleUpdateUser = async (userData: Omit<UserData, 'id' | 'createdAt'>) => {
-    if (!editingUser) return;
-    
-    try {
-      await userServices.updateUser(editingUser.id, userData);
-      setShowEditModal(false);
-      setEditingUser(null);
-      fetchUsers(); // Refresh the list
-    } catch (error) {
-      console.error('Error updating user:', error);
-      // TODO: Add error notification
-    }
-  };
 
-  const handleDeleteUser = async (user: UserData) => {
+  const handleDeleteUser = async (user: UserDataFetch) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
-        await userServices.deleteUser(user.id);
+        await userService.deleteUser(user.id);
+          toast.success('User deleted Successfully!', {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+            });
         fetchUsers(); // Refresh the list
       } catch (error) {
         console.error('Error deleting user:', error);
@@ -154,7 +142,19 @@ export default function UsersPage() {
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-2xl font-semibold text-gray-900 mb-6">Users Management</h1>
-        
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          transition={Bounce}
+          />
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           {/* Header with search and add button */}
           <div className="p-6 border-b border-gray-200">
@@ -166,7 +166,7 @@ export default function UsersPage() {
                 placeholder="Search users..."
               />
               <button
-                onClick={() => setShowAddModal(true)}
+                onClick={handleAddUser}
                 className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
               >
                 <Plus className="w-5 h-5" />
@@ -196,24 +196,6 @@ export default function UsersPage() {
             onPageChange={handlePageChange}
           />
         </div>
-
-        {/* Modals */}
-        <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)} title="Add User">
-          <UserForm 
-            onSubmit={handleAddUser} 
-            onCancel={() => setShowAddModal(false)} 
-          />
-        </Modal>
-
-        <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title="Edit User">
-          {editingUser && (
-            <UserForm 
-              user={editingUser}
-              onSubmit={handleUpdateUser} 
-              onCancel={() => setShowEditModal(false)} 
-            />
-          )}
-        </Modal>
       </div>
     </div>
   );
