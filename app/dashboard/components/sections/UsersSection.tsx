@@ -6,7 +6,7 @@ import { DataTable } from '@/components/ui/data-table';
 import { SearchBar } from '@/components/ui/search-bar';
 import { Pagination } from '@/components/ui/pagination';
 import { UserDataFetch , UserData } from '@/lib/types/user.types';
-import { userService } from '@/lib/services/user.services';
+import { userService } from '@/lib/services/user.service';
 import { useRouter } from 'next/navigation'
 import { Bounce, toast, ToastContainer } from 'react-toastify';
 export default function UsersPage() {

@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { userSchema } from '@/lib/validations/user.validations';
-import { userService } from '@/lib/services/user.services';
+import { userService } from '@/lib/services/user.service';
 import { ArrowLeft, User, Mail, Phone, Lock } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
