@@ -96,6 +96,27 @@ export const userService: UserServices = {
       console.error('Error deleting user:', error);
       throw error;
     }
+  },
+
+  async getUserById(id :string):Promise<UserDataFetch>{
+    try{
+        const response = await fetch(`${API_BASE_URL}/users/${id}`,{
+          method:'GET',
+          credentials: 'include',
+        });
+
+        if(!response.ok){
+          const error = await response.json();
+          throw new Error("Failed to fech user by ID :",error.error);
+        }
+
+        const user: UserDataFetch = await response.json();
+        return user;
+    } catch (error:any){
+      console.error("Error in getUserById:",error.message);;
+      throw error;
+    }
+     
   }
 };
 

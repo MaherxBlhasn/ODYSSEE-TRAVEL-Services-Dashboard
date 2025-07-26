@@ -34,4 +34,5 @@ export interface UserServices {
   createUser: (user: Omit<UserData, 'id' | 'createdAt'>) => Promise<UserData>;
   updateUser: (id: string, user: Partial<Omit<UserData, 'id' | 'createdAt'>>) => Promise<UserData>;
   deleteUser: (id: string) => Promise<void>;
+  getUserById:(id: string) => Promise<UserDataFetch>;
 }
