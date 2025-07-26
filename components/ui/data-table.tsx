@@ -1,5 +1,5 @@
-import React from 'react';
-import { Edit, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import React, { useState } from 'react';
+import { Edit, Trash2, ChevronUp, ChevronDown, MoreHorizontal } from 'lucide-react';
 
 interface DataTableProps<T> {
   data: T[];
@@ -8,6 +8,7 @@ interface DataTableProps<T> {
     label: string;
     sortable?: boolean;
     render?: (item: T) => React.ReactNode;
+    hideOnMobile?: boolean;
   }>;
   onSort?: (field: string) => void;
   sortField?: string;
@@ -27,6 +28,8 @@ export function DataTable<T extends { id: string }>({
   onDelete,
   loading = false
 }: DataTableProps<T>) {
+  const [expandedRow, setExpandedRow] = useState<string | null>(null);
+
   const SortButton = ({ field, children }: { field: string, children: React.ReactNode }) => (
     <button
       onClick={() => onSort?.(field)}
@@ -54,7 +57,8 @@ export function DataTable<T extends { id: string }>({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full">
+      {/* Desktop Table */}
+      <table className="w-full hidden md:table">
         <thead className="bg-gray-50">
           <tr>
             {columns.map((column) => (
@@ -105,6 +109,74 @@ export function DataTable<T extends { id: string }>({
           ))}
         </tbody>
       </table>
+
+      {/* Mobile Cards */}
+      <div className="md:hidden space-y-3">
+        {data.map((item) => (
+          <div key={item.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="flex justify-between items-start">
+              <div>
+                {columns.filter(c => !c.hideOnMobile).map((column) => (
+                  column.key !== 'actions' && (
+                    <div key={String(column.key)} className="mb-2 last:mb-0">
+                      <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {column.label}
+                      </div>
+                      <div className="text-gray-900">
+                        {column.render ? column.render(item) : String(item[column.key as keyof T] || '-')}
+                      </div>
+                    </div>
+                  )
+                ))}
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setExpandedRow(expandedRow === item.id ? null : item.id)}
+                  className="p-1 text-gray-500 hover:text-gray-700"
+                >
+                  <MoreHorizontal className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {expandedRow === item.id && (
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                {columns.filter(c => c.hideOnMobile).map((column) => (
+                  <div key={String(column.key)} className="mb-2 last:mb-0">
+                    <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {column.label}
+                    </div>
+                    <div className="text-gray-900">
+                      {column.render ? column.render(item) : String(item[column.key as keyof T] || '-')}
+                    </div>
+                  </div>
+                ))}
+
+                <div className="flex justify-end space-x-2 mt-3">
+                  {onEdit && (
+                    <button
+                      onClick={() => onEdit(item)}
+                      className="px-3 py-1 bg-blue-600 text-white rounded text-sm flex items-center"
+                    >
+                      <Edit className="w-3 h-3 mr-1" />
+                      Edit
+                    </button>
+                  )}
+                  {onDelete && (
+                    <button
+                      onClick={() => onDelete(item)}
+                      className="px-3 py-1 bg-red-600 text-white rounded text-sm flex items-center"
+                    >
+                      <Trash2 className="w-3 h-3 mr-1" />
+                      Delete
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

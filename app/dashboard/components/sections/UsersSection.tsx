@@ -23,37 +23,40 @@ export default function UsersPage() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const router = useRouter();
   // Table columns configuration
-  const columns = [
-    {
-      key: 'username' as const,
-      label: 'Username',
-      sortable: true,
-      render: (user: UserDataFetch) => <div className="font-medium text-gray-900">{user.username}</div>
-    },
-    {
-      key: 'Email' as const,
-      label: 'Email',
-      sortable: true,
-      render: (user: UserDataFetch) => <div className="text-gray-600">{user.Email}</div>
-    },
-    {
-      key: 'phone' as const,
-      label: 'Phone',
-      render: (user: UserDataFetch) => <div className="text-gray-600">{user.phone || '-'}</div>
-    },
-    {
-      key: 'createdAt' as const,
-      label: 'Created At',
-      sortable: true,
-      render: (user: UserDataFetch) => (
-        <div className="text-gray-600">{new Date(user.createdAt).toLocaleString()}</div>
-      )
-    },
-    {
-      key: 'actions' as const,
-      label: 'Actions'
-    }
-  ];
+const columns = [
+  {
+    key: 'username' as const,
+    label: 'Username',
+    sortable: true,
+    render: (user: UserDataFetch) => <div className="font-medium text-gray-900">{user.username}</div>
+  },
+  {
+    key: 'Email' as const,
+    label: 'Email',
+    sortable: true,
+    hideOnMobile: true,
+    render: (user: UserDataFetch) => <div className="text-gray-600">{user.Email}</div>
+  },
+  {
+    key: 'phone' as const,
+    label: 'Phone',
+    hideOnMobile: true,
+    render: (user: UserDataFetch) => <div className="text-gray-600">{user.phone || '-'}</div>
+  },
+  {
+    key: 'createdAt' as const,
+    label: 'Created At',
+    sortable: true,
+    hideOnMobile: true,
+    render: (user: UserDataFetch) => (
+      <div className="text-gray-600">{new Date(user.createdAt).toLocaleString()}</div>
+    )
+  },
+  {
+    key: 'actions' as const,
+    label: 'Actions'
+  }
+];
 
   // Fetch users from API
   const fetchUsers = async () => {
