@@ -1,6 +1,6 @@
 'use client';
 
-import { useState , useEffect, useCallback } from "react";
+import { useState , useEffect } from "react";
 import { DataTable } from '@/components/ui/data-table';
 import { SearchBar } from '@/components/ui/search-bar';
 import { Pagination } from '@/components/ui/pagination';
@@ -63,34 +63,34 @@ export default function ContactsSection() {
     ];
 
     // Fetch contacts from API
-const fetchContacts = useCallback(async () => {
-  setLoading(true);
-  try {
-    const params = {
-      search: searchTerm,
-      page: currentPage,
-      limit: itemsPerPage,
-      sortBy: sortField,
-      sortOrder: sortDirection,
+    const fetchContacts = async () => {
+      setLoading(true);
+      try {
+        const params = {
+          search: searchTerm,
+          page: currentPage,
+          limit: itemsPerPage,
+          sortBy: sortField,
+          sortOrder: sortDirection
+        };
+  
+        const response = await contactService.getContacts(params);
+        console.log('responce :',response)
+        setContacts(response.data);
+        setTotalPages(response.totalPages);
+        setTotalItems(response.total);
+      } catch (error) {
+        console.error('Error fetching contacts:', error);
+        // TODO: Add error notification
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const response = await contactService.getContacts(params);
-    console.log('response:', response);
-    setContacts(response.data);
-    setTotalPages(response.totalPages);
-    setTotalItems(response.total);
-  } catch (error) {
-    console.error('Error fetching contacts:', error);
-    // TODO: Add error notification
-  } finally {
-    setLoading(false);
-  }
-}, [searchTerm, currentPage, itemsPerPage, sortField, sortDirection]);
-
-  // Initial load and when dependencies change
+      // Initial load and when dependencies change
   useEffect(() => {
     fetchContacts();
-  }, [fetchContacts]);
+  }, [currentPage, sortField, sortDirection]);
 
    // Handlers
   const handleSearch = () => {
