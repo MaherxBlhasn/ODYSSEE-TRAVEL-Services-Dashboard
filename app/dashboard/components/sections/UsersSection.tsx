@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react';
 import { DataTable } from '@/components/ui/data-table';
 import { SearchBar } from '@/components/ui/search-bar';
 import { Pagination } from '@/components/ui/pagination';
-import { UserDataFetch , UserData } from '@/lib/types/user.types';
+import { UserDataFetch } from '@/lib/types/user.types';
 import { userService } from '@/lib/services/user.service';
 import { useRouter } from 'next/navigation'
 import { Bounce, toast, ToastContainer } from 'react-toastify';

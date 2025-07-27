@@ -6,7 +6,6 @@ import { SearchBar } from '@/components/ui/search-bar';
 import { Pagination } from '@/components/ui/pagination';
 import { ContactDataFetch} from '@/lib/types/contact.types';
 import { contactService } from "@/lib/services/contact.service";
-import { useRouter } from 'next/navigation'
 import { Bounce, toast, ToastContainer } from 'react-toastify';
 
 

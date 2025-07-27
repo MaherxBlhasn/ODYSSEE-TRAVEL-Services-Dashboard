@@ -25,7 +25,6 @@ const CreateUserPage: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
-    reset
   } = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
     defaultValues: {

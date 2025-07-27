@@ -3,14 +3,12 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { z } from 'zod';
-import { userSchema , updateUserSchema } from '@/lib/validations/user.validations';
+import { updateUserSchema } from '@/lib/validations/user.validations';
 import { userService } from '@/lib/services/user.service';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Bounce, toast, ToastContainer } from 'react-toastify';
 import { ArrowLeft, User, Mail, Phone, Lock } from 'lucide-react';
-
-type UserFormData = z.infer<typeof userSchema>;
 
 const EditUserPage: React.FC = () => {
   const router = useRouter();
