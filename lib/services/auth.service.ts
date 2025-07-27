@@ -33,8 +33,8 @@ export const authService = {
            credentials: 'include', 
         });
         console.log('Logout response:', response);
-     }  catch (error) {
-        throw new Error('Logout failed');
+     }  catch {
+        throw new Error('Logout failed:',);
     }
  } ,
 

@@ -111,9 +111,14 @@ export const userService: UserServices = {
 
         const user: UserDataFetch = await response.json();
         return user;
-    } catch (error:any){
-      console.error("Error in getUserById:",error.message);;
-      throw error;
+    } catch (error:unknown){
+        if (error instanceof Error) {
+          console.error("Error in getUserById:", error.message);
+          throw error;
+        } else {
+          console.error("Unknown error in getUserById:", error);
+          throw new Error("An unknown error occurred");
+        }
     }
      
   }

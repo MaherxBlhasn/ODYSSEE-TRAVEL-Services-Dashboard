@@ -40,7 +40,7 @@ export default function LoginPage() {
       const response = await authService.login({ Email: email, password: password });
       console.log('response handlelogin:', response);
       router.push('/dashboard');
-    } catch (err) {
+    } catch {
       toast.error('Invalid credentials !', {
         position: "top-right",
         autoClose: 5000,

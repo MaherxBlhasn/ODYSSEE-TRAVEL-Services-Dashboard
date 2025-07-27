@@ -57,7 +57,7 @@ const EditUserPage: React.FC = () => {
           password: '',
           confirmPassword: '',
         });
-      } catch (err) {
+      } catch {
         toast.error("Failed to fetch user.");
         setSubmitError("Failed to fetch user data");
       } finally {
