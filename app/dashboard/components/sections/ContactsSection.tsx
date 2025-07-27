@@ -1,7 +1,6 @@
 'use client';
 
 import { useState , useEffect } from "react";
-import { Plus } from 'lucide-react';
 import { DataTable } from '@/components/ui/data-table';
 import { SearchBar } from '@/components/ui/search-bar';
 import { Pagination } from '@/components/ui/pagination';
@@ -21,7 +20,6 @@ export default function ContactsSection() {
   const [itemsPerPage] = useState(5);
   const [sortField, setSortField] = useState<'Email' | 'name' | 'familyName'| 'messageSentAt' | 'phone'>('messageSentAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  const router = useRouter();
   // Table columns configuration
     const columns = [
       {
