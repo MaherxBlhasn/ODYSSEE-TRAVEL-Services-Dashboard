@@ -121,7 +121,7 @@ export default function ResetPasswordPage() {
           router.push('/login');
         }, 3000);
       }
-    } catch (err) {
+    } catch {
       toast.error('Failed to reset password. Please try again.', {
         position: "top-right",
         autoClose: 5000,
@@ -171,7 +171,7 @@ export default function ResetPasswordPage() {
               <>
                 <h2 className="text-xl font-semibold text-white mb-6">Set New Password</h2>
                 <p className="text-slate-300 text-sm mb-8">
-                  Enter your new password below. Make sure it's strong and secure.
+                  Enter your new password below. Make sure it&apos;s strong and secure.
                 </p>
                 
                 <form className="space-y-6" onSubmit={handleResetPassword}>

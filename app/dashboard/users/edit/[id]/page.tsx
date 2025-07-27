@@ -262,7 +262,7 @@ const EditUserPage: React.FC = () => {
                   />
                   <span className="text-sm font-medium text-gray-700">Change Password</span>
                 </label>
-                <p className="text-xs text-gray-500 mt-1">Check this box if you want to update the user's password</p>
+                <p className="text-xs text-gray-500 mt-1">Check this box if you want to update the user&apos;s password</p>
               </div>
 
               {isPasswordEditable && (

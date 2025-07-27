@@ -13,7 +13,7 @@ import LoginAnimation from '@/components/ui/loginAnimation';
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  // const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -33,7 +33,7 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    // setError('');
 
     // Your login logic here
     try {
@@ -52,7 +52,7 @@ export default function LoginPage() {
         theme: "dark",
         transition: Bounce,
         });
-      setError(err instanceof Error ? err.message : 'Login failed');
+      // setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setIsLoading(false);
     }

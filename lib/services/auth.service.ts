@@ -1,4 +1,4 @@
-import { AuthResponse, LoginCredentials , UserData} from '../types/auth.types';
+import { AuthResponse, LoginCredentials} from '../types/auth.types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 

@@ -1,5 +1,4 @@
 import { UserDataFetch , UserData , QueryParams, PaginatedResponse, UserServices } from '@/lib/types/user.types';
-import { cp } from 'fs';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ;
 

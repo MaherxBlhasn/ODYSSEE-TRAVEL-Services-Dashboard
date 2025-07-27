@@ -41,7 +41,7 @@ export default function RequestResetPage() {
           transition: Bounce,
         });
       }
-    } catch (err) {
+    } catch {
       toast.error('Failed to send reset link. Please try again.', {
         position: "top-center",
         autoClose: 5000,
@@ -91,7 +91,7 @@ export default function RequestResetPage() {
               <>
                 <h2 className="text-xl font-semibold text-white mb-6">Reset Password</h2>
                 <p className="text-slate-300 text-sm mb-8">
-                  Enter your email address and we'll send you a link to reset your password.
+                  Enter your email address and we&apos;ll send you a link to reset your password.
                 </p>
                     {/* 👇 Show the error if exists */}
                 {formError && (
@@ -130,7 +130,7 @@ export default function RequestResetPage() {
                 </div>
                 <h2 className="text-xl font-semibold text-white mb-4">Check Your Email</h2>
                 <p className="text-slate-300 text-sm mb-8">
-                  We've sent a password reset link to your email address. Please check your inbox and follow the instructions to reset your password.
+                  We&apos;ve sent a password reset link to your email address. Please check your inbox and follow the instructions to reset your password.
                 </p>
               </div>
             )}

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Button, Spin } from 'antd';
+import { Spin } from 'antd';
 
 
 const FullScreenSpinner = () => {
