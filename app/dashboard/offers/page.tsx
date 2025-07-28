@@ -1,4 +1,5 @@
-import OffersSection from '../components/sections/OffersSection'
+import OffersSection from "../components/offers/OffersSection";
+
 
 export default function OffersPage() {
   return <OffersSection />
