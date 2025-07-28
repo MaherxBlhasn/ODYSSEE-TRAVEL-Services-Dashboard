@@ -2,6 +2,7 @@
 
 import { useRef } from 'react'
 import { Upload, X, Image as ImageIcon } from 'lucide-react'
+import ImageWithFallback from '../../../../../components/ui/ImageWithFallback'
 
 interface MainImageUploadProps {
   mainImage: string
@@ -38,9 +39,11 @@ export default function MainImageUpload({ mainImage, setMainImage, validationErr
       
       {mainImage ? (
         <div className="relative">
-          <img
+          <ImageWithFallback
             src={mainImage}
             alt="Main offer image"
+            width={400}
+            height={192}
             className="w-full h-48 object-cover rounded-xl border-2 border-gray-200"
           />
           <button

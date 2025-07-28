@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, MapPin, Calendar, Star, Users, Clock, Camera } from 'lucide-react'
+import { ArrowLeft, MapPin, Calendar, Star, Clock, Camera } from 'lucide-react'
 import Image from 'next/image'
 import { useOffers } from '../../components/offers/context/OffersContext'
 
@@ -21,6 +21,19 @@ interface DetailedOffer {
   updatedAt?: string
 }
 
+interface LocalOffer {
+  id: number
+  title: string
+  destination: string
+  duration: string
+  image: string
+  description: string
+  shortDescription: string
+  rating: number
+  available: boolean
+  additionalImages?: string[]
+}
+
 export default function OfferDetailPage() {
   return <OfferDetailContent />
 }
@@ -28,7 +41,7 @@ export default function OfferDetailPage() {
 function OfferDetailContent() {
   const params = useParams()
   const router = useRouter()
-  const { getOfferById, offers } = useOffers()
+  const { offers } = useOffers()
   const [offer, setOffer] = useState<DetailedOffer | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
@@ -71,7 +84,7 @@ function OfferDetailContent() {
           // If context is empty, load from local data as fallback
           const { offers: localOffers } = await import('../../data')
           console.log('Local offers loaded:', localOffers)
-          foundOffer = localOffers.find((o: any) => o.id === numericId)
+          foundOffer = localOffers.find((o: LocalOffer) => o.id === numericId)
           console.log('Found offer in local data:', foundOffer)
         }
         

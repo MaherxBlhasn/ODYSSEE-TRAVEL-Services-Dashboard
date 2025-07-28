@@ -36,8 +36,8 @@ export const offerSchema = z.object({
 
 // Schema for creating offer with images
 export const createOfferSchema = offerSchema.extend({
-  mainImage: z.any().optional(), // File validation will be handled separately
-  additionalImages: z.array(z.any()).optional(),
+  mainImage: z.unknown().optional(), // File validation will be handled separately
+  additionalImages: z.array(z.unknown()).optional(),
 });
 
 // Type definitions
@@ -45,11 +45,11 @@ export type OfferFormData = z.infer<typeof offerSchema>;
 export type CreateOfferData = z.infer<typeof createOfferSchema>;
 
 // Validation helper functions
-export const validateOffer = (data: any) => {
+export const validateOffer = (data: unknown) => {
   return offerSchema.safeParse(data);
 };
 
-export const validateCreateOffer = (data: any) => {
+export const validateCreateOffer = (data: unknown) => {
   return createOfferSchema.safeParse(data);
 };
 

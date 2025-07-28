@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { validateOffer, validateImageFile, validateImages } from '../../../../../lib/validations/offer.validations'
 import { offerService } from '../../../../../lib/services/offer.service'
 import { NewOffer, ValidationErrors } from '../types'
-import { ZodError } from 'zod'
 
 interface UseOfferFormProps {
   onSuccess: () => void

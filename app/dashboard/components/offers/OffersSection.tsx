@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { offers as initialOffers } from '../../data'
 import { offerService } from '../../../../lib/services/offer.service'
 import { useOfferForm } from './hooks/useOfferForm'
-import { Offer, NewOffer, ApiOffer, apiOfferToOffer } from './types'
+import { NewOffer, ApiOffer, apiOfferToOffer } from './types'
 import TabNavigation from './components/TabNavigation'
 import OffersGrid from './components/OffersGrid'
 import OfferForm from './components/OfferForm'
@@ -63,7 +63,7 @@ function OffersContent() {
   })
 
   // Fetch offers from backend
-  const fetchOffers = async () => {
+  const fetchOffers = useCallback(async () => {
     setIsLoadingOffers(true)
     try {
       const apiOffers: ApiOffer[] = await offerService.getOffers()
@@ -98,12 +98,12 @@ function OffersContent() {
     } finally {
       setIsLoadingOffers(false)
     }
-  }
+  }, [setOffers])
 
   // Load offers on component mount
   useEffect(() => {
     fetchOffers()
-  }, [])
+  }, [fetchOffers])
 
   const handleAddOffer = async () => {
     clearValidationErrors()

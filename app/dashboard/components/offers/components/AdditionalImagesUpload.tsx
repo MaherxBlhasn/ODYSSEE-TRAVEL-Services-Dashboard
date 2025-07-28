@@ -2,6 +2,7 @@
 
 import { useRef } from 'react'
 import { Upload, X, Image as ImageIcon } from 'lucide-react'
+import ImageWithFallback from '../../../../../components/ui/ImageWithFallback'
 
 interface AdditionalImagesUploadProps {
   additionalImages: string[]
@@ -74,9 +75,11 @@ export default function AdditionalImagesUpload({
           <div className="grid grid-cols-2 gap-3">
             {additionalImages.map((image, index) => (
               <div key={index} className="relative group">
-                <img
+                <ImageWithFallback
                   src={image}
                   alt={`Additional ${index + 1}`}
+                  width={400}
+                  height={80}
                   className="w-full h-20 object-cover rounded-lg border-2 border-gray-200 group-hover:border-orange-400 transition-colors"
                 />
                 <button
