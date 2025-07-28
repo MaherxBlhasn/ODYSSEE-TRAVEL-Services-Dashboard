@@ -98,6 +98,31 @@ export const offerService = {
     },
 
     /**
+     * Get offer by ID
+     */
+    async getOfferById(id: string): Promise<CreateOfferResponse> {
+        try {
+            const response = await fetch(`${API_BASE_URL}/offers/${id}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                const errorData: ApiError = await response.json();
+                throw new Error(errorData.details || errorData.error || 'Failed to fetch offer');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Fetch offer by ID failed:', error);
+            throw new Error(error instanceof Error ? error.message : 'Failed to fetch offer');
+        }
+    },
+
+    /**
      * Update an existing offer
      */
     async updateOffer(

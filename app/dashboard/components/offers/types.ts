@@ -8,8 +8,10 @@ export interface Offer {
   duration: string
   image: string
   description: string
+  shortDescription?: string
   rating: number
   available: boolean
+  additionalImages?: string[]
 }
 
 // Backend API response types
@@ -79,7 +81,9 @@ export const apiOfferToOffer = (apiOffer: ApiOffer): Offer => {
     duration: apiOffer.duration?.toString() || '0',
     image: getImageUrl(apiOffer.mainImageUrl),
     description: apiOffer.bigDescription || apiOffer.shortDescription || 'No description available',
+    shortDescription: apiOffer.shortDescription || 'No short description available',
     rating: apiOffer.stars || 5,
-    available: apiOffer.available ?? true
+    available: apiOffer.available ?? true,
+    additionalImages: apiOffer.imageUrls?.map(getImageUrl) || []
   }
 }

@@ -10,9 +10,10 @@ import OffersGrid from './components/OffersGrid'
 import OfferForm from './components/OfferForm'
 import MainImageUpload from './components/MainImageUpload'
 import AdditionalImagesUpload from './components/AdditionalImagesUpload'
+import { useOffers } from './context/OffersContext'
 
-export default function OffersSection() {
-  const [offers, setOffers] = useState<Offer[]>(initialOffers)
+function OffersContent() {
+  const { offers, setOffers } = useOffers()
   const [activeTab, setActiveTab] = useState<'offers' | 'add-offer'>('offers')
   const [mainImage, setMainImage] = useState<string>('')
   const [additionalImages, setAdditionalImages] = useState<string[]>([])
@@ -27,6 +28,13 @@ export default function OffersSection() {
     bigDescription: '',
     stars: 5
   })
+
+  // Initialize offers with local data
+  useEffect(() => {
+    if (offers.length === 0) {
+      setOffers(initialOffers)
+    }
+  }, [offers.length, setOffers])
 
   // Use the custom hook for form validation and submission
   const { isLoading, validationErrors, submitOffer, clearValidationErrors } = useOfferForm({
@@ -210,4 +218,8 @@ export default function OffersSection() {
       )}
     </div>
   )
+}
+
+export default function OffersSection() {
+  return <OffersContent />
 }

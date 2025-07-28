@@ -1,7 +1,8 @@
 'use client'
 
-import { MapPin, Calendar, Star, Trash2 } from 'lucide-react'
+import { MapPin, Calendar, Star, Trash2, Eye } from 'lucide-react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 interface Offer {
   id: number
@@ -10,6 +11,7 @@ interface Offer {
   duration: string
   image: string
   description: string
+  shortDescription?: string
   rating: number
   available: boolean
 }
@@ -21,7 +23,13 @@ interface OfferCardProps {
 }
 
 export default function OfferCard({ offer, onDelete, onToggleStatus }: OfferCardProps) {
+  const router = useRouter()
   console.log('Rendering OfferCard for:', offer)
+  
+  // Use shortDescription if available, otherwise truncate description
+  const displayDescription = offer.shortDescription || 
+    (offer.description.length > 100 ? `${offer.description.substring(0, 100)}...` : offer.description)
+  
   // Provide fallback for missing images
   const imageSrc = offer.image && offer.image.trim() !== '' 
     ? offer.image 
@@ -59,13 +67,20 @@ export default function OfferCard({ offer, onDelete, onToggleStatus }: OfferCard
           <Calendar className="w-4 h-4" />
           <span className="text-sm">{offer.duration} days</span>
         </div>
-        <p className="text-gray-600 text-sm mb-4">{offer.description}</p>
+        <p className="text-gray-600 text-sm mb-4">{displayDescription}</p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1">
             <Star className="w-4 h-4 text-yellow-400 fill-current" />
             <span className="text-sm text-gray-600">{offer.rating}</span>
           </div>
           <div className="flex gap-2">
+            <button
+              onClick={() => router.push(`/dashboard/offers/${offer.id}`)}
+              className="px-3 py-1 text-sm rounded-lg transition-colors bg-blue-100 text-blue-700 hover:bg-blue-200 flex items-center gap-1"
+            >
+              <Eye className="w-3 h-3" />
+              Details
+            </button>
             <button
               onClick={() => onToggleStatus(offer.id)}
               className={`px-3 py-1 text-sm rounded-lg transition-colors ${
