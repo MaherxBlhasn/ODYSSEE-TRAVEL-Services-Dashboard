@@ -90,28 +90,29 @@ export default function OfferForm({
           </FormField>
         </div>
         
-        {/* Price & Duration */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField label="Price" required error={validationErrors.price}>
-            <input
-              type="text"
-              placeholder="1299"
-              value={newOffer.price}
-              onChange={(e) => setNewOffer({...newOffer, price: e.target.value})}
-              className={getInputClassName('price')}
-              disabled={isLoading}
-            />
-          </FormField>
-          
-          <FormField label="Duration (days)" required error={validationErrors.duration}>
-            <input
-              type="text"
-              placeholder="7"
-              value={newOffer.duration}
-              onChange={(e) => setNewOffer({...newOffer, duration: e.target.value})}
-              className={getInputClassName('duration')}
-              disabled={isLoading}
-            />
+        {/* Duration */}
+        <div className="max-w-md">
+          <FormField label="Duration" required error={validationErrors.duration}>
+            <div className="relative">
+              <input
+                type="number"
+                min="1"
+                max="365"
+                placeholder="7"
+                value={newOffer.duration}
+                onChange={(e) => setNewOffer({...newOffer, duration: e.target.value})}
+                className={`${getInputClassName('duration')} pr-16`}
+                disabled={isLoading}
+              />
+              <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                <span className="text-gray-500 text-sm font-medium bg-gray-50 px-2 py-1 rounded-md border">
+                  days
+                </span>
+              </div>
+            </div>
+            <p className="mt-2 text-xs text-gray-500">
+              Enter the number of days for this travel offer
+            </p>
           </FormField>
         </div>
 

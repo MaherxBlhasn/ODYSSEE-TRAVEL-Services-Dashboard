@@ -75,21 +75,6 @@ export default function MainImageUpload({ mainImage, setMainImage, validationErr
         onChange={handleMainImageUpload}
         className="hidden"
       />
-      
-      {/* URL Input */}
-      <div className="mt-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Or paste main image URL
-        </label>
-        <input
-          type="url"
-          placeholder="https://example.com/main-image.jpg"
-          value={mainImage}
-          onChange={(e) => setMainImage(e.target.value)}
-          className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-        />
-      </div>
-      
       {/* Validation Error */}
       {validationError && (
         <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">

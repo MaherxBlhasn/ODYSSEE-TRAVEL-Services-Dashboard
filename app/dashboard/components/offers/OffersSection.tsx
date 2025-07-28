@@ -22,7 +22,6 @@ export default function OffersSection() {
   const [newOffer, setNewOffer] = useState<NewOffer>({
     title: '',
     destination: '',
-    price: '',
     duration: '',
     shortDescription: '',
     bigDescription: '',
@@ -36,7 +35,6 @@ export default function OffersSection() {
       setNewOffer({
         title: '',
         destination: '',
-        price: '',
         duration: '',
         shortDescription: '',
         bigDescription: '',

@@ -5,7 +5,6 @@ export interface Offer {
   id: number
   title: string
   destination: string
-  price: string
   duration: string
   image: string
   description: string
@@ -17,10 +16,10 @@ export interface Offer {
 export interface ApiOffer {
   id: string
   title: string
+  destination: string
   shortDescription: string
   bigDescription: string
   stars: number
-  price: number
   duration: number
   mainImageUrl: string
   imageUrls: string[]
@@ -33,7 +32,6 @@ export interface ApiOffer {
 export interface NewOffer {
   title: string
   destination: string
-  price: string
   duration: string
   shortDescription: string
   bigDescription: string
@@ -46,6 +44,9 @@ export interface ValidationErrors {
 }
 
 export type TabType = 'offers' | 'add-offer'
+
+// Global counter for generating unique IDs
+let idCounter = Date.now()
 
 // Helper function to convert API offer to display offer
 export const apiOfferToOffer = (apiOffer: ApiOffer): Offer => {
@@ -66,11 +67,15 @@ export const apiOfferToOffer = (apiOffer: ApiOffer): Offer => {
     return `${backendUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`
   }
   
+  // Generate unique ID - increment counter to avoid duplicates
+  const generateUniqueId = (): number => {
+    return ++idCounter
+  }
+  
   return {
-    id: parseInt(apiOffer.id) || Date.now(),
+    id: parseInt(apiOffer.id) || generateUniqueId(),
     title: apiOffer.title || 'Untitled Offer',
-    destination: 'Various Destinations', // Default destination
-    price: apiOffer.price?.toString() || '0',
+    destination: apiOffer.destination || 'Unknown Destination',
     duration: apiOffer.duration?.toString() || '0',
     image: getImageUrl(apiOffer.mainImageUrl),
     description: apiOffer.bigDescription || apiOffer.shortDescription || 'No description available',

@@ -22,16 +22,10 @@ export const offerSchema = z.object({
     .max(5, 'Rating cannot exceed 5 stars')
     .int('Rating must be a whole number'),
   
-  price: z.string()
-    .min(1, 'Price is required')
-    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-      message: 'Price must be a valid positive number'
-    }),
-  
   duration: z.string()
     .min(1, 'Duration is required')
-    .refine((val) => !isNaN(parseInt(val)) && parseInt(val) > 0, {
-      message: 'Duration must be a valid positive number (in days)'
+    .refine((val) => !isNaN(parseInt(val)) && parseInt(val) > 0 && parseInt(val) <= 365, {
+      message: 'Duration must be a valid number between 1 and 365 days'
     }),
   
   destination: z.string()

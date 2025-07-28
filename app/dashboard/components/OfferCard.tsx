@@ -7,7 +7,6 @@ interface Offer {
   id: number
   title: string
   destination: string
-  price: string
   duration: string
   image: string
   description: string
@@ -22,6 +21,7 @@ interface OfferCardProps {
 }
 
 export default function OfferCard({ offer, onDelete, onToggleStatus }: OfferCardProps) {
+  console.log('Rendering OfferCard for:', offer)
   // Provide fallback for missing images
   const imageSrc = offer.image && offer.image.trim() !== '' 
     ? offer.image 
@@ -57,16 +57,13 @@ export default function OfferCard({ offer, onDelete, onToggleStatus }: OfferCard
         </div>
         <div className="flex items-center gap-2 text-gray-600 mb-3">
           <Calendar className="w-4 h-4" />
-          <span className="text-sm">{offer.duration}</span>
+          <span className="text-sm">{offer.duration} days</span>
         </div>
         <p className="text-gray-600 text-sm mb-4">{offer.description}</p>
         <div className="flex items-center justify-between">
-          <div>
-            <span className="text-2xl font-bold text-orange-600">{offer.price}</span>
-            <div className="flex items-center gap-1 mt-1">
-              <Star className="w-4 h-4 text-yellow-400 fill-current" />
-              <span className="text-sm text-gray-600">{offer.rating}</span>
-            </div>
+          <div className="flex items-center gap-1">
+            <Star className="w-4 h-4 text-yellow-400 fill-current" />
+            <span className="text-sm text-gray-600">{offer.rating}</span>
           </div>
           <div className="flex gap-2">
             <button
