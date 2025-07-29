@@ -1,8 +1,10 @@
 'use client'
 
+import { useState } from 'react'
 import { MapPin, Calendar, Star, Trash2, Eye } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import ConfirmationModal from '../../../components/ui/ConfirmationModal'
 
 interface Offer {
   id: string | number
@@ -18,16 +20,54 @@ interface Offer {
 
 interface OfferCardProps {
   offer: Offer
-  onDelete: (id: string | number) => void
-  onToggleStatus: (id: string | number) => void
+  onDelete: (id: string | number) => Promise<void>
+  onToggleStatus: (id: string | number) => Promise<void>
 }
 
 export default function OfferCard({ offer, onDelete, onToggleStatus }: OfferCardProps) {
   const router = useRouter()
+  const [showToggleModal, setShowToggleModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [isToggling, setIsToggling] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   
   // Use shortDescription if available, otherwise truncate description
   const displayDescription = offer.shortDescription || 
     (offer.description.length > 100 ? `${offer.description.substring(0, 100)}...` : offer.description)
+
+  const handleToggleClick = () => {
+    setShowToggleModal(true)
+  }
+
+  const handleToggleConfirm = async () => {
+    setIsToggling(true)
+    try {
+      await onToggleStatus(offer.id)
+      setShowToggleModal(false)
+    } catch (error) {
+      console.error('Failed to toggle status:', error)
+      // Keep modal open if there's an error
+    } finally {
+      setIsToggling(false)
+    }
+  }
+
+  const handleDeleteClick = () => {
+    setShowDeleteModal(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    setIsDeleting(true)
+    try {
+      await onDelete(offer.id)
+      setShowDeleteModal(false)
+    } catch (error) {
+      console.error('Failed to delete offer:', error)
+      // Keep modal open if there's an error
+    } finally {
+      setIsDeleting(false)
+    }
+  }
   
   // Provide fallback for missing images
   const imageSrc = offer.image && offer.image.trim() !== '' 
@@ -81,7 +121,7 @@ export default function OfferCard({ offer, onDelete, onToggleStatus }: OfferCard
               Details
             </button>
             <button
-              onClick={() => onToggleStatus(offer.id)}
+              onClick={handleToggleClick}
               className={`px-3 py-1 text-sm rounded-lg transition-colors ${
                 offer.available 
                   ? 'bg-red-100 text-red-700 hover:bg-red-200' 
@@ -91,7 +131,7 @@ export default function OfferCard({ offer, onDelete, onToggleStatus }: OfferCard
               {offer.available ? 'Disable' : 'Enable'}
             </button>
             <button
-              onClick={() => onDelete(offer.id)}
+              onClick={handleDeleteClick}
               className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
             >
               <Trash2 className="w-4 h-4" />
@@ -99,6 +139,36 @@ export default function OfferCard({ offer, onDelete, onToggleStatus }: OfferCard
           </div>
         </div>
       </div>
+      
+      {/* Toggle Status Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showToggleModal}
+        onClose={() => setShowToggleModal(false)}
+        onConfirm={handleToggleConfirm}
+        title={`${offer.available ? 'Disable' : 'Enable'} Offer`}
+        message={`Are you sure you want to ${offer.available ? 'disable' : 'enable'} "${offer.title}"? ${
+          offer.available 
+            ? 'This will make the offer unavailable to customers.' 
+            : 'This will make the offer available to customers.'
+        }`}
+        confirmText={offer.available ? 'Disable' : 'Enable'}
+        cancelText="Cancel"
+        confirmVariant={offer.available ? 'danger' : 'default'}
+        isLoading={isToggling}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Offer"
+        message={`Are you sure you want to delete "${offer.title}"? This action cannot be undone and will permanently remove the offer from your dashboard.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmVariant="danger"
+        isLoading={isDeleting}
+      />
     </div>
   )
 }
