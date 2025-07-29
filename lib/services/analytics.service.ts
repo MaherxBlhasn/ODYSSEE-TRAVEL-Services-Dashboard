@@ -14,12 +14,13 @@ export const analyticsService = {
 
       const data = await res.json();
       return data as AnalyticsResponse;
-    } catch (error: any) {
-      console.error('Error fetching analytics:', error);
+    } catch (error: unknown ) {
+      const err = error instanceof Error ? error.message : String(error);
+      console.error('Error fetching analytics:', err);
       return {
         success: false,
         error: 'An unexpected error occurred while fetching analytics.',
-        details: error.message
+        details: err
       };
     }
   }

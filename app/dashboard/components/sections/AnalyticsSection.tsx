@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { Users, UserPlus, Activity, Clock, Eye, Globe, TrendingUp, User } from 'lucide-react';
+import { Users, UserPlus, Activity, Eye } from 'lucide-react';
 import { analyticsService } from '@/lib/services/analytics.service';
 import { AnalyticsResponse } from '@/lib/types/analytics.types';
 import MetricCardSkeleton from '@/components/ui/MetricCardSkeleton';

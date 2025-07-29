@@ -51,7 +51,7 @@ const CountriesBarChart: React.FC<Props> = ({ topCountries, totalUsers }) => {
               fontSize={12}
             />
             <Tooltip
-              formatter={(value: any) => [`${value} users`, 'Users']}
+              formatter={(value: number | string) => [`${value} users`, 'Users']}
               contentStyle={{
                 backgroundColor: '#1F2937',
                 border: 'none',
