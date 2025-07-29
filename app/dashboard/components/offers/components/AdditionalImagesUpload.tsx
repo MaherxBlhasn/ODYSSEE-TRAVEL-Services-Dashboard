@@ -1,7 +1,7 @@
 'use client'
 
-import { useRef } from 'react'
-import { Upload, X, Image as ImageIcon } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react'
 import ImageWithFallback from '../../../../../components/ui/ImageWithFallback'
 
 interface AdditionalImagesUploadProps {
@@ -16,19 +16,47 @@ export default function AdditionalImagesUpload({
   validationErrors = [] 
 }: AdditionalImagesUploadProps) {
   const additionalImagesInputRef = useRef<HTMLInputElement>(null)
+  const [isUploading, setIsUploading] = useState(false)
 
-  const handleAdditionalImagesUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAdditionalImagesUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (files) {
-      Array.from(files).forEach(file => {
-        const reader = new FileReader()
-        reader.onload = (event) => {
-          if (event.target?.result) {
-            setAdditionalImages([...additionalImages, event.target.result as string])
-          }
+      setIsUploading(true)
+      try {
+        const fileArray = Array.from(files)
+        
+        // Read all files using Promise.all to handle them properly
+        const filePromises = fileArray.map(file => {
+          return new Promise<string>((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = (event) => {
+              if (event.target?.result) {
+                resolve(event.target.result as string)
+              } else {
+                reject(new Error('Failed to read file'))
+              }
+            }
+            reader.onerror = () => reject(new Error('File reading failed'))
+            reader.readAsDataURL(file)
+          })
+        })
+        
+        // Wait for all files to be processed
+        const newImages = await Promise.all(filePromises)
+        
+        // Update state with all new images at once
+        setAdditionalImages([...additionalImages, ...newImages])
+        
+        // Reset the input value to allow selecting the same files again if needed
+        if (e.target) {
+          e.target.value = ''
         }
-        reader.readAsDataURL(file)
-      })
+      } catch (error) {
+        console.error('Error processing files:', error)
+        // You could add error handling here, maybe show a toast or error message
+      } finally {
+        setIsUploading(false)
+      }
     }
   }
 
@@ -45,16 +73,34 @@ export default function AdditionalImagesUpload({
       
       {/* Upload Area */}
       <div 
-        onClick={() => additionalImagesInputRef.current?.click()}
-        className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-orange-400 hover:bg-orange-50 transition-all duration-200 cursor-pointer group"
+        onClick={() => !isUploading && additionalImagesInputRef.current?.click()}
+        className={`border-2 border-dashed border-gray-300 rounded-xl p-6 text-center transition-all duration-200 ${
+          isUploading 
+            ? 'cursor-not-allowed bg-gray-50' 
+            : 'hover:border-orange-400 hover:bg-orange-50 cursor-pointer'
+        } group`}
       >
-        <Upload className="w-6 h-6 text-gray-400 group-hover:text-orange-500 mx-auto mb-2 transition-colors" />
-        <p className="text-gray-600 group-hover:text-orange-600 font-medium text-sm">
-          Upload additional images
-        </p>
-        <p className="text-xs text-gray-400 mt-1">
-          PNG, JPG (Multiple files)
-        </p>
+        {isUploading ? (
+          <>
+            <Loader2 className="w-6 h-6 text-orange-500 mx-auto mb-2 animate-spin" />
+            <p className="text-orange-600 font-medium text-sm">
+              Processing images...
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              Please wait while we process your files
+            </p>
+          </>
+        ) : (
+          <>
+            <Upload className="w-6 h-6 text-gray-400 group-hover:text-orange-500 mx-auto mb-2 transition-colors" />
+            <p className="text-gray-600 group-hover:text-orange-600 font-medium text-sm">
+              Upload additional images
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              PNG, JPG (Multiple files)
+            </p>
+          </>
+        )}
       </div>
       
       <input
@@ -63,6 +109,7 @@ export default function AdditionalImagesUpload({
         multiple
         accept="image/*"
         onChange={handleAdditionalImagesUpload}
+        disabled={isUploading}
         className="hidden"
       />
       

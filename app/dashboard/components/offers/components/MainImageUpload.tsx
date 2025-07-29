@@ -1,7 +1,7 @@
 'use client'
 
-import { useRef } from 'react'
-import { Upload, X, Image as ImageIcon } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react'
 import ImageWithFallback from '../../../../../components/ui/ImageWithFallback'
 
 interface MainImageUploadProps {
@@ -12,17 +12,38 @@ interface MainImageUploadProps {
 
 export default function MainImageUpload({ mainImage, setMainImage, validationError }: MainImageUploadProps) {
   const mainImageInputRef = useRef<HTMLInputElement>(null)
+  const [isUploading, setIsUploading] = useState(false)
 
-  const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMainImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          setMainImage(event.target.result as string)
+      setIsUploading(true)
+      try {
+        const result = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = (event) => {
+            if (event.target?.result) {
+              resolve(event.target.result as string)
+            } else {
+              reject(new Error('Failed to read file'))
+            }
+          }
+          reader.onerror = () => reject(new Error('File reading failed'))
+          reader.readAsDataURL(file)
+        })
+        
+        setMainImage(result)
+        
+        // Reset the input value to allow selecting the same file again if needed
+        if (e.target) {
+          e.target.value = ''
         }
+      } catch (error) {
+        console.error('Error processing main image:', error)
+        // You could add error handling here, maybe show a toast or error message
+      } finally {
+        setIsUploading(false)
       }
-      reader.readAsDataURL(file)
     }
   }
 
@@ -58,16 +79,34 @@ export default function MainImageUpload({ mainImage, setMainImage, validationErr
         </div>
       ) : (
         <div 
-          onClick={() => mainImageInputRef.current?.click()}
-          className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-orange-400 hover:bg-orange-50 transition-all duration-200 cursor-pointer group"
+          onClick={() => !isUploading && mainImageInputRef.current?.click()}
+          className={`border-2 border-dashed border-gray-300 rounded-xl p-8 text-center transition-all duration-200 ${
+            isUploading 
+              ? 'cursor-not-allowed bg-gray-50' 
+              : 'hover:border-orange-400 hover:bg-orange-50 cursor-pointer'
+          } group`}
         >
-          <Upload className="w-8 h-8 text-gray-400 group-hover:text-orange-500 mx-auto mb-3 transition-colors" />
-          <p className="text-gray-600 group-hover:text-orange-600 font-medium">
-            Upload main image
-          </p>
-          <p className="text-sm text-gray-400 mt-1">
-            PNG, JPG up to 10MB
-          </p>
+          {isUploading ? (
+            <>
+              <Loader2 className="w-8 h-8 text-orange-500 mx-auto mb-3 animate-spin" />
+              <p className="text-orange-600 font-medium">
+                Processing image...
+              </p>
+              <p className="text-sm text-gray-400 mt-1">
+                Please wait while we process your file
+              </p>
+            </>
+          ) : (
+            <>
+              <Upload className="w-8 h-8 text-gray-400 group-hover:text-orange-500 mx-auto mb-3 transition-colors" />
+              <p className="text-gray-600 group-hover:text-orange-600 font-medium">
+                Upload main image
+              </p>
+              <p className="text-sm text-gray-400 mt-1">
+                PNG, JPG up to 10MB
+              </p>
+            </>
+          )}
         </div>
       )}
       
@@ -76,6 +115,7 @@ export default function MainImageUpload({ mainImage, setMainImage, validationErr
         type="file"
         accept="image/*"
         onChange={handleMainImageUpload}
+        disabled={isUploading}
         className="hidden"
       />
       {/* Validation Error */}
