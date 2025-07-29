@@ -2,7 +2,7 @@
 
 // Frontend display types (for existing local data)
 export interface Offer {
-  id: number
+  id: string | number  // Support both string (backend) and number (local) IDs
   title: string
   destination: string
   duration: string
@@ -47,9 +47,6 @@ export interface ValidationErrors {
 
 export type TabType = 'offers' | 'add-offer'
 
-// Global counter for generating unique IDs
-let idCounter = Date.now()
-
 // Helper function to convert API offer to display offer
 export const apiOfferToOffer = (apiOffer: ApiOffer): Offer => {
   // Ensure we have valid data with fallbacks
@@ -69,13 +66,8 @@ export const apiOfferToOffer = (apiOffer: ApiOffer): Offer => {
     return `${backendUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`
   }
   
-  // Generate unique ID - increment counter to avoid duplicates
-  const generateUniqueId = (): number => {
-    return ++idCounter
-  }
-  
   return {
-    id: parseInt(apiOffer.id) || generateUniqueId(),
+    id: apiOffer.id,  // Keep the original string ID from backend
     title: apiOffer.title || 'Untitled Offer',
     destination: apiOffer.destination || 'Unknown Destination',
     duration: apiOffer.duration?.toString() || '0',

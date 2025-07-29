@@ -207,6 +207,8 @@ export const offerService = {
                 },
                 body: JSON.stringify({ available }),
             });
+            
+            console.log('Response status:', response.status);
 
             if (!response.ok) {
                 const errorData: ApiError = await response.json();

@@ -5,8 +5,8 @@ import { Offer } from '../types'
 
 interface OffersGridProps {
   offers: Offer[]
-  onDelete: (id: number) => void
-  onToggleStatus: (id: number) => void
+  onDelete: (id: string | number) => void
+  onToggleStatus: (id: string | number) => void
 }
 
 export default function OffersGrid({ offers, onDelete, onToggleStatus }: OffersGridProps) {

@@ -113,7 +113,7 @@ function OffersContent() {
     await submitOffer(newOffer, mainImage, additionalImages)
   }
 
-  const handleDeleteOffer = async (id: number) => {
+  const handleDeleteOffer = async (id: string | number) => {
     try {
       await offerService.deleteOffer(id.toString())
       setOffers(offers.filter(offer => offer.id !== id))
@@ -126,7 +126,7 @@ function OffersContent() {
     }
   }
 
-  const toggleOfferStatus = async (id: number) => {
+  const toggleOfferStatus = async (id: string | number) => {
     const offer = offers.find(o => o.id === id)
     if (!offer) return
 

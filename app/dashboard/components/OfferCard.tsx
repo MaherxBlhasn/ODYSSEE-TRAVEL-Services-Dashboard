@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
 interface Offer {
-  id: number
+  id: string | number
   title: string
   destination: string
   duration: string
@@ -18,13 +18,12 @@ interface Offer {
 
 interface OfferCardProps {
   offer: Offer
-  onDelete: (id: number) => void
-  onToggleStatus: (id: number) => void
+  onDelete: (id: string | number) => void
+  onToggleStatus: (id: string | number) => void
 }
 
 export default function OfferCard({ offer, onDelete, onToggleStatus }: OfferCardProps) {
   const router = useRouter()
-  console.log('Rendering OfferCard for:', offer)
   
   // Use shortDescription if available, otherwise truncate description
   const displayDescription = offer.shortDescription || 

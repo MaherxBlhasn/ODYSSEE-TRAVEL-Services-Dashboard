@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { useOffers } from '../../components/offers/context/OffersContext'
 
 interface DetailedOffer {
-  id: number
+  id: string | number
   title: string
   destination: string
   duration: string
@@ -22,7 +22,7 @@ interface DetailedOffer {
 }
 
 interface LocalOffer {
-  id: number
+  id: string | number
   title: string
   destination: string
   duration: string
@@ -71,12 +71,10 @@ function OfferDetailContent() {
         console.log('Available offers:', offers)
         console.log('Offers IDs:', offers.map(o => ({ id: o.id, type: typeof o.id })))
         
-        // Convert string ID to number for comparison
-        const numericId = parseInt(offerId, 10)
-        console.log('Converted ID to number:', numericId)
-        
-        // Try context first
-        let foundOffer = offers.find(offer => offer.id === numericId)
+        // Try context first - check both string and numeric comparison
+        let foundOffer = offers.find(offer => 
+          offer.id.toString() === offerId || offer.id === parseInt(offerId, 10)
+        )
         console.log('Found offer in context:', foundOffer)
         
         if (!foundOffer && offers.length === 0) {
@@ -84,6 +82,7 @@ function OfferDetailContent() {
           // If context is empty, load from local data as fallback
           const { offers: localOffers } = await import('../../data')
           console.log('Local offers loaded:', localOffers)
+          const numericId = parseInt(offerId, 10)
           foundOffer = localOffers.find((o: LocalOffer) => o.id === numericId)
           console.log('Found offer in local data:', foundOffer)
         }
