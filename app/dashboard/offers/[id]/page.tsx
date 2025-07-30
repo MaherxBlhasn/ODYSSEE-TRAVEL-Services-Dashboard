@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, MapPin, Calendar, Star, Clock, Camera, Edit3, Save, X, Trash2, Upload, Image as ImageIcon } from 'lucide-react'
+import { ArrowLeft, MapPin, Calendar, Star, Clock, Camera, Edit3, Save, X, Trash2, Upload, Image as ImageIcon, Plus } from 'lucide-react'
 import Image from 'next/image'
 import { useOffers } from '../../components/offers/context/OffersContext'
 import { offerService } from '../../../../lib/services/offer.service'
@@ -49,62 +49,47 @@ function OfferDetailContent() {
   const [error, setError] = useState<string>('')
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   
-  // Edit mode states
+  // Edit mode states - simplified to match backend capabilities
   const [isEditMode, setIsEditMode] = useState(false)
   const [editData, setEditData] = useState<Partial<DetailedOffer>>({})
   const [newMainImage, setNewMainImage] = useState<File | null>(null)
   const [newAdditionalImages, setNewAdditionalImages] = useState<File[]>([])
-  const [imagesToRemove, setImagesToRemove] = useState<number[]>([])
+  const [replaceAllGallery, setReplaceAllGallery] = useState(false)
+  const [removeMainImage, setRemoveMainImage] = useState(false)
+  const [imagesToRemove, setImagesToRemove] = useState<string[]>([])
+  const [addToGallery, setAddToGallery] = useState(false) // Flag to replace all gallery images
   const [isLoading, setIsLoading] = useState(false)
-  const [showDeleteImageModal, setShowDeleteImageModal] = useState<number | null>(null)
   const [showDiscardModal, setShowDiscardModal] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle')
   const [saveMessage, setSaveMessage] = useState('')
 
   const offerId = params.id as string
-  console.log("FROM OFFER DETAIL PAGE:", offerId, typeof offerId, offer);
 
   // Calculate gallery variables
   const allImages = offer ? [offer.image, ...(offer.additionalImages || [])] : []
   const selectedImage = allImages[selectedImageIndex]
   const totalImages = allImages.length
 
-  console.log('🎭 Gallery data:', {
-    mainImage: offer?.image,
-    additionalImages: offer?.additionalImages,
-    totalImages,
-    selectedIndex: selectedImageIndex,
-    selectedImage
-  })
+  
 
   useEffect(() => {
     const findOffer = async () => {
       try {
         setLoading(true)
-        console.log('Looking for offer with ID:', offerId, 'Type:', typeof offerId)
-        console.log('Available offers:', offers)
-        console.log('Offers IDs:', offers.map(o => ({ id: o.id, type: typeof o.id })))
         
         // Try context first - check both string and numeric comparison
         let foundOffer = offers.find(offer => 
           offer.id.toString() === offerId || offer.id === parseInt(offerId, 10)
         )
-        console.log('Found offer in context:', foundOffer)
         
         if (!foundOffer && offers.length === 0) {
-          console.log('Context is empty, loading from local data...')
           // If context is empty, load from local data as fallback
           const { offers: localOffers } = await import('../../data')
-          console.log('Local offers loaded:', localOffers)
           const numericId = parseInt(offerId, 10)
           foundOffer = localOffers.find((o: LocalOffer) => o.id === numericId)
-          console.log('Found offer in local data:', foundOffer)
         }
         
         if (foundOffer) {
-          console.log('📸 Found offer data:', foundOffer)
-          console.log('🖼️ Main image:', foundOffer.image)
-          console.log('🎨 Additional images:', foundOffer.additionalImages)
           
           setOffer({
             ...foundOffer,
@@ -179,11 +164,15 @@ function OfferDetailContent() {
     setEditData({})
     setNewMainImage(null)
     setNewAdditionalImages([])
+    setReplaceAllGallery(false)
+    setRemoveMainImage(false)
     setImagesToRemove([])
+    setAddToGallery(false)
   }
 
   const hasChanges = () => {
-    return newMainImage || newAdditionalImages.length > 0 || imagesToRemove.length > 0 ||
+    return newMainImage || newAdditionalImages.length > 0 || replaceAllGallery || 
+           removeMainImage || imagesToRemove.length > 0 ||
            JSON.stringify(editData) !== JSON.stringify({
              title: offer?.title,
              destination: offer?.destination,
@@ -211,9 +200,26 @@ function OfferDetailContent() {
     }
   }
 
-  const markImageForRemoval = (imageIndex: number) => {
-    setImagesToRemove(prev => [...prev, imageIndex])
-    setShowDeleteImageModal(null)
+  const handleReplaceAllGallery = () => {
+    setReplaceAllGallery(true)
+    setNewAdditionalImages([]) // Clear any existing selections
+  }
+
+  const toggleRemoveMainImage = () => {
+    setRemoveMainImage(!removeMainImage)
+    if (!removeMainImage) {
+      setNewMainImage(null) // Clear new main image if removing
+    }
+  }
+
+  const toggleRemoveGalleryImage = (imageUrl: string) => {
+    setImagesToRemove(prev => {
+      if (prev.includes(imageUrl)) {
+        return prev.filter(url => url !== imageUrl)
+      } else {
+        return [...prev, imageUrl]
+      }
+    })
   }
 
   const saveChanges = async () => {
@@ -254,12 +260,16 @@ function OfferDetailContent() {
 
       console.log('Sending update data:', updateData)
 
-      // Call the update service
+      // Call the update service with all flexible image operations
       await offerService.updateOffer(
         offer.id.toString(),
         updateData,
         newMainImage,
-        newAdditionalImages
+        newAdditionalImages.length > 0 ? newAdditionalImages : undefined,
+        removeMainImage,
+        imagesToRemove.length > 0 ? imagesToRemove : undefined,
+        addToGallery,
+        replaceAllGallery
       )
 
       // Update local state - this is a simplified version
@@ -339,21 +349,21 @@ function OfferDetailContent() {
               <ArrowLeft className="w-5 h-5" />
               <span className="font-medium">Back to Offers</span>
             </button>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
               {isEditMode ? (
                 <>
                   <button
                     onClick={cancelEdit}
                     disabled={isLoading}
-                    className="flex items-center gap-2 px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50"
+                    className="flex items-center justify-center gap-2 px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50 text-sm sm:text-base order-2 sm:order-1"
                   >
                     <X className="w-4 h-4" />
-                    Cancel
+                    <span>Cancel</span>
                   </button>
                   <button
                     onClick={saveChanges}
                     disabled={isLoading || saveStatus === 'saving'}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 ${
+                    className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 text-sm sm:text-base min-w-[120px] order-1 sm:order-2 ${
                       saveStatus === 'success' 
                         ? 'bg-green-600 text-white hover:bg-green-700' 
                         : saveStatus === 'error'
@@ -370,22 +380,31 @@ function OfferDetailContent() {
                     ) : (
                       <Save className="w-4 h-4" />
                     )}
-                    {saveStatus === 'saving' ? 'Saving...' : 
-                     saveStatus === 'success' ? 'Saved!' : 
-                     saveStatus === 'error' ? 'Failed' : 
-                     'Save Changes'}
+                    <span className="hidden sm:inline">
+                      {saveStatus === 'saving' ? 'Saving...' : 
+                       saveStatus === 'success' ? 'Saved!' : 
+                       saveStatus === 'error' ? 'Failed' : 
+                       'Save Changes'}
+                    </span>
+                    <span className="sm:hidden">
+                      {saveStatus === 'saving' ? 'Saving...' : 
+                       saveStatus === 'success' ? 'Saved!' : 
+                       saveStatus === 'error' ? 'Error' : 
+                       'Save'}
+                    </span>
                   </button>
                 </>
               ) : (
                 <button
                   onClick={enterEditMode}
-                  className="flex items-center gap-2 px-4 py-2 text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors"
+                  className="flex items-center justify-center gap-2 px-4 py-2 text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors text-sm sm:text-base"
                 >
                   <Edit3 className="w-4 h-4" />
-                  Edit Offer
+                  <span className="hidden sm:inline">Edit Offer</span>
+                  <span className="sm:hidden">Edit</span>
                 </button>
               )}
-              <span className={`px-3 py-1 text-sm rounded-full ${
+              <span className={`px-3 py-1 text-sm rounded-full self-start sm:self-center ${
                 offer.available ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
               }`}>
                 {offer.available ? 'Available' : 'Sold Out'}
@@ -395,30 +414,13 @@ function OfferDetailContent() {
         </div>
       </div>
 
-      {/* Status Message */}
-      {saveMessage && (
-        <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 ${
-          saveStatus === 'success' ? 'text-green-700' : 
-          saveStatus === 'error' ? 'text-red-700' : 
-          'text-blue-700'
-        }`}>
-          <div className={`p-3 rounded-lg text-sm font-medium ${
-            saveStatus === 'success' ? 'bg-green-50 border border-green-200' : 
-            saveStatus === 'error' ? 'bg-red-50 border border-red-200' : 
-            'bg-blue-50 border border-blue-200'
-          }`}>
-            {saveMessage}
-          </div>
-        </div>
-      )}
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* Main Content - Improved Responsive Layout */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
           {/* Image Gallery */}
           <div className="space-y-4">
             {/* Main Image */}
-            <div className="relative w-full h-96 bg-gray-100 rounded-xl overflow-hidden group">
+            <div className="relative w-full h-64 sm:h-80 lg:h-96 bg-gray-100 rounded-xl overflow-hidden group">
               <Image
                 src={newMainImage ? URL.createObjectURL(newMainImage) : selectedImage || '/globe.svg'}
                 alt={offer.title}
@@ -430,13 +432,14 @@ function OfferDetailContent() {
                 }}
               />
               
-              {/* Edit mode overlay for main image */}
+              {/* Universal Replace Main Controls - Show on ANY Image in Edit Mode */}
               {isEditMode && (
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center">
-                  <div className="flex gap-2">
-                    <label className="bg-white text-gray-800 px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors flex items-center gap-2">
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center">
+                  <div className="flex flex-col sm:flex-row gap-3 items-center">
+                    <label className="bg-white/95 text-gray-800 px-4 py-2 rounded-lg cursor-pointer hover:bg-white transition-colors flex items-center gap-2 shadow-lg backdrop-blur-sm">
                       <Upload className="w-4 h-4" />
-                      {newMainImage ? 'Change Main' : 'Replace Main'}
+                      <span className="hidden sm:inline">Replace Main</span>
+                      <span className="sm:hidden">Replace</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -447,10 +450,24 @@ function OfferDetailContent() {
                     {newMainImage && (
                       <button
                         onClick={() => removeNewImage(0, true)}
-                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+                        className="bg-gray-600/95 text-white px-4 py-2 rounded-lg hover:bg-gray-700/95 transition-colors flex items-center gap-2 shadow-lg backdrop-blur-sm"
                       >
                         <X className="w-4 h-4" />
-                        Remove
+                        <span className="hidden sm:inline">Cancel</span>
+                      </button>
+                    )}
+                    {selectedImageIndex === 0 && (
+                      <button
+                        onClick={toggleRemoveMainImage}
+                        className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 shadow-lg backdrop-blur-sm ${
+                          removeMainImage 
+                            ? 'bg-green-500/95 text-white hover:bg-green-600/95' 
+                            : 'bg-red-500/95 text-white hover:bg-red-600/95'
+                        }`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span className="hidden sm:inline">{removeMainImage ? 'Keep Main' : 'Remove Main'}</span>
+                        <span className="sm:hidden">{removeMainImage ? 'Keep' : 'Remove'}</span>
                       </button>
                     )}
                   </div>
@@ -486,127 +503,310 @@ function OfferDetailContent() {
               <div className="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1 rounded-lg text-xs">
                 {selectedImageIndex === 0 ? 'Main Image' : `Gallery ${selectedImageIndex}`}
                 {newMainImage && selectedImageIndex === 0 && (
-                  <span className="ml-2 bg-orange-500 px-2 py-0.5 rounded text-xs">NEW</span>
+                  <span className="ml-2 bg-green-500 px-2 py-0.5 rounded text-xs">NEW</span>
+                )}
+                {removeMainImage && selectedImageIndex === 0 && (
+                  <span className="ml-2 bg-red-500 px-2 py-0.5 rounded text-xs">REMOVE</span>
                 )}
               </div>
+
+              {/* Edit Controls for Main Image */}
+              {isEditMode && selectedImageIndex === 0 && (
+                <div className="absolute bottom-4 right-4 flex gap-2">
+                  {!removeMainImage && (
+                    <label className="bg-blue-500 text-white px-3 py-1 rounded-lg text-xs cursor-pointer hover:bg-blue-600 transition-colors">
+                      Replace
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files?.[0]) {
+                            handleImageUpload(e.target.files, true)
+                          }
+                        }}
+                      />
+                    </label>
+                  )}
+                  <button
+                    onClick={toggleRemoveMainImage}
+                    className={`px-3 py-1 rounded-lg text-xs transition-colors ${
+                      removeMainImage 
+                        ? 'bg-green-500 text-white hover:bg-green-600' 
+                        : 'bg-red-500 text-white hover:bg-red-600'
+                    }`}
+                  >
+                    {removeMainImage ? 'Keep' : 'Remove'}
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Image Thumbnails and Management */}
-            {totalImages > 1 && (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-medium text-gray-900">Gallery ({totalImages} images)</h4>
-                  {isEditMode ? (
-                    <div className="flex items-center gap-2">
-                      <label className="text-sm bg-orange-100 text-orange-700 px-3 py-1 rounded-lg cursor-pointer hover:bg-orange-200 transition-colors flex items-center gap-2">
-                        <Upload className="w-3 h-3" />
+            {/* Enhanced Gallery Section with Horizontal Carousel */}
+            {(totalImages > 0 || (isEditMode && (newAdditionalImages.length > 0 || newMainImage))) && (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <h4 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                    <Camera className="w-5 h-5 text-gray-600" />
+                    Gallery ({totalImages + newAdditionalImages.length + (newMainImage ? 1 : 0)} images)
+                  </h4>
+                  
+                  {/* Gallery Controls - Right next to title */}
+                  {isEditMode && (
+                    <div className="flex flex-wrap gap-2">
+                      <label className="bg-blue-500 text-white px-3 py-1.5 rounded-lg cursor-pointer hover:bg-blue-600 transition-colors text-sm flex items-center gap-1.5">
+                        <Plus className="w-4 h-4" />
                         Add Images
                         <input
                           type="file"
                           accept="image/*"
                           multiple
                           className="hidden"
-                          onChange={(e) => e.target.files && handleImageUpload(e.target.files)}
+                          onChange={(e) => {
+                            if (e.target.files) {
+                              handleImageUpload(e.target.files)
+                              setAddToGallery(true)
+                            }
+                          }}
+                        />
+                      </label>
+
+                      <label className="bg-orange-500 text-white px-3 py-1.5 rounded-lg cursor-pointer hover:bg-orange-600 transition-colors text-sm flex items-center gap-1.5">
+                        <Upload className="w-4 h-4" />
+                        Replace All
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="hidden"
+                          onChange={(e) => {
+                            if (e.target.files) {
+                              handleImageUpload(e.target.files)
+                              setAddToGallery(false)
+                              setReplaceAllGallery(true)
+                            }
+                          }}
                         />
                       </label>
                     </div>
-                  ) : (
-                    <div className="text-xs text-gray-500">Click to view</div>
+                  )}
+                  
+                  {!isEditMode && (
+                    <div className="text-sm text-gray-500 flex items-center gap-1">
+                      <span>Scroll to browse</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
                   )}
                 </div>
-                <div className="grid grid-cols-4 gap-3">
-                  {allImages.map((img, index) => (
-                    <div key={index} className="relative group">
-                      <button
-                        onClick={() => !isEditMode && setSelectedImageIndex(index)}
-                        className={`relative w-full h-20 bg-gray-100 rounded-lg overflow-hidden transition-all transform hover:scale-105 ${
-                          selectedImageIndex === index 
-                            ? 'ring-2 ring-orange-500 opacity-100 shadow-lg' 
-                            : 'opacity-70 hover:opacity-100'
-                        } ${imagesToRemove.includes(index) ? 'opacity-30' : ''}`}
-                      >
-                        <Image
-                          src={img || '/globe.svg'}
-                          alt={`${offer.title} - Image ${index + 1}`}
-                          fill
-                          className="object-cover"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement
-                            target.src = '/globe.svg'
-                          }}
-                        />
-                        {/* Thumbnail Badge */}
-                        <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1 rounded">
-                          {index + 1}
-                        </div>
-                        {imagesToRemove.includes(index) && (
-                          <div className="absolute inset-0 bg-red-500/50 flex items-center justify-center">
-                            <span className="text-white text-xs font-medium">REMOVED</span>
-                          </div>
-                        )}
-                      </button>
-                      
-                      {/* Edit mode controls */}
-                      {isEditMode && index > 0 && (
-                        <button
-                          onClick={() => setShowDeleteImageModal(index)}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      )}
-                    </div>
-                  ))}
+                
+                {/* Horizontal Scrolling Carousel with Arrows */}
+                <div className="relative bg-gray-50 rounded-lg p-4">
+                  {/* Left Arrow */}
+                  <button 
+                    className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white/90 hover:bg-white rounded-full shadow-lg border border-gray-200 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      const container = e.currentTarget.parentElement?.querySelector('.scrollable-container') as HTMLElement
+                      if (container) {
+                        container.scrollBy({ left: -100, behavior: 'smooth' })
+                      }
+                    }}
+                  >
+                    <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
                   
-                  {/* Show new images being added */}
-                  {newAdditionalImages.map((file, index) => (
-                    <div key={`new-${index}`} className="relative group">
-                      <div className="relative w-full h-20 bg-gray-100 rounded-lg overflow-hidden border-2 border-dashed border-orange-500">
-                        <Image
-                          src={URL.createObjectURL(file)}
-                          alt={`New image ${index + 1}`}
-                          fill
-                          className="object-cover"
-                        />
-                        <div className="absolute top-1 left-1 bg-orange-500 text-white text-xs px-1 rounded">
-                          NEW
+                  {/* Right Arrow */}
+                  <button 
+                    className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white/90 hover:bg-white rounded-full shadow-lg border border-gray-200 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      const container = e.currentTarget.parentElement?.querySelector('.scrollable-container') as HTMLElement
+                      if (container) {
+                        container.scrollBy({ left: 100, behavior: 'smooth' })
+                      }
+                    }}
+                  >
+                    <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                  
+                  <div className="scrollable-container flex gap-3 overflow-x-auto scrollbar-hide py-2 px-2">
+                    {/* Show new main image first if it exists */}
+                    {isEditMode && newMainImage && (
+                      <div className="relative group flex-shrink-0">
+                        <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-lg overflow-hidden border-2 border-dashed border-blue-400 shadow-sm">
+                          <Image
+                            src={URL.createObjectURL(newMainImage)}
+                            alt="New main image"
+                            fill
+                            className="object-cover"
+                          />
+                          {/* New Main Image Overlay */}
+                          <div className="absolute inset-0 bg-blue-500/70 flex items-center justify-center transition-all group-hover:bg-red-500/70">
+                            <span className="text-white text-xs font-bold group-hover:hidden">NEW MAIN</span>
+                            <button
+                              onClick={() => setNewMainImage(null)}
+                              className="text-white text-lg font-bold opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
+                              title="Remove new main image"
+                            >
+                              ×
+                            </button>
+                          </div>
                         </div>
-                        <button
-                          onClick={() => removeNewImage(index)}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
                       </div>
-                    </div>
-                  ))}
+                    )}
+                    
+                    {/* Existing images */}
+                    {allImages.map((img, index) => (
+                      <div key={index} className="relative group flex-shrink-0">
+                        <button
+                          onClick={() => !isEditMode && setSelectedImageIndex(index)}
+                          className={`relative w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-lg overflow-hidden transition-all shadow-sm ${
+                            selectedImageIndex === index 
+                              ? 'ring-2 ring-blue-500 shadow-lg scale-105' 
+                              : 'hover:shadow-md hover:scale-102'
+                          } ${
+                            imagesToRemove.includes(img) ? 'opacity-50 ring-2 ring-red-400' : ''
+                          }`}
+                        >
+                          {/* Loading State */}
+                          <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
+                            <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-500 rounded-full animate-spin"></div>
+                          </div>
+                          
+                          <Image
+                            src={img || '/globe.svg'}
+                            alt={`Image ${index + 1}`}
+                            fill
+                            className="object-cover"
+                            onLoad={(e) => {
+                              const target = e.target as HTMLImageElement
+                              const loader = target.parentElement?.querySelector('.animate-pulse')
+                              if (loader) loader.remove()
+                            }}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement
+                              target.src = '/globe.svg'
+                              const loader = target.parentElement?.querySelector('.animate-pulse')
+                              if (loader) loader.remove()
+                            }}
+                          />
+                          {index === 0 && !newMainImage && (
+                            <div className="absolute top-1 left-1 bg-blue-500 text-white text-xs px-1 py-0.5 rounded font-medium">
+                              MAIN
+                            </div>
+                          )}
+                          {imagesToRemove.includes(img) && (
+                            <div className="absolute inset-0 bg-red-500/60 flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">REMOVE</span>
+                            </div>
+                          )}
+                        </button>
+                        
+                        {/* Improved Remove Button for Gallery Images */}
+                        {isEditMode && index > 0 && (
+                          <button
+                            onClick={() => toggleRemoveGalleryImage(img)}
+                            className={`absolute -top-1 -right-1 w-5 h-5 rounded-full text-white flex items-center justify-center text-xs font-bold transition-all shadow-md z-10 border border-white ${
+                              imagesToRemove.includes(img)
+                                ? 'bg-green-500 hover:bg-green-600 hover:scale-110'
+                                : 'bg-red-500 hover:bg-red-600 hover:scale-110'
+                            }`}
+                            title={imagesToRemove.includes(img) ? 'Keep this image' : 'Remove this image'}
+                          >
+                            {imagesToRemove.includes(img) ? '✓' : '×'}
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    
+                    {/* New Additional Images Preview */}
+                    {newAdditionalImages.map((file, index) => (
+                      <div key={`new-${index}`} className="relative group flex-shrink-0">
+                        <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-lg overflow-hidden border-2 border-dashed border-green-400 shadow-sm">
+                          {/* Loading State for New Images */}
+                          <div className="absolute inset-0 bg-green-50 animate-pulse flex items-center justify-center">
+                            <div className="w-4 h-4 border-2 border-green-300 border-t-green-500 rounded-full animate-spin"></div>
+                          </div>
+                          
+                          <Image
+                            src={URL.createObjectURL(file)}
+                            alt={`New image ${index + 1}`}
+                            fill
+                            className="object-cover"
+                            onLoad={(e) => {
+                              const target = e.target as HTMLImageElement
+                              const loader = target.parentElement?.querySelector('.animate-pulse')
+                              if (loader) loader.remove()
+                            }}
+                          />
+                          {/* New Additional Image Overlay */}
+                          <div className="absolute inset-0 bg-green-500/70 flex items-center justify-center transition-all group-hover:bg-red-500/70">
+                            <span className="text-white text-xs font-bold group-hover:hidden">NEW</span>
+                            <button
+                              onClick={() => removeNewImage(index)}
+                              className="text-white text-lg font-bold opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
+                              title="Remove new image"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-            
-            {/* Single Image Message */}
-            {totalImages === 1 && !isEditMode && (
-              <div className="text-center py-4 bg-gray-50 rounded-lg">
-                <Camera className="w-6 h-6 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm text-gray-500">Single image available</p>
               </div>
             )}
 
-            {/* Add images section for edit mode */}
-            {isEditMode && totalImages === 1 && (
-              <div className="text-center py-6 bg-orange-50 rounded-lg border-2 border-dashed border-orange-200">
-                <label className="cursor-pointer block">
-                  <ImageIcon className="w-8 h-8 text-orange-500 mx-auto mb-3" />
-                  <p className="text-sm text-orange-700 mb-2">Add more images to create a gallery</p>
-                  <span className="inline-block bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors">
-                    Choose Images
-                  </span>
+            {/* Compact Status Summary - Keep This One */}
+            {isEditMode && (newAdditionalImages.length > 0 || imagesToRemove.length > 0 || removeMainImage || newMainImage) && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="text-sm font-medium text-blue-800 mb-2 flex items-center gap-2">
+                  <Camera className="w-4 h-4" />
+                  Pending Changes
+                </div>
+                <div className="text-xs text-blue-700 space-y-1">
+                  {newMainImage && (
+                    <div>• New main image selected</div>
+                  )}
+                  {newAdditionalImages.length > 0 && (
+                    <div>• Adding {newAdditionalImages.length} new image{newAdditionalImages.length > 1 ? 's' : ''}</div>
+                  )}
+                  {imagesToRemove.length > 0 && (
+                    <div>• Removing {imagesToRemove.length} gallery image{imagesToRemove.length > 1 ? 's' : ''}</div>
+                  )}
+                  {removeMainImage && (
+                    <div>• Removing main image</div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Single Image Add More Section - Only when no images and in edit mode */}
+            {totalImages === 0 && isEditMode && newAdditionalImages.length === 0 && !newMainImage && (
+              <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-dashed border-gray-300">
+                <Camera className="w-8 h-8 text-gray-400 mx-auto mb-3" />
+                <p className="text-sm font-medium text-gray-700 mb-3">No images yet</p>
+                <label className="bg-blue-500 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-600 transition-colors text-sm flex items-center gap-2 mx-auto w-fit">
+                  <Plus className="w-4 h-4" />
+                  Add First Image
                   <input
                     type="file"
                     accept="image/*"
                     multiple
                     className="hidden"
-                    onChange={(e) => e.target.files && handleImageUpload(e.target.files)}
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        handleImageUpload(e.target.files)
+                        setAddToGallery(true)
+                      }
+                    }}
                   />
                 </label>
               </div>
@@ -656,28 +856,28 @@ function OfferDetailContent() {
               )}
             </div>
 
-            {/* Key Details */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Responsive Key Details */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex items-center gap-3 p-4 bg-white rounded-lg border">
-                <MapPin className="w-5 h-5 text-orange-600" />
-                <div className="flex-1">
+                <MapPin className="w-5 h-5 text-orange-600 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
                   <p className="text-sm text-gray-500">Destination</p>
                   {isEditMode ? (
                     <input
                       type="text"
                       value={editData.destination || ''}
                       onChange={(e) => setEditData(prev => ({ ...prev, destination: e.target.value }))}
-                      className="w-full mt-1 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full mt-1 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                       placeholder="Enter destination"
                     />
                   ) : (
-                    <p className="font-semibold text-gray-900">{offer.destination}</p>
+                    <p className="font-semibold text-gray-900 truncate">{offer.destination}</p>
                   )}
                 </div>
               </div>
               <div className="flex items-center gap-3 p-4 bg-white rounded-lg border">
-                <Calendar className="w-5 h-5 text-orange-600" />
-                <div className="flex-1">
+                <Calendar className="w-5 h-5 text-orange-600 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
                   <p className="text-sm text-gray-500">Duration (days)</p>
                   {isEditMode ? (
                     <input
@@ -686,7 +886,7 @@ function OfferDetailContent() {
                       max="365"
                       value={editData.duration || ''}
                       onChange={(e) => setEditData(prev => ({ ...prev, duration: e.target.value }))}
-                      className="w-full mt-1 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full mt-1 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                       placeholder="7"
                     />
                   ) : (
@@ -696,35 +896,37 @@ function OfferDetailContent() {
               </div>
             </div>
 
-            {/* Short Description */}
-            <div className="bg-white rounded-lg border p-6">
+            {/* Responsive Short Description */}
+            <div className="bg-white rounded-lg border p-4 sm:p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Overview</h3>
               {isEditMode ? (
                 <textarea
                   value={editData.shortDescription || ''}
                   onChange={(e) => setEditData(prev => ({ ...prev, shortDescription: e.target.value }))}
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none text-sm"
                   placeholder="Enter short description"
                 />
               ) : (
-                <p className="text-gray-600 leading-relaxed">{offer.shortDescription}</p>
+                <p className="text-gray-600 leading-relaxed break-words">{offer.shortDescription}</p>
               )}
             </div>
 
-            {/* Detailed Description */}
-            <div className="bg-white rounded-lg border p-6">
+            {/* Responsive Detailed Description */}
+            <div className="bg-white rounded-lg border p-4 sm:p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Detailed Description</h3>
               {isEditMode ? (
                 <textarea
                   value={editData.description || ''}
                   onChange={(e) => setEditData(prev => ({ ...prev, description: e.target.value }))}
                   rows={6}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none text-sm"
                   placeholder="Enter detailed description"
                 />
               ) : (
-                <p className="text-gray-600 leading-relaxed whitespace-pre-line">{offer.description}</p>
+                <div className="text-gray-600 leading-relaxed">
+                  <p className="break-words overflow-wrap-anywhere whitespace-pre-wrap">{offer.description}</p>
+                </div>
               )}
             </div>
 
@@ -778,18 +980,7 @@ function OfferDetailContent() {
         </div>
       </div>
 
-      {/* Confirmation Modals */}
-      <ConfirmationModal
-        isOpen={showDeleteImageModal !== null}
-        onClose={() => setShowDeleteImageModal(null)}
-        onConfirm={() => showDeleteImageModal !== null && markImageForRemoval(showDeleteImageModal)}
-        title="Remove Image"
-        message="Are you sure you want to remove this image from the gallery? This action cannot be undone."
-        confirmText="Remove"
-        cancelText="Cancel"
-        confirmVariant="danger"
-      />
-
+      {/* Confirmation Modal */}
       <ConfirmationModal
         isOpen={showDiscardModal}
         onClose={() => setShowDiscardModal(false)}

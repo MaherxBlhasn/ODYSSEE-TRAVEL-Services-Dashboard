@@ -123,13 +123,22 @@ export const offerService = {
     },
 
     /**
-     * Update an existing offer
+     * Update an existing offer with ultra-flexible image management
+     * Perfectly matches your advanced backend capabilities:
+     * - Remove main image: removeMainImage: true
+     * - Remove specific gallery images: removeGalleryImages as JSON array
+     * - Add to existing gallery: addToGallery: true
+     * - Replace all gallery: replaceAllGallery: true
      */
     async updateOffer(
         id: string,
         offerData: Partial<OfferFormData & { destination: string }>,
         mainImage?: File | null,
-        additionalImages?: File[]
+        additionalImages?: File[],
+        removeMainImage?: boolean,
+        removeGalleryImages?: string[],
+        addToGallery?: boolean,
+        replaceAllGallery?: boolean
     ): Promise<CreateOfferResponse> {
         try {
             const formData = new FormData();
@@ -141,17 +150,51 @@ export const offerService = {
                 }
             });
 
-            // Add main image if provided
-            if (mainImage) {
+            // Handle main image operations
+            if (removeMainImage) {
+                formData.append('removeMainImage', 'true');
+            } else if (mainImage) {
                 formData.append('mainImage', mainImage);
             }
 
-            // Add additional images if provided
+            // Handle gallery image operations - match your backend's flexible parsing
+            if (removeGalleryImages && removeGalleryImages.length > 0) {
+                // Send as JSON string (your backend handles this perfectly)
+                formData.append('removeGalleryImages', JSON.stringify(removeGalleryImages));
+            }
+
             if (additionalImages && additionalImages.length > 0) {
+                // Set operation flags to match your backend logic perfectly
+                if (addToGallery) {
+                    formData.append('addToGallery', 'true');
+                } else if (replaceAllGallery) {
+                    formData.append('replaceAllGallery', 'true');
+                } else {
+                    // Default behavior - replace all
+                    formData.append('replaceAllGallery', 'true');
+                }
+                
                 additionalImages.forEach((file) => {
                     formData.append('images', file);
                 });
             }
+
+            console.log('%cSending flexible image operations to your advanced backend:', 'color: green; font-weight: bold;', {
+                id,
+                hasMainImage: !!mainImage,
+                removeMainImage: !!removeMainImage,
+                additionalImagesCount: additionalImages?.length || 0,
+                removeGalleryImages: removeGalleryImages?.length || 0,
+                addToGallery: !!addToGallery,
+                replaceAllGallery: !!replaceAllGallery,
+                backendOperations: {
+                    mainImageReplace: !!mainImage,
+                    mainImageRemove: !!removeMainImage,
+                    galleryAdd: !!addToGallery && additionalImages?.length,
+                    galleryReplaceAll: !!replaceAllGallery && additionalImages?.length,
+                    galleryRemoveSpecific: removeGalleryImages?.length
+                }
+            });
 
             const response = await fetch(`${API_BASE_URL}/offers/${id}`, {
                 method: 'PUT',
