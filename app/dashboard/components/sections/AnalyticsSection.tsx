@@ -8,11 +8,7 @@ import { AnalyticsResponse } from '@/lib/types/analytics.types';
 import MetricCardSkeleton from '@/components/ui/MetricCardSkeleton';
 import CountryItemSkeleton from '@/components/ui/CountryItemSkeleton';
 import ChartSkeleton from '@/components/ui/ChartSkeleton';
-import MetricCard from '@/components/ui/MetricCard';
-import EngagementOverview from '@/components/ui/EngagementOverview';
 import TopCountries from '@/components/ui/TopCountries';
-import UserActivitySummary from '@/components/ui/UserActivitySummary';
-import CountriesBarChart from '@/components/ui/CountriesBarChart';
 import { EnhancedMetricCard } from '@/components/ui/EnhancedMetricCard';
 
 interface AnalyticsData {
@@ -27,6 +23,7 @@ interface AnalyticsData {
     users: number;
   }>;
 }
+
 
 const Analytics: React.FC = () => {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
@@ -98,16 +95,23 @@ const Analytics: React.FC = () => {
               <div className="flex items-center gap-3 px-3 py-2">
                 <Clock className="w-4 h-4 text-gray-500" />
                 <label className="text-sm font-medium text-gray-700">Period:</label>
-                <select
-                  value={selectedDays}
-                  onChange={(e) => setSelectedDays(Number(e.target.value))}
-                  className="bg-transparent border-none outline-none text-sm font-medium text-gray-900 cursor-pointer"
-                  disabled={loading}
-                >
-                  <option value={7}>Last 7 days</option>
-                  <option value={30}>Last 30 days</option>
-                  <option value={90}>Last 90 days</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={selectedDays}
+                    onChange={(e) => setSelectedDays(Number(e.target.value))}
+                    className="appearance-none bg-white border border-gray-200 rounded-lg px-3 py-2 pr-8 text-sm font-medium text-gray-900 cursor-pointer hover:border-gray-300"
+                    disabled={loading}
+                  >
+                    <option value={7}>Last 7 days</option>
+                    <option value={30}>Last 30 days</option>
+                    <option value={90}>Last 90 days</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -223,39 +227,10 @@ const Analytics: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-300">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-gray-900">Top Countries</h3>
-                <div className="bg-emerald-100 p-2 rounded-lg">
-                  <Globe className="w-5 h-5 text-emerald-600" />
-                </div>
-              </div>
-              <div className="space-y-3">
-                {analyticsData!.topCountries.map((country, index) => {
-                  const percentage = ((country.users / analyticsData!.totalUsers) * 100).toFixed(1);
-                  const gradients = [
-                    'from-blue-500 to-cyan-500',
-                    'from-emerald-500 to-green-500',
-                    'from-orange-500 to-amber-500',
-                    'from-purple-500 to-violet-500',
-                    'from-rose-500 to-pink-500'
-                  ];
-
-                  return (
-                    <div key={country.country} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${gradients[index % gradients.length]}`}></div>
-                        <span className="font-medium text-gray-900">{country.country}</span>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-bold text-gray-900">{country.users.toLocaleString()}</div>
-                        <div className="text-xs text-gray-500">{percentage}%</div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            <TopCountries
+              topCountries={analyticsData!.topCountries}
+              totalUsers={analyticsData!.totalUsers}
+            />
           )}
         </div>
 
