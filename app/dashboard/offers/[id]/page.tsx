@@ -74,6 +74,24 @@ function OfferDetailContent() {
 
   const offerId = params.id as string
 
+  // Get rating text based on star value
+  const getRatingText = (rating: number): string => {
+    switch (rating) {
+      case 1:
+        return 'Poor rating'
+      case 2:
+        return 'Fair rating'
+      case 3:
+        return 'Good rating'
+      case 4:
+        return 'Very good rating'
+      case 5:
+        return 'Excellent rating'
+      default:
+        return 'No rating'
+    }
+  }
+
   // Calculate gallery variables
   const allImages = offer ? [offer.image, ...(offer.additionalImages || [])] : []
   const selectedImage = allImages[selectedImageIndex]
@@ -856,7 +874,7 @@ function OfferDetailContent() {
                       <Star className="w-5 h-5 text-yellow-400 fill-current" />
                       <span className="text-lg font-semibold text-gray-900">{offer.rating}</span>
                     </div>
-                    <span className="text-gray-500">• Excellent rating</span>
+                    <span className="text-gray-500">• {getRatingText(offer.rating)}</span>
                   </div>
                 </>
               )}
