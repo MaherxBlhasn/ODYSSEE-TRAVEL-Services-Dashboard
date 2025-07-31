@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { StatsResponse } from '@/lib/types/stats.types';
-import { LucideIcon } from 'lucide-react';
+import { BarChart3, LucideIcon } from 'lucide-react';
 
 import {
   Package,
@@ -78,23 +78,23 @@ const OffersChart = ({ availableOffers, unavailableOffers }: { availableOffers: 
           <TrendingUp className="w-5 h-5 text-emerald-600" />
         </div>
       </div>
-      
+
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis 
-              dataKey="name" 
+            <XAxis
+              dataKey="name"
               axisLine={false}
               tickLine={false}
               tick={{ fontSize: 12, fill: '#64748b' }}
             />
-            <YAxis 
+            <YAxis
               axisLine={false}
               tickLine={false}
               tick={{ fontSize: 12, fill: '#64748b' }}
             />
-            <Tooltip 
+            <Tooltip
               contentStyle={{
                 background: '#1f2937',
                 border: 'none',
@@ -138,29 +138,29 @@ const ActivityOverview = ({ totalOffers, totalMessages, totalAdmins }: { totalOf
           <Activity className="w-5 h-5 text-blue-600" />
         </div>
       </div>
-      
+
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
             <defs>
               <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis 
-              dataKey="name" 
+            <XAxis
+              dataKey="name"
               axisLine={false}
               tickLine={false}
               tick={{ fontSize: 12, fill: '#64748b' }}
             />
-            <YAxis 
+            <YAxis
               axisLine={false}
               tickLine={false}
               tick={{ fontSize: 12, fill: '#64748b' }}
             />
-            <Tooltip 
+            <Tooltip
               contentStyle={{
                 background: '#1f2937',
                 border: 'none',
@@ -391,37 +391,51 @@ const DashboardSection: React.FC = () => {
               <Settings className="w-5 h-5" />
               Manage Admins
             </button>
-            <button
-              onClick={() => handleQuickAction('analytics')}
-              className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-3 rounded-xl flex items-center gap-3 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-            >
-              <TrendingUp className="w-5 h-5" />
-              Analytics
-            </button>
+
           </div>
         </div>
 
-        {/* Google Analytics Card */}
-        <div className="bg-gradient-to-r from-blue-600 via-green-500 to-yellow-400 rounded-2xl shadow-lg p-1">
-          <div className="bg-white rounded-xl p-6 h-full">
-            <div className="flex items-center justify-between">
+
+        <div className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 rounded-2xl shadow-lg p-1 w-full">
+          <div className="bg-white rounded-xl p-4 sm:p-6 h-full">
+            {/* Desktop Layout */}
+            <div className="hidden sm:flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="bg-gradient-to-r from-blue-600 via-green-500 to-yellow-400 p-3 rounded-xl">
-                  <TrendingUp className="w-8 h-8 text-white" />
+                <div className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 p-3 rounded-xl flex-shrink-0">
+                  <BarChart3 className="w-8 h-8 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">Google Analytics</h3>
+                  <h3 className="text-xl font-bold text-gray-900">Analytics</h3>
                   <p className="text-gray-600 text-sm">Track your website performance and user behavior</p>
                 </div>
               </div>
               <button
                 onClick={() => handleQuickAction('analytics')}
-                className="bg-gradient-to-r from-blue-600 via-green-500 to-yellow-400 hover:opacity-90 text-white px-6 py-3 rounded-xl flex items-center gap-2 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 hover:opacity-90 text-white px-6 py-3 rounded-xl flex items-center gap-2 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex-shrink-0"
               >
                 View Analytics
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
+
+            {/* Mobile Layout - Full Button */}
+            <button
+              onClick={() => handleQuickAction('analytics')}
+              className="sm:hidden w-full bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 hover:opacity-90 text-white p-4 rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl active:scale-95"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="bg-white/20 p-2 rounded-lg">
+                    <BarChart3 className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="text-lg font-bold text-white">Analytics</h3>
+                    <p className="text-white/80 text-sm">Track performance</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-white flex-shrink-0" />
+              </div>
+            </button>
           </div>
         </div>
 
