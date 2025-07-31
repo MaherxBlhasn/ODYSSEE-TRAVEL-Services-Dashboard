@@ -25,8 +25,6 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Toolti
 import MetricCardSkeleton from '@/components/ui/MetricCardSkeleton';
 import ChartSkeleton from '@/components/ui/ChartSkeleton';
 
-interface DashboardProps { }
-
 // Enhanced MetricCard component with gradient backgrounds
 const MetricCard = ({
   title,
