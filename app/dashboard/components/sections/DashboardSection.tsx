@@ -249,13 +249,16 @@ const DashboardSection: React.FC<DashboardProps> = () => {
   const handleQuickAction = (action: string) => {
     switch (action) {
       case 'offers':
-        router.push('/dashboard/offers?tab=add-offer');
+        router.push('/offers');
         break;
       case 'messages':
         router.push('/dashboard/contacts');
         break;
       case 'users':
         router.push('/dashboard/users');
+        break;
+      case 'analytics':
+        router.push('/dashboard/analytics');
         break;
       default:
         break;
@@ -388,6 +391,37 @@ const DashboardSection: React.FC<DashboardProps> = () => {
               <Settings className="w-5 h-5" />
               Manage Admins
             </button>
+            <button
+              onClick={() => handleQuickAction('analytics')}
+              className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-3 rounded-xl flex items-center gap-3 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            >
+              <TrendingUp className="w-5 h-5" />
+              Analytics
+            </button>
+          </div>
+        </div>
+
+        {/* Google Analytics Card */}
+        <div className="bg-gradient-to-r from-blue-600 via-green-500 to-yellow-400 rounded-2xl shadow-lg p-1">
+          <div className="bg-white rounded-xl p-6 h-full">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="bg-gradient-to-r from-blue-600 via-green-500 to-yellow-400 p-3 rounded-xl">
+                  <TrendingUp className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">Google Analytics</h3>
+                  <p className="text-gray-600 text-sm">Track your website performance and user behavior</p>
+                </div>
+              </div>
+              <button
+                onClick={() => handleQuickAction('analytics')}
+                className="bg-gradient-to-r from-blue-600 via-green-500 to-yellow-400 hover:opacity-90 text-white px-6 py-3 rounded-xl flex items-center gap-2 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                View Analytics
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 
