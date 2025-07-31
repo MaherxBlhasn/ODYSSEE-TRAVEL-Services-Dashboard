@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, X, User, Mail, Phone, Lock, Save } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { DataTable } from '@/components/ui/data-table';
 import { SearchBar } from '@/components/ui/search-bar';
 import { Pagination } from '@/components/ui/pagination';
 import { UserDataFetch } from '@/lib/types/user.types';
 import { userService } from '@/lib/services/user.service';
-import { useRouter } from 'next/navigation'
 import { Bounce, toast, ToastContainer } from 'react-toastify';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -39,7 +38,6 @@ export default function UsersPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddSubmitting, setIsAddSubmitting] = useState(false);
   
-  const router = useRouter();
 
   // Form handling for edit modal
   const {
@@ -47,7 +45,6 @@ export default function UsersPage() {
     handleSubmit,
     formState: { errors },
     reset,
-    setValue
   } = useForm<UpdateUserFormData>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
