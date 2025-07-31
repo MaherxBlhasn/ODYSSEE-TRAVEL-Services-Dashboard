@@ -1,6 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { StatsResponse } from '@/lib/types/stats.types';
+import { LucideIcon } from 'lucide-react';
+
 import {
   Package,
   Eye,
@@ -19,7 +21,7 @@ import {
 } from 'lucide-react';
 import { statsService } from '@/lib/services/stats.service';
 import { useRouter } from 'next/navigation';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, Area, AreaChart } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Area, AreaChart } from 'recharts';
 import MetricCardSkeleton from '@/components/ui/MetricCardSkeleton';
 import ChartSkeleton from '@/components/ui/ChartSkeleton';
 
@@ -37,7 +39,7 @@ const MetricCard = ({
   title: string;
   value: string;
   subtitle?: string;
-  icon: React.ComponentType<any>;
+  icon: LucideIcon;
   gradient: string;
   iconBg: string;
 }) => (
@@ -184,7 +186,7 @@ const ActivityOverview = ({ totalOffers, totalMessages, totalAdmins }: { totalOf
   );
 };
 
-const DashboardSection: React.FC<DashboardProps> = () => {
+const DashboardSection: React.FC = () => {
   const [statsData, setStatsData] = useState<StatsResponse['data'] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
