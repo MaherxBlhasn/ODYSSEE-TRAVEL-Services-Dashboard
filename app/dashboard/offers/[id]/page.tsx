@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, MapPin, Calendar, Star, Clock, Camera, Edit3, Save, X, Trash2, Upload, Image as ImageIcon, Plus } from 'lucide-react'
+import { ArrowLeft, MapPin, Calendar, Star, Clock, Camera, Edit3, Save, X, Trash2, Upload,  Plus } from 'lucide-react'
 import Image from 'next/image'
 import { useOffers } from '../../components/offers/context/OffersContext'
 import { offerService } from '../../../../lib/services/offer.service'
@@ -36,6 +36,15 @@ interface LocalOffer {
   additionalImages?: string[]
 }
 
+interface UpdateOfferData {
+  title?: string
+  destination?: string
+  duration?: string
+  shortDescription?: string
+  bigDescription?: string
+  stars?: number
+}
+
 export default function OfferDetailPage() {
   return <OfferDetailContent />
 }
@@ -61,7 +70,7 @@ function OfferDetailContent() {
   const [isLoading, setIsLoading] = useState(false)
   const [showDiscardModal, setShowDiscardModal] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle')
-  const [saveMessage, setSaveMessage] = useState('')
+  // const [saveMessage, setSaveMessage] = useState('')
 
   const offerId = params.id as string
 
@@ -200,10 +209,7 @@ function OfferDetailContent() {
     }
   }
 
-  const handleReplaceAllGallery = () => {
-    setReplaceAllGallery(true)
-    setNewAdditionalImages([]) // Clear any existing selections
-  }
+  
 
   const toggleRemoveMainImage = () => {
     setRemoveMainImage(!removeMainImage)
@@ -227,11 +233,11 @@ function OfferDetailContent() {
     
     setIsLoading(true)
     setSaveStatus('saving')
-    setSaveMessage('Saving your changes...')
+    // setSaveMessage('Saving your changes...')
     
     try {
       // Create update data - only include defined fields
-      const updateData: any = {}
+      const updateData: UpdateOfferData = {}
       
       // Only add fields that have been edited and are not empty
       if (editData.title && editData.title.trim() !== '') {
@@ -243,7 +249,7 @@ function OfferDetailContent() {
       }
       
       if (editData.duration && editData.duration.toString().trim() !== '') {
-        updateData.duration = parseInt(editData.duration.toString(), 10)
+        updateData.duration = editData.duration.toString().trim()
       }
       
       if (editData.shortDescription && editData.shortDescription.trim() !== '') {
@@ -286,7 +292,7 @@ function OfferDetailContent() {
       setOffers(offers.map(o => o.id === offer.id ? { ...o, ...editData } : o))
       
       setSaveStatus('success')
-      setSaveMessage('Offer updated successfully!')
+      // setSaveMessage('Offer updated successfully!')
       
       // Navigate back to offers grid after a short delay
       setTimeout(() => {
@@ -296,12 +302,12 @@ function OfferDetailContent() {
     } catch (error) {
       console.error('Failed to update offer:', error)
       setSaveStatus('error')
-      setSaveMessage('Failed to update offer. Please try again.')
+      // setSaveMessage('Failed to update offer. Please try again.')
       
       // Reset error status after 3 seconds
       setTimeout(() => {
         setSaveStatus('idle')
-        setSaveMessage('')
+        // setSaveMessage('')
       }, 3000)
     } finally {
       setIsLoading(false)
