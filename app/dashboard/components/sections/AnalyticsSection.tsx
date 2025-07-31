@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Users, UserPlus, Activity, Eye, TrendingUp, BarChart3, Globe, Clock, PieChart, LineChart, LucideIcon } from 'lucide-react';
+import { Users, UserPlus, Activity, Eye, TrendingUp, BarChart3, Clock, PieChart, LineChart} from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, PieChart as RechartsPieChart, Cell, Pie, LineChart as RechartsLineChart, Line, BarChart, Bar } from 'recharts';
 import { analyticsService } from '@/lib/services/analytics.service';
 import { AnalyticsResponse } from '@/lib/types/analytics.types';
