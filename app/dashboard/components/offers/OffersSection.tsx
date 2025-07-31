@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { offers as initialOffers } from '../../data'
+import { useSearchParams } from 'next/navigation';
+
 import { offerService } from '../../../../lib/services/offer.service'
 import { useOfferForm } from './hooks/useOfferForm'
 import { NewOffer, ApiOffer, apiOfferToOffer } from './types'
@@ -13,8 +15,12 @@ import AdditionalImagesUpload from './components/AdditionalImagesUpload'
 import { useOffers } from './context/OffersContext'
 
 function OffersContent() {
+  
+  const searchParams = useSearchParams();
+  const defaultTab = searchParams.get('tab') === 'add-offer' ? 'add-offer' : 'offers';
+
   const { offers, setOffers } = useOffers()
-  const [activeTab, setActiveTab] = useState<'offers' | 'add-offer'>('offers')
+  const [activeTab, setActiveTab] = useState<'offers' | 'add-offer'>(defaultTab)
   const [mainImage, setMainImage] = useState<string>('')
   const [additionalImages, setAdditionalImages] = useState<string[]>([])
   const [isLoadingOffers, setIsLoadingOffers] = useState(false)
@@ -28,6 +34,15 @@ function OffersContent() {
     bigDescription: '',
     stars: 5
   })
+
+  // when coming from the dashboard section
+  useEffect(() => {
+    // If the user changes the URL manually, reflect that in the tab state
+    const tab = searchParams.get('tab');
+    if (tab === 'add-offer' || tab === 'offers') {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   // Initialize offers with local data
   useEffect(() => {

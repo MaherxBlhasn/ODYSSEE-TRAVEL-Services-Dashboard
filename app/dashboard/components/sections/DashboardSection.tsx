@@ -249,7 +249,7 @@ const DashboardSection: React.FC<DashboardProps> = () => {
   const handleQuickAction = (action: string) => {
     switch (action) {
       case 'offers':
-        router.push('/offers');
+        router.push('/dashboard/offers?tab=add-offer');
         break;
       case 'messages':
         router.push('/dashboard/contacts');
