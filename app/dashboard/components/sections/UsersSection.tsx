@@ -12,9 +12,10 @@ import { Bounce, toast, ToastContainer } from 'react-toastify';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { updateUserSchema } from '@/lib/validations/user.validations';
+import { updateUserSchema, userSchema } from '@/lib/validations/user.validations';
 
 type UpdateUserFormData = z.infer<typeof updateUserSchema>;
+type CreateUserFormData = z.infer<typeof userSchema>;
 export default function UsersPage() {
 
   // State management
@@ -34,6 +35,10 @@ export default function UsersPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPasswordEditable, setIsPasswordEditable] = useState(false);
   
+  // Add modal state
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isAddSubmitting, setIsAddSubmitting] = useState(false);
+  
   const router = useRouter();
 
   // Form handling for edit modal
@@ -45,6 +50,23 @@ export default function UsersPage() {
     setValue
   } = useForm<UpdateUserFormData>({
     resolver: zodResolver(updateUserSchema),
+    defaultValues: {
+      username: '',
+      Email: '',
+      phone: '',
+      password: '',
+      confirmPassword: '',
+    }
+  });
+
+  // Form handling for add modal
+  const {
+    register: registerAdd,
+    handleSubmit: handleSubmitAdd,
+    formState: { errors: errorsAdd },
+    reset: resetAdd
+  } = useForm<CreateUserFormData>({
+    resolver: zodResolver(userSchema),
     defaultValues: {
       username: '',
       Email: '',
@@ -139,8 +161,42 @@ const columns = [
   };
 
   // CRUD Operations
-  const handleAddUser =  () => {
-    router.push('/dashboard/users/create');
+  const handleAddUser = () => {
+    resetAdd();
+    setIsAddModalOpen(true);
+  };
+
+  const handleCloseAddModal = () => {
+    setIsAddModalOpen(false);
+    resetAdd();
+  };
+
+  const handleAddFormSubmit = async (data: CreateUserFormData) => {
+    setIsAddSubmitting(true);
+    
+    try {
+      await userService.createUser(data);
+
+      toast.success('User created successfully!', {
+        position: 'top-right',
+        autoClose: 3000,
+        theme: 'colored',
+        transition: Bounce,
+      });
+
+      handleCloseAddModal();
+      fetchUsers(); // Refresh the list
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create user';
+      toast.error(errorMessage, {
+        position: 'top-right',
+        autoClose: 3000,
+        theme: 'colored',
+        transition: Bounce,
+      });
+    } finally {
+      setIsAddSubmitting(false);
+    }
   };
 
   const handleEditUser = async (user: UserDataFetch) => {
@@ -465,6 +521,170 @@ const columns = [
                       </>
                     ) : (
                       'Save'
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Simple Add User Modal */}
+        {isAddModalOpen && (
+          <div className="fixed inset-0 z-50 overflow-y-auto">
+            <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center">
+              {/* Simple background overlay */}
+              <div 
+                className="fixed inset-0 bg-black/50 transition-opacity"
+                onClick={handleCloseAddModal}
+              ></div>
+
+              {/* Clean Modal Panel */}
+              <div className="relative inline-block w-full max-w-md transform transition-all bg-white rounded-lg shadow-xl">
+                {/* Simple Header */}
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900">Add New User</h3>
+                    <button
+                      onClick={handleCloseAddModal}
+                      className="p-1 text-gray-400 hover:text-orange-500 transition-colors"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Modal Body */}
+                <div className="px-6 py-4">
+                  <form onSubmit={handleSubmitAdd(handleAddFormSubmit)} className="space-y-4">
+                    {/* Username Field */}
+                    <div>
+                      <label htmlFor="add-username" className="block text-sm font-medium text-gray-700 mb-2 text-left">
+                        Username *
+                      </label>
+                      <input
+                        id="add-username"
+                        type="text"
+                        {...registerAdd('username')}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
+                          errorsAdd.username ? 'border-red-300' : 'border-gray-300'
+                        }`}
+                        placeholder="Enter username"
+                        disabled={isAddSubmitting}
+                      />
+                      {errorsAdd.username && (
+                        <p className="mt-1 text-sm text-red-600 text-left">{errorsAdd.username.message}</p>
+                      )}
+                    </div>
+
+                    {/* Email Field */}
+                    <div>
+                      <label htmlFor="add-email" className="block text-sm font-medium text-gray-700 mb-2 text-left">
+                        Email *
+                      </label>
+                      <input
+                        id="add-email"
+                        type="email"
+                        {...registerAdd('Email')}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
+                          errorsAdd.Email ? 'border-red-300' : 'border-gray-300'
+                        }`}
+                        placeholder="Enter email"
+                        disabled={isAddSubmitting}
+                      />
+                      {errorsAdd.Email && (
+                        <p className="mt-1 text-sm text-red-600 text-left">{errorsAdd.Email.message}</p>
+                      )}
+                    </div>
+
+                    {/* Phone Field */}
+                    <div>
+                      <label htmlFor="add-phone" className="block text-sm font-medium text-gray-700 mb-2 text-left">
+                        Phone
+                      </label>
+                      <input
+                        id="add-phone"
+                        type="tel"
+                        {...registerAdd('phone')}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
+                          errorsAdd.phone ? 'border-red-300' : 'border-gray-300'
+                        }`}
+                        placeholder="Enter phone number"
+                        disabled={isAddSubmitting}
+                      />
+                      {errorsAdd.phone && (
+                        <p className="mt-1 text-sm text-red-600 text-left">{errorsAdd.phone.message}</p>
+                      )}
+                    </div>
+
+                    {/* Password Field */}
+                    <div>
+                      <label htmlFor="add-password" className="block text-sm font-medium text-gray-700 mb-2 text-left">
+                        Password *
+                      </label>
+                      <input
+                        id="add-password"
+                        type="password"
+                        {...registerAdd('password')}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
+                          errorsAdd.password ? 'border-red-300' : 'border-gray-300'
+                        }`}
+                        placeholder="Enter password"
+                        disabled={isAddSubmitting}
+                        />
+                      {errorsAdd.password && (
+                        <p className="mt-1 text-sm text-red-600 text-left">{errorsAdd.password.message}</p>
+                      )}
+                    </div>
+
+                    {/* Confirm Password Field */}
+                    <div>
+                      <label htmlFor="add-confirmPassword" className="block text-sm font-medium text-gray-700 mb-2 text-left">
+                        Confirm Password *
+                      </label>
+                      <input
+                        id="add-confirmPassword"
+                        type="password"
+                        {...registerAdd('confirmPassword')}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
+                          errorsAdd.confirmPassword ? 'border-red-300' : 'border-gray-300'
+                        }`}
+                        placeholder="Confirm password"
+                        disabled={isAddSubmitting}
+                      />
+                      {errorsAdd.confirmPassword && (
+                        <p className="mt-1 text-sm text-red-600 text-left">{errorsAdd.confirmPassword.message}</p>
+                      )}
+                    </div>
+                  </form>
+                </div>
+
+                {/* Modal Footer */}
+                <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={handleCloseAddModal}
+                    disabled={isAddSubmitting}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    onClick={handleSubmitAdd(handleAddFormSubmit)}
+                    disabled={isAddSubmitting}
+                    className="px-4 py-2 text-sm font-medium text-white bg-orange-600 border border-transparent rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 flex items-center"
+                  >
+                    {isAddSubmitting ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Creating...
+                      </>
+                    ) : (
+                      'Create User'
                     )}
                   </button>
                 </div>
