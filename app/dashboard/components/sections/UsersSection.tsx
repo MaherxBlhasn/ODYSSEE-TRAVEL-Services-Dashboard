@@ -27,13 +27,13 @@ export default function UsersPage() {
   const [itemsPerPage] = useState(6);
   const [sortField, setSortField] = useState<'Email' | 'username' | 'createdAt'>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  
+
   // Edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserDataFetch | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPasswordEditable, setIsPasswordEditable] = useState(false);
-  
+
   // Add modal state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddSubmitting, setIsAddSubmitting] = useState(false);
@@ -121,7 +121,7 @@ export default function UsersPage() {
       };
 
       const response = await userService.getUsers(params);
-      console.log('responce :',response)
+      console.log('responce :', response)
       setUsers(response.data);
       setTotalPages(response.totalPages);
       setTotalItems(response.total);
@@ -180,7 +180,7 @@ export default function UsersPage() {
 
   const handleAddFormSubmit = async (data: CreateUserFormData) => {
     setIsAddSubmitting(true);
-    
+
     try {
       await userService.createUser(data);
 
@@ -208,7 +208,7 @@ export default function UsersPage() {
 
   const handleEditUser = async (user: UserDataFetch) => {
     setSelectedUser(user);
-    
+
     // Reset form with user data
     reset({
       username: user.username,
@@ -217,7 +217,7 @@ export default function UsersPage() {
       password: '',
       confirmPassword: '',
     });
-    
+
     setIsPasswordEditable(false);
     setIsEditModalOpen(true);
   };
@@ -231,9 +231,9 @@ export default function UsersPage() {
 
   const handleFormSubmit = async (data: UpdateUserFormData) => {
     if (!selectedUser) return;
-    
+
     setIsSubmitting(true);
-    
+
     try {
       const payload: Partial<UpdateUserFormData> = {
         username: data.username,
@@ -318,7 +318,7 @@ export default function UsersPage() {
               <div className="text-sm opacity-90">Total Users</div>
             </div>
           </div>
-          
+
           {/* Quick Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg">
@@ -332,7 +332,7 @@ export default function UsersPage() {
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-xl shadow-lg">
               <div className="flex items-center justify-between">
                 <div>
@@ -344,7 +344,7 @@ export default function UsersPage() {
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-6 rounded-xl shadow-lg">
               <div className="flex items-center justify-between">
                 <div>
@@ -372,18 +372,18 @@ export default function UsersPage() {
           theme="light"
           transition={Bounce}
         />
-        
+
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
           {/* Header with search and enhanced styling */}
           <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
               <div className="flex items-center space-x-4">
-                <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-3 rounded-xl shadow-lg">
-                  <div className="w-6 h-6 bg-white rounded opacity-90"></div>
+                <div className="bg-gradient-to-r from-orange-500 to-red-500 p-3 rounded-xl shadow-lg">
+                  <Users className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold text-gray-800">System Users</h2>
-                  <p className="text-gray-600 text-sm">Manage user accounts and permissions</p>
+                  <p className="text-gray-600 text-sm">Manage user accounts</p>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -395,7 +395,7 @@ export default function UsersPage() {
                 />
                 <button
                   onClick={handleAddUser}
-                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-2.5 rounded-xl flex items-center space-x-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="bg-orange-600 hover:from-orange-600 hover:to-red-600 text-white px-6 py-2.5 rounded-xl flex items-center space-x-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   <Plus className="w-5 h-5" />
                   <span className="font-medium">Add User</span>
@@ -435,7 +435,7 @@ export default function UsersPage() {
           <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center">
               {/* Enhanced background overlay */}
-              <div 
+              <div
                 className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
                 onClick={handleCloseEditModal}
               ></div>
@@ -467,9 +467,8 @@ export default function UsersPage() {
                         id="username"
                         type="text"
                         {...register('username')}
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${
-                          errors.username ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${errors.username ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                          }`}
                         placeholder="Enter username"
                         disabled={isSubmitting}
                       />
@@ -487,9 +486,8 @@ export default function UsersPage() {
                         id="Email"
                         type="email"
                         {...register('Email')}
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${
-                          errors.Email ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${errors.Email ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                          }`}
                         placeholder="Enter email"
                         disabled={isSubmitting}
                       />
@@ -507,9 +505,8 @@ export default function UsersPage() {
                         id="phone"
                         type="tel"
                         {...register('phone')}
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${
-                          errors.phone ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${errors.phone ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                          }`}
                         placeholder="Enter phone number"
                         disabled={isSubmitting}
                       />
@@ -543,9 +540,8 @@ export default function UsersPage() {
                               id="password"
                               type="password"
                               {...register('password')}
-                              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${
-                                errors.password ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                              }`}
+                              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${errors.password ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                                }`}
                               placeholder="Enter new password"
                               disabled={isSubmitting}
                             />
@@ -563,9 +559,8 @@ export default function UsersPage() {
                               id="confirmPassword"
                               type="password"
                               {...register('confirmPassword')}
-                              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${
-                                errors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                              }`}
+                              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${errors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                                }`}
                               placeholder="Confirm new password"
                               disabled={isSubmitting}
                             />
@@ -618,7 +613,7 @@ export default function UsersPage() {
           <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center">
               {/* Enhanced background overlay */}
-              <div 
+              <div
                 className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
                 onClick={handleCloseAddModal}
               ></div>
@@ -650,9 +645,8 @@ export default function UsersPage() {
                         id="add-username"
                         type="text"
                         {...registerAdd('username')}
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${
-                          errorsAdd.username ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${errorsAdd.username ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                          }`}
                         placeholder="Enter username"
                         disabled={isAddSubmitting}
                       />
@@ -670,9 +664,8 @@ export default function UsersPage() {
                         id="add-email"
                         type="email"
                         {...registerAdd('Email')}
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${
-                          errorsAdd.Email ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${errorsAdd.Email ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                          }`}
                         placeholder="Enter email"
                         disabled={isAddSubmitting}
                       />
@@ -690,9 +683,8 @@ export default function UsersPage() {
                         id="add-phone"
                         type="tel"
                         {...registerAdd('phone')}
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${
-                          errorsAdd.phone ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${errorsAdd.phone ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                          }`}
                         placeholder="Enter phone number"
                         disabled={isAddSubmitting}
                       />
@@ -710,9 +702,8 @@ export default function UsersPage() {
                         id="add-password"
                         type="password"
                         {...registerAdd('password')}
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${
-                          errorsAdd.password ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${errorsAdd.password ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                          }`}
                         placeholder="Enter password"
                         disabled={isAddSubmitting}
                       />
@@ -730,9 +721,8 @@ export default function UsersPage() {
                         id="add-confirmPassword"
                         type="password"
                         {...registerAdd('confirmPassword')}
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${
-                          errorsAdd.confirmPassword ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${errorsAdd.confirmPassword ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                          }`}
                         placeholder="Confirm password"
                         disabled={isAddSubmitting}
                       />
