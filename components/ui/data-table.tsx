@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Edit, Trash2, ChevronUp, ChevronDown, MoreHorizontal } from 'lucide-react';
-import { ContactDataFetch } from '@/lib/types/contact.types';
 
 interface DataTableProps<T> {
   data: T[];

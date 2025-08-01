@@ -6,7 +6,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { ContactDataFetch } from '@/lib/types/contact.types';
 import { contactService } from "@/lib/services/contact.service";
 import { Bounce, toast, ToastContainer } from 'react-toastify';
-import { MessageSquare, FileText, Users, Mail, X, User, Phone, AtSign, Calendar, MessageCircle, Clock } from 'lucide-react';
+import { MessageSquare, FileText, Users, Mail, X, User, MessageCircle, Clock } from 'lucide-react';
 import DataTable from "@/components/ui/data-table";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 
