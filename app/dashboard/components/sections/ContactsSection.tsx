@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { DataTable } from '@/components/ui/data-table';
 import { SearchBar } from '@/components/ui/search-bar';
 import { Pagination } from '@/components/ui/pagination';
 import { ContactDataFetch } from '@/lib/types/contact.types';
 import { contactService } from "@/lib/services/contact.service";
 import { Bounce, toast, ToastContainer } from 'react-toastify';
 import { MessageSquare, FileText, Users, Mail } from 'lucide-react';
+import DataTable from "@/components/ui/data-table";
 
 
 export default function ContactsSection() {
@@ -22,48 +22,68 @@ export default function ContactsSection() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   // Table columns configuration
-  const columns = [
-    {
-      key: 'name' as const,
-      label: 'Name',
-      sortable: true,
-      render: (contact: ContactDataFetch) => <div className="font-semibold text-gray-800">{contact.name}</div>
-    },
-    {
-      key: 'familyName' as const,
-      label: 'Family Name',
-      render: (contact: ContactDataFetch) => <div className="text-gray-700 font-medium">{contact.familyName || '-'}</div>
-    },
-    {
-      key: 'Email' as const,
-      label: 'Email',
-      sortable: true,
-      render: (contact: ContactDataFetch) => <div className="text-blue-600 font-medium">{contact.Email}</div>
-    },
-    {
-      key: 'phone' as const,
-      label: 'Phone',
-      render: (contact: ContactDataFetch) => <div className="text-gray-700 font-medium">{contact.phone || '-'}</div>
-    },
-    {
-      key: 'message' as const,
-      label: 'Message',
-      render: (contact: ContactDataFetch) => <div className="text-gray-700 max-w-xs truncate">{contact.message || '-'}</div>
-    },
-    {
-      key: 'messageSentAt' as const,
-      label: 'Message Sent At',
-      sortable: true,
-      render: (contact: ContactDataFetch) => (
-        <div className="text-gray-600 text-sm">{new Date(contact.messageSentAt).toLocaleString()}</div>
-      )
-    },
-    {
-      key: 'actions' as const,
-      label: 'Actions'
-    }
-  ];
-
+const columns = [
+  {
+    key: 'name' as const,
+    label: 'Name',
+    sortable: true,
+    hideOnMobile: false,     
+    hideOnTablet: false,    
+    hideOnDesktop: false,   
+    render: (contact: ContactDataFetch) => <div className="font-semibold text-gray-800">{contact.name}</div>
+  },
+  {
+    key: 'familyName' as const,
+    label: 'Family Name',
+    hideOnMobile: true,     
+    hideOnTablet: false,   
+    hideOnDesktop: false,  
+    render: (contact: ContactDataFetch) => <div className="text-gray-700 font-medium">{contact.familyName || '-'}</div>
+  },
+  {
+    key: 'Email' as const,
+    label: 'Email',
+    sortable: true,
+    hideOnMobile: true,     
+    hideOnTablet: true,   
+    hideOnDesktop: false,  
+    render: (contact: ContactDataFetch) => <div className="text-blue-600 font-medium">{contact.Email}</div>
+  },
+  {
+    key: 'phone' as const,
+    label: 'Phone',
+    hideOnMobile: true,     
+    hideOnTablet: true,    
+    hideOnDesktop: true,  
+    render: (contact: ContactDataFetch) => <div className="text-gray-700 font-medium">{contact.phone || '-'}</div>
+  },
+  {
+    key: 'message' as const,
+    label: 'Message',
+    hideOnMobile: true,     
+    hideOnTablet: true,    
+    hideOnDesktop: true,   
+    render: (contact: ContactDataFetch) => <div className="text-gray-700 max-w-xs truncate">{contact.message || '-'}</div>
+  },
+  {
+    key: 'messageSentAt' as const,
+    label: 'Message Sent At',
+    sortable: true,
+    hideOnMobile: true,     
+    hideOnTablet: true,    
+    hideOnDesktop: true,  
+    render: (contact: ContactDataFetch) => (
+      <div className="text-gray-600 text-sm">{new Date(contact.messageSentAt).toLocaleString()}</div>
+    )
+  },
+  {
+    key: 'actions' as const,
+    label: 'Actions',
+    hideOnMobile: false,    // Always visible
+    hideOnTablet: false,   // Always visible
+    hideOnDesktop: false   // Always visible
+  }
+];
   // Fetch contacts from API
   const fetchContacts = async () => {
     setLoading(true);
@@ -227,10 +247,12 @@ export default function ContactsSection() {
         />
 
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-          {/* Header with search and enhanced styling */}
+          {/* Header with responsive search bar positioning */}
           <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-              <div className="flex items-center space-x-4">
+            {/* Flex container with conditional layouts */}
+            <div className="flex flex-col [@media(min-width:781px)_and_(max-width:890px)]:block lg:flex-row lg:items-center lg:justify-between">
+              {/* Title section (left-aligned) */}
+              <div className="flex items-center space-x-4 mb-4 [@media(min-width:781px)_and_(max-width:890px)]:mb-4 lg:mb-0">
                 <div className="bg-gradient-to-r from-orange-500 to-red-500 p-3 rounded-xl shadow-lg">
                   <Mail className="w-6 h-6 text-white" />
                 </div>
@@ -239,12 +261,16 @@ export default function ContactsSection() {
                   <p className="text-gray-600 text-sm">View and manage customer messages</p>
                 </div>
               </div>
-              <SearchBar
-                value={searchTerm}
-                onChange={setSearchTerm}
-                onSearch={handleSearch}
-                placeholder="Search messages..."
-              />
+
+              {/* Search bar (right-aligned on >900px) */}
+              <div className="w-full [@media(min-width:781px)_and_(max-width:890px)]:w-auto lg:flex lg:justify-end">
+                <SearchBar
+                  value={searchTerm}
+                  onChange={setSearchTerm}
+                  onSearch={handleSearch}
+                  placeholder="Search messages..."
+                />
+              </div>
             </div>
           </div>
 

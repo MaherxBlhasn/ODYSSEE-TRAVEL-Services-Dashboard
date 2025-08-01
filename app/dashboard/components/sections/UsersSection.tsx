@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Database, FileText, Plus, Users, X } from 'lucide-react';
-import { DataTable } from '@/components/ui/data-table';
+import DataTable from '@/components/ui/data-table';
 import { SearchBar } from '@/components/ui/search-bar';
 import { Pagination } from '@/components/ui/pagination';
 import { UserDataFetch } from '@/lib/types/user.types';
@@ -84,27 +84,36 @@ export default function UsersPage() {
       key: 'Email' as const,
       label: 'Email',
       sortable: true,
-      hideOnMobile: true,
+      hideOnMobile: true,       // Hidden on mobile
+      hideOnTablet: false,      // Visible on tablet
+      hideOnDesktop: false,     // Visible on desktop
       render: (user: UserDataFetch) => <div className="text-blue-600 font-medium">{user.Email}</div>
     },
     {
       key: 'phone' as const,
       label: 'Phone',
-      hideOnMobile: true,
+      hideOnMobile: true,       // Hidden on mobile
+      hideOnTablet: true,       // Hidden on tablet
+      hideOnDesktop: false,     // Visible on desktop
       render: (user: UserDataFetch) => <div className="text-gray-700 font-medium">{user.phone || '-'}</div>
     },
     {
       key: 'createdAt' as const,
       label: 'Created At',
       sortable: true,
-      hideOnMobile: true,
+      hideOnMobile: true,       // Hidden on mobile
+      hideOnTablet: true,      // Visible on tablet
+      hideOnDesktop: false,     // Visible on desktop
       render: (user: UserDataFetch) => (
         <div className="text-gray-600 text-sm">{new Date(user.createdAt).toLocaleString()}</div>
       )
     },
     {
       key: 'actions' as const,
-      label: 'Actions'
+      label: 'Actions',
+      hideOnMobile: false,      // Always visible
+      hideOnTablet: true,
+      hideOnDesktop: false
     }
   ];
 
@@ -375,30 +384,35 @@ export default function UsersPage() {
 
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
           {/* Header with search and enhanced styling */}
-          <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-              <div className="flex items-center space-x-4">
-                <div className="bg-gradient-to-r from-orange-500 to-red-500 p-3 rounded-xl shadow-lg">
-                  <Users className="w-6 h-6 text-white" />
+          <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 lg:p-6 border-b border-gray-200">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              {/* Left side - Title and icon */}
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="bg-gradient-to-r from-orange-500 to-red-500 p-2.5 rounded-xl shadow-lg flex-shrink-0">
+                  <Users className="w-5 h-5 text-white" />
                 </div>
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-800">System Users</h2>
-                  <p className="text-gray-600 text-sm">Manage user accounts</p>
+                <div className="min-w-0">
+                  <h2 className="text-lg font-semibold text-gray-800 truncate">System Users</h2>
+                  <p className="text-gray-600 text-sm truncate">Manage user accounts</p>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <SearchBar
-                  value={searchTerm}
-                  onChange={setSearchTerm}
-                  onSearch={handleSearch}
-                  placeholder="Search users..."
-                />
+
+              {/* Right side - Search and button */}
+              <div className="flex flex-col xs:flex-row gap-3 w-full lg:w-auto">
+                <div className="flex-1 min-w-0">
+                  <SearchBar
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    onSearch={handleSearch}
+                    placeholder="Search users..."
+                  />
+                </div>
                 <button
                   onClick={handleAddUser}
-                  className="bg-orange-600 hover:from-orange-600 hover:to-red-600 text-white px-6 py-2.5 rounded-xl flex items-center space-x-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl active:scale-[0.98] whitespace-nowrap flex-shrink-0"
                 >
-                  <Plus className="w-5 h-5" />
-                  <span className="font-medium">Add User</span>
+                  <Plus className="w-4 h-4" />
+                  <span className="font-medium text-sm">Add User</span>
                 </button>
               </div>
             </div>
