@@ -8,6 +8,7 @@ import { contactService } from "@/lib/services/contact.service";
 import { Bounce, toast, ToastContainer } from 'react-toastify';
 import { MessageSquare, FileText, Users, Mail } from 'lucide-react';
 import DataTable from "@/components/ui/data-table";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 
 
 export default function ContactsSection() {
@@ -21,69 +22,73 @@ export default function ContactsSection() {
   const [sortField, setSortField] = useState<'Email' | 'name' | 'familyName' | 'messageSentAt' | 'phone'>('messageSentAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [contactToDelete, setContactToDelete] = useState<ContactDataFetch | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   // Table columns configuration
-const columns = [
-  {
-    key: 'name' as const,
-    label: 'Name',
-    sortable: true,
-    hideOnMobile: false,     
-    hideOnTablet: false,    
-    hideOnDesktop: false,   
-    render: (contact: ContactDataFetch) => <div className="font-semibold text-gray-800">{contact.name}</div>
-  },
-  {
-    key: 'familyName' as const,
-    label: 'Family Name',
-    hideOnMobile: true,     
-    hideOnTablet: false,   
-    hideOnDesktop: false,  
-    render: (contact: ContactDataFetch) => <div className="text-gray-700 font-medium">{contact.familyName || '-'}</div>
-  },
-  {
-    key: 'Email' as const,
-    label: 'Email',
-    sortable: true,
-    hideOnMobile: true,     
-    hideOnTablet: true,   
-    hideOnDesktop: false,  
-    render: (contact: ContactDataFetch) => <div className="text-blue-600 font-medium">{contact.Email}</div>
-  },
-  {
-    key: 'phone' as const,
-    label: 'Phone',
-    hideOnMobile: true,     
-    hideOnTablet: true,    
-    hideOnDesktop: true,  
-    render: (contact: ContactDataFetch) => <div className="text-gray-700 font-medium">{contact.phone || '-'}</div>
-  },
-  {
-    key: 'message' as const,
-    label: 'Message',
-    hideOnMobile: true,     
-    hideOnTablet: true,    
-    hideOnDesktop: true,   
-    render: (contact: ContactDataFetch) => <div className="text-gray-700 max-w-xs truncate">{contact.message || '-'}</div>
-  },
-  {
-    key: 'messageSentAt' as const,
-    label: 'Message Sent At',
-    sortable: true,
-    hideOnMobile: true,     
-    hideOnTablet: true,    
-    hideOnDesktop: true,  
-    render: (contact: ContactDataFetch) => (
-      <div className="text-gray-600 text-sm">{new Date(contact.messageSentAt).toLocaleString()}</div>
-    )
-  },
-  {
-    key: 'actions' as const,
-    label: 'Actions',
-    hideOnMobile: false,    // Always visible
-    hideOnTablet: false,   // Always visible
-    hideOnDesktop: false   // Always visible
-  }
-];
+  const columns = [
+    {
+      key: 'name' as const,
+      label: 'Name',
+      sortable: true,
+      hideOnMobile: false,
+      hideOnTablet: false,
+      hideOnDesktop: false,
+      render: (contact: ContactDataFetch) => <div className="font-semibold text-gray-800">{contact.name}</div>
+    },
+    {
+      key: 'familyName' as const,
+      label: 'Family Name',
+      hideOnMobile: true,
+      hideOnTablet: false,
+      hideOnDesktop: false,
+      render: (contact: ContactDataFetch) => <div className="text-gray-700 font-medium">{contact.familyName || '-'}</div>
+    },
+    {
+      key: 'Email' as const,
+      label: 'Email',
+      sortable: true,
+      hideOnMobile: true,
+      hideOnTablet: true,
+      hideOnDesktop: false,
+      render: (contact: ContactDataFetch) => <div className="text-blue-600 font-medium">{contact.Email}</div>
+    },
+    {
+      key: 'phone' as const,
+      label: 'Phone',
+      hideOnMobile: true,
+      hideOnTablet: true,
+      hideOnDesktop: true,
+      render: (contact: ContactDataFetch) => <div className="text-gray-700 font-medium">{contact.phone || '-'}</div>
+    },
+    {
+      key: 'message' as const,
+      label: 'Message',
+      hideOnMobile: true,
+      hideOnTablet: true,
+      hideOnDesktop: true,
+      render: (contact: ContactDataFetch) => <div className="text-gray-700 max-w-xs truncate">{contact.message || '-'}</div>
+    },
+    {
+      key: 'messageSentAt' as const,
+      label: 'Message Sent At',
+      sortable: true,
+      hideOnMobile: true,
+      hideOnTablet: true,
+      hideOnDesktop: true,
+      render: (contact: ContactDataFetch) => (
+        <div className="text-gray-600 text-sm">{new Date(contact.messageSentAt).toLocaleString()}</div>
+      )
+    },
+    {
+      key: 'actions' as const,
+      label: 'Actions',
+      hideOnMobile: false,    // Always visible
+      hideOnTablet: false,   // Always visible
+      hideOnDesktop: false   // Always visible
+    }
+  ];
   // Fetch contacts from API
   const fetchContacts = async () => {
     setLoading(true);
@@ -144,35 +149,44 @@ const columns = [
   };
 
   const handleDeleteUser = async (contact: ContactDataFetch) => {
-    if (window.confirm('Are you sure you want to delete this message?')) {
-      try {
-        await contactService.deleteContact(contact.id);
-        toast.success('Message deleted successfully!', {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          transition: Bounce,
-        });
-        fetchContacts(); // Refresh the list
-      } catch (error) {
-        console.error('Error deleting contact:', error);
-        toast.error('Error deleting message. Please try again.', {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          transition: Bounce,
-        });
-      }
+    setContactToDelete(contact);
+    setShowDeleteModal(true);
+  };
+  const handleDeleteConfirm = async () => {
+    if (!contactToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await contactService.deleteContact(contactToDelete.id);
+      toast.success('Message deleted successfully!', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+      fetchContacts(); // Refresh the list
+    } catch (error) {
+      console.error('Error deleting contact:', error);
+      toast.error('Error deleting message. Please try again.', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+      setContactToDelete(null);
     }
   };
 
@@ -299,6 +313,28 @@ const columns = [
           </div>
         </div>
       </div>
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Message"
+        message={
+          <>
+            Are you sure you want to delete the message from{' '}
+            <span className="text-red-500 font-bold">
+              {contactToDelete?.name}
+            </span>
+            ? This action cannot be undone and will permanently remove the message.
+          </>
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmVariant="danger"
+        isLoading={isDeleting}
+      />
+
+
     </div>
+
   );
 }

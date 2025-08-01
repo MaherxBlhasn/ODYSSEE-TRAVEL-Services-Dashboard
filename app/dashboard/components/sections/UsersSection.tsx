@@ -12,6 +12,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { updateUserSchema, userSchema } from '@/lib/validations/user.validations';
+import ConfirmationModal from '@/components/ui/ConfirmationModal';
 
 type UpdateUserFormData = z.infer<typeof updateUserSchema>;
 type CreateUserFormData = z.infer<typeof userSchema>;
@@ -37,6 +38,10 @@ export default function UsersPage() {
   // Add modal state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddSubmitting, setIsAddSubmitting] = useState(false);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<UserDataFetch | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Form handling for edit modal
   const {
@@ -279,36 +284,46 @@ export default function UsersPage() {
     }
   };
 
-  const handleDeleteUser = async (user: UserDataFetch) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      try {
-        await userService.deleteUser(user.id);
-        toast.success('User deleted successfully!', {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          transition: Bounce,
-        });
-        fetchUsers(); // Refresh the list
-      } catch (error) {
-        console.error('Error deleting user:', error);
-        toast.error('Error deleting user. Please try again.', {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          transition: Bounce,
-        });
-      }
+  const handleDeleteUser = (user: UserDataFetch) => {
+    setUserToDelete(user);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!userToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await userService.deleteUser(userToDelete.id);
+      toast.success('User deleted successfully!', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+      fetchUsers(); // Refresh the list
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast.error('Error deleting user. Please try again.', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+      setUserToDelete(null);
     }
   };
 
@@ -781,6 +796,24 @@ export default function UsersPage() {
           </div>
         )}
       </div>
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete User"
+        message={
+          <>
+            Are you sure you want to delete user{' '}
+            <span className="text-red-500 font-bold">{userToDelete?.username}</span>?
+            This action cannot be undone and will permanently remove the user from the system.
+          </>
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmVariant="danger"
+        isLoading={isDeleting}
+      />
+
     </div>
   );
 }

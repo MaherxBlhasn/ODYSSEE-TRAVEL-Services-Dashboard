@@ -144,15 +144,21 @@ export default function OfferCard({ offer, onDelete, onToggleStatus }: OfferCard
         onClose={() => setShowToggleModal(false)}
         onConfirm={handleToggleConfirm}
         title={`${offer.available ? 'Disable' : 'Enable'} Offer`}
-        message={`Are you sure you want to ${offer.available ? 'disable' : 'enable'} "${offer.title}"? ${offer.available
-          ? 'This will make the offer unavailable to customers.'
-          : 'This will make the offer available to customers.'
-          }`}
+        message={
+          <>
+            Are you sure you want to {offer.available ? 'disable' : 'enable'}{' '}
+            <span className="text-red-500 font-bold">{offer.title}</span> ?{' '}
+            {offer.available
+              ? 'This will make the offer unavailable to customers.'
+              : 'This will make the offer available to customers.'}
+          </>
+        }
         confirmText={offer.available ? 'Disable' : 'Enable'}
         cancelText="Cancel"
         confirmVariant={offer.available ? 'danger' : 'default'}
         isLoading={isToggling}
       />
+
 
       {/* Delete Confirmation Modal */}
       <ConfirmationModal
@@ -160,12 +166,19 @@ export default function OfferCard({ offer, onDelete, onToggleStatus }: OfferCard
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDeleteConfirm}
         title="Delete Offer"
-        message={`Are you sure you want to delete "${offer.title}"? This action cannot be undone and will permanently remove the offer from your dashboard.`}
+        message={
+          <>
+            Are you sure you want to delete{' '}
+            <span className="text-red-500 font-bold">{offer.title}</span>? This action
+            cannot be undone and will permanently remove the offer from your dashboard.
+          </>
+        }
         confirmText="Delete"
         cancelText="Cancel"
         confirmVariant="danger"
         isLoading={isDeleting}
       />
+
     </div>
   )
 }
