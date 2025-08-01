@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, X } from 'lucide-react';
+import { Database, FileText, Plus, Users, X } from 'lucide-react';
 import { DataTable } from '@/components/ui/data-table';
 import { SearchBar } from '@/components/ui/search-bar';
 import { Pagination } from '@/components/ui/pagination';
@@ -15,8 +15,8 @@ import { updateUserSchema, userSchema } from '@/lib/validations/user.validations
 
 type UpdateUserFormData = z.infer<typeof updateUserSchema>;
 type CreateUserFormData = z.infer<typeof userSchema>;
-export default function UsersPage() {
 
+export default function UsersPage() {
   // State management
   const [users, setUsers] = useState<UserDataFetch[]>([]);
   const [loading, setLoading] = useState(false);
@@ -24,7 +24,7 @@ export default function UsersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const [itemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(6);
   const [sortField, setSortField] = useState<'Email' | 'username' | 'createdAt'>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   
@@ -37,7 +37,6 @@ export default function UsersPage() {
   // Add modal state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddSubmitting, setIsAddSubmitting] = useState(false);
-  
 
   // Form handling for edit modal
   const {
@@ -72,41 +71,42 @@ export default function UsersPage() {
       confirmPassword: '',
     }
   });
+
   // Table columns configuration
-const columns = [
-  {
-    key: 'username' as const,
-    label: 'Username',
-    sortable: true,
-    render: (user: UserDataFetch) => <div className="font-medium text-gray-900">{user.username}</div>
-  },
-  {
-    key: 'Email' as const,
-    label: 'Email',
-    sortable: true,
-    hideOnMobile: true,
-    render: (user: UserDataFetch) => <div className="text-gray-600">{user.Email}</div>
-  },
-  {
-    key: 'phone' as const,
-    label: 'Phone',
-    hideOnMobile: true,
-    render: (user: UserDataFetch) => <div className="text-gray-600">{user.phone || '-'}</div>
-  },
-  {
-    key: 'createdAt' as const,
-    label: 'Created At',
-    sortable: true,
-    hideOnMobile: true,
-    render: (user: UserDataFetch) => (
-      <div className="text-gray-600">{new Date(user.createdAt).toLocaleString()}</div>
-    )
-  },
-  {
-    key: 'actions' as const,
-    label: 'Actions'
-  }
-];
+  const columns = [
+    {
+      key: 'username' as const,
+      label: 'Username',
+      sortable: true,
+      render: (user: UserDataFetch) => <div className="font-semibold text-gray-800">{user.username}</div>
+    },
+    {
+      key: 'Email' as const,
+      label: 'Email',
+      sortable: true,
+      hideOnMobile: true,
+      render: (user: UserDataFetch) => <div className="text-blue-600 font-medium">{user.Email}</div>
+    },
+    {
+      key: 'phone' as const,
+      label: 'Phone',
+      hideOnMobile: true,
+      render: (user: UserDataFetch) => <div className="text-gray-700 font-medium">{user.phone || '-'}</div>
+    },
+    {
+      key: 'createdAt' as const,
+      label: 'Created At',
+      sortable: true,
+      hideOnMobile: true,
+      render: (user: UserDataFetch) => (
+        <div className="text-gray-600 text-sm">{new Date(user.createdAt).toLocaleString()}</div>
+      )
+    },
+    {
+      key: 'actions' as const,
+      label: 'Actions'
+    }
+  ];
 
   // Fetch users from API
   const fetchUsers = async () => {
@@ -127,7 +127,17 @@ const columns = [
       setTotalItems(response.total);
     } catch (error) {
       console.error('Error fetching users:', error);
-      // TODO: Add error notification
+      toast.error('Error fetching users. Please try again.', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
     } finally {
       setLoading(false);
     }
@@ -260,34 +270,95 @@ const columns = [
     }
   };
 
-
   const handleDeleteUser = async (user: UserDataFetch) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
         await userService.deleteUser(user.id);
-          toast.success('User deleted Successfully!', {
-            position: "top-right",
-            autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-            transition: Bounce,
-            });
+        toast.success('User deleted successfully!', {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
         fetchUsers(); // Refresh the list
       } catch (error) {
         console.error('Error deleting user:', error);
-        // TODO: Add error notification
+        toast.error('Error deleting user. Please try again.', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
       }
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-6">Users Management</h1>
+        {/* Header Section with Stats */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">User Management</h1>
+              <p className="text-gray-600">Manage system users and administrators</p>
+            </div>
+            <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-xl shadow-lg">
+              <div className="text-2xl font-bold">{totalItems}</div>
+              <div className="text-sm opacity-90">Total Users</div>
+            </div>
+          </div>
+          
+          {/* Quick Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-2xl font-bold">{currentPage}</div>
+                  <div className="text-sm opacity-90">Current Page</div>
+                </div>
+                <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+                  <FileText className="w-6 h-6 text-blue-500" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-xl shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-2xl font-bold">{totalPages}</div>
+                  <div className="text-sm opacity-90">Total Pages</div>
+                </div>
+                <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+                  <Database className="w-6 h-6 text-green-500" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-6 rounded-xl shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-2xl font-bold">{itemsPerPage}</div>
+                  <div className="text-sm opacity-90">Per Page</div>
+                </div>
+                <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+                  <Users className="w-6 h-6 text-orange-500" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <ToastContainer
           position="top-right"
           autoClose={5000}
@@ -300,68 +371,84 @@ const columns = [
           pauseOnHover
           theme="light"
           transition={Bounce}
-          />
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          {/* Header with search and add button */}
-          <div className="p-6 border-b border-gray-200">
+        />
+        
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+          {/* Header with search and enhanced styling */}
+          <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-              <SearchBar
-                value={searchTerm}
-                onChange={setSearchTerm}
-                onSearch={handleSearch}
-                placeholder="Search users..."
-              />
-              <button
-                onClick={handleAddUser}
-                className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
-              >
-                <Plus className="w-5 h-5" />
-                <span>Add User</span>
-              </button>
+              <div className="flex items-center space-x-4">
+                <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-3 rounded-xl shadow-lg">
+                  <div className="w-6 h-6 bg-white rounded opacity-90"></div>
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-800">System Users</h2>
+                  <p className="text-gray-600 text-sm">Manage user accounts and permissions</p>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <SearchBar
+                  value={searchTerm}
+                  onChange={setSearchTerm}
+                  onSearch={handleSearch}
+                  placeholder="Search users..."
+                />
+                <button
+                  onClick={handleAddUser}
+                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-2.5 rounded-xl flex items-center space-x-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span className="font-medium">Add User</span>
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Table */}
-          <DataTable
-            data={users}
-            columns={columns}
-            onSort={handleSort}
-            sortField={sortField}
-            sortDirection={sortDirection}
-            onEdit={handleEditUser}
-            onDelete={handleDeleteUser}
-            loading={loading}
-          />
+          {/* Table with enhanced styling and responsiveness */}
+          <div className="overflow-x-auto">
+            <DataTable
+              data={users}
+              columns={columns}
+              onSort={handleSort}
+              sortField={sortField}
+              sortDirection={sortDirection}
+              onEdit={handleEditUser}
+              onDelete={handleDeleteUser}
+              loading={loading}
+            />
+          </div>
 
-          {/* Pagination */}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalItems={totalItems}
-            itemsPerPage={itemsPerPage}
-            onPageChange={handlePageChange}
-          />
+          {/* Enhanced Pagination */}
+          <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              itemsPerPage={itemsPerPage}
+              onPageChange={handlePageChange}
+            />
+          </div>
         </div>
 
-        {/* Simple Edit User Modal */}
+        {/* Enhanced Edit User Modal */}
         {isEditModalOpen && (
           <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center">
-              {/* Simple background overlay */}
+              {/* Enhanced background overlay */}
               <div 
-                className="fixed inset-0 bg-black/50 transition-opacity"
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
                 onClick={handleCloseEditModal}
               ></div>
 
-              {/* Clean Modal Panel */}
-              <div className="relative inline-block w-full max-w-md transform transition-all bg-white rounded-lg shadow-xl">
-                {/* Simple Header */}
-                <div className="px-6 py-4 border-b border-gray-200">
+              {/* Enhanced Modal Panel */}
+              <div className="relative inline-block w-full max-w-md transform transition-all bg-white rounded-2xl shadow-2xl border border-gray-100">
+                {/* Enhanced Header */}
+                <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-4 rounded-t-2xl">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900">Edit User</h3>
+                    <h3 className="text-xl font-bold text-white">Edit User</h3>
                     <button
                       onClick={handleCloseEditModal}
-                      className="p-1 text-gray-400 hover:text-orange-500 transition-colors"
+                      className="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-all duration-200"
                     >
                       <X className="h-5 w-5" />
                     </button>
@@ -380,8 +467,8 @@ const columns = [
                         id="username"
                         type="text"
                         {...register('username')}
-                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
-                          errors.username ? 'border-red-300' : 'border-gray-300'
+                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${
+                          errors.username ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                         }`}
                         placeholder="Enter username"
                         disabled={isSubmitting}
@@ -400,8 +487,8 @@ const columns = [
                         id="Email"
                         type="email"
                         {...register('Email')}
-                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
-                          errors.Email ? 'border-red-300' : 'border-gray-300'
+                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${
+                          errors.Email ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                         }`}
                         placeholder="Enter email"
                         disabled={isSubmitting}
@@ -420,8 +507,8 @@ const columns = [
                         id="phone"
                         type="tel"
                         {...register('phone')}
-                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
-                          errors.phone ? 'border-red-300' : 'border-gray-300'
+                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${
+                          errors.phone ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                         }`}
                         placeholder="Enter phone number"
                         disabled={isSubmitting}
@@ -433,12 +520,12 @@ const columns = [
 
                     {/* Password Section */}
                     <div className="pt-2">
-                      <div className="flex items-center space-x-2 mb-4 justify-start">
+                      <div className="flex items-center space-x-3 mb-4 justify-start p-4 bg-gray-50 rounded-xl">
                         <input
                           type="checkbox"
                           checked={isPasswordEditable}
                           onChange={(e) => setIsPasswordEditable(e.target.checked)}
-                          className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                          className="w-5 h-5 text-purple-600 border-2 border-gray-300 rounded focus:ring-purple-500"
                         />
                         <label className="block text-sm font-medium text-gray-700 text-left">
                           Update Password
@@ -456,8 +543,8 @@ const columns = [
                               id="password"
                               type="password"
                               {...register('password')}
-                              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
-                                errors.password ? 'border-red-300' : 'border-gray-300'
+                              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${
+                                errors.password ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                               }`}
                               placeholder="Enter new password"
                               disabled={isSubmitting}
@@ -476,8 +563,8 @@ const columns = [
                               id="confirmPassword"
                               type="password"
                               {...register('confirmPassword')}
-                              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
-                                errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
+                              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${
+                                errors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                               }`}
                               placeholder="Confirm new password"
                               disabled={isSubmitting}
@@ -492,13 +579,13 @@ const columns = [
                   </form>
                 </div>
 
-                {/* Modal Footer */}
-                <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+                {/* Enhanced Modal Footer */}
+                <div className="px-6 py-4 bg-gray-50 rounded-b-2xl flex justify-end space-x-3">
                   <button
                     type="button"
                     onClick={handleCloseEditModal}
                     disabled={isSubmitting}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50"
+                    className="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 transition-all duration-200"
                   >
                     Cancel
                   </button>
@@ -506,7 +593,7 @@ const columns = [
                     type="submit"
                     onClick={handleSubmit(handleFormSubmit)}
                     disabled={isSubmitting}
-                    className="px-4 py-2 text-sm font-medium text-white bg-orange-600 border border-transparent rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 flex items-center"
+                    className="px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-pink-500 border border-transparent rounded-xl hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 flex items-center transition-all duration-200 shadow-lg hover:shadow-xl"
                   >
                     {isSubmitting ? (
                       <>
@@ -517,7 +604,7 @@ const columns = [
                         Saving...
                       </>
                     ) : (
-                      'Save'
+                      'Save Changes'
                     )}
                   </button>
                 </div>
@@ -526,25 +613,25 @@ const columns = [
           </div>
         )}
 
-        {/* Simple Add User Modal */}
+        {/* Enhanced Add User Modal */}
         {isAddModalOpen && (
           <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center">
-              {/* Simple background overlay */}
+              {/* Enhanced background overlay */}
               <div 
-                className="fixed inset-0 bg-black/50 transition-opacity"
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
                 onClick={handleCloseAddModal}
               ></div>
 
-              {/* Clean Modal Panel */}
-              <div className="relative inline-block w-full max-w-md transform transition-all bg-white rounded-lg shadow-xl">
-                {/* Simple Header */}
-                <div className="px-6 py-4 border-b border-gray-200">
+              {/* Enhanced Modal Panel */}
+              <div className="relative inline-block w-full max-w-md transform transition-all bg-white rounded-2xl shadow-2xl border border-gray-100">
+                {/* Enhanced Header */}
+                <div className="bg-gradient-to-r from-orange-500 to-red-500 px-6 py-4 rounded-t-2xl">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900">Add New User</h3>
+                    <h3 className="text-xl font-bold text-white">Add New User</h3>
                     <button
                       onClick={handleCloseAddModal}
-                      className="p-1 text-gray-400 hover:text-orange-500 transition-colors"
+                      className="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-all duration-200"
                     >
                       <X className="h-5 w-5" />
                     </button>
@@ -563,8 +650,8 @@ const columns = [
                         id="add-username"
                         type="text"
                         {...registerAdd('username')}
-                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
-                          errorsAdd.username ? 'border-red-300' : 'border-gray-300'
+                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${
+                          errorsAdd.username ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                         }`}
                         placeholder="Enter username"
                         disabled={isAddSubmitting}
@@ -583,8 +670,8 @@ const columns = [
                         id="add-email"
                         type="email"
                         {...registerAdd('Email')}
-                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
-                          errorsAdd.Email ? 'border-red-300' : 'border-gray-300'
+                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${
+                          errorsAdd.Email ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                         }`}
                         placeholder="Enter email"
                         disabled={isAddSubmitting}
@@ -603,8 +690,8 @@ const columns = [
                         id="add-phone"
                         type="tel"
                         {...registerAdd('phone')}
-                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
-                          errorsAdd.phone ? 'border-red-300' : 'border-gray-300'
+                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${
+                          errorsAdd.phone ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                         }`}
                         placeholder="Enter phone number"
                         disabled={isAddSubmitting}
@@ -623,12 +710,12 @@ const columns = [
                         id="add-password"
                         type="password"
                         {...registerAdd('password')}
-                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
-                          errorsAdd.password ? 'border-red-300' : 'border-gray-300'
+                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${
+                          errorsAdd.password ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                         }`}
                         placeholder="Enter password"
                         disabled={isAddSubmitting}
-                        />
+                      />
                       {errorsAdd.password && (
                         <p className="mt-1 text-sm text-red-600 text-left">{errorsAdd.password.message}</p>
                       )}
@@ -643,8 +730,8 @@ const columns = [
                         id="add-confirmPassword"
                         type="password"
                         {...registerAdd('confirmPassword')}
-                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
-                          errorsAdd.confirmPassword ? 'border-red-300' : 'border-gray-300'
+                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${
+                          errorsAdd.confirmPassword ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                         }`}
                         placeholder="Confirm password"
                         disabled={isAddSubmitting}
@@ -656,13 +743,13 @@ const columns = [
                   </form>
                 </div>
 
-                {/* Modal Footer */}
-                <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+                {/* Enhanced Modal Footer */}
+                <div className="px-6 py-4 bg-gray-50 rounded-b-2xl flex justify-end space-x-3">
                   <button
                     type="button"
                     onClick={handleCloseAddModal}
                     disabled={isAddSubmitting}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50"
+                    className="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 transition-all duration-200"
                   >
                     Cancel
                   </button>
@@ -670,7 +757,7 @@ const columns = [
                     type="submit"
                     onClick={handleSubmitAdd(handleAddFormSubmit)}
                     disabled={isAddSubmitting}
-                    className="px-4 py-2 text-sm font-medium text-white bg-orange-600 border border-transparent rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 flex items-center"
+                    className="px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-orange-500 to-red-500 border border-transparent rounded-xl hover:from-orange-600 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 flex items-center transition-all duration-200 shadow-lg hover:shadow-xl"
                   >
                     {isAddSubmitting ? (
                       <>
