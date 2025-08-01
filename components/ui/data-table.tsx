@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Edit, Trash2, ChevronUp, ChevronDown, MoreHorizontal } from 'lucide-react';
+import { ContactDataFetch } from '@/lib/types/contact.types';
 
 interface DataTableProps<T> {
   data: T[];
@@ -19,6 +20,7 @@ interface DataTableProps<T> {
   sortDirection?: 'asc' | 'desc';
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
+  onRowClick?: (item: T) => void; // Added row click functionality
   loading?: boolean;
 }
 
@@ -30,6 +32,7 @@ export default function DataTable<T extends { id: string }>({
   sortDirection,
   onEdit,
   onDelete,
+  onRowClick,
   loading = false
 }: DataTableProps<T>) {
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
@@ -102,6 +105,16 @@ export default function DataTable<T extends { id: string }>({
     </button>
   );
 
+  // Handle row click while preventing action button clicks from triggering it
+  const handleRowClick = (item: T, event: React.MouseEvent) => {
+    // Don't trigger row click if clicking on action buttons
+    const target = event.target as HTMLElement;
+    if (target.closest('button')) {
+      return;
+    }
+    onRowClick?.(item);
+  };
+
   if (loading) {
     return (
       <div className="overflow-x-auto">
@@ -146,15 +159,21 @@ export default function DataTable<T extends { id: string }>({
             <tbody className="divide-y divide-gray-200 bg-white">
               {data.map((item) => (
                 <React.Fragment key={item.id}>
-                  <tr className="hover:bg-gray-50 transition-colors">
+                  <tr 
+                    className={`transition-colors ${onRowClick ? 'hover:bg-blue-50 cursor-pointer' : 'hover:bg-gray-50'}`}
+                    onClick={onRowClick ? (e) => handleRowClick(item, e) : undefined}
+                  >
                     {visibleColumns.map((column) => (
                       <td key={String(column.key)} className="px-4 py-4">
                         {column.key === 'actions' ? (
                           <div className="flex items-center space-x-2">
                             {onEdit && (
                               <button
-                                onClick={() => onEdit(item)}
-                                className="p-1 text-blue-600 hover:text-blue-800 transition-colors rounded"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onEdit(item);
+                                }}
+                                className="p-1 text-blue-600 hover:text-blue-800 transition-colors rounded hover:bg-blue-100"
                                 title="Edit"
                               >
                                 <Edit className="w-4 h-4" />
@@ -162,8 +181,11 @@ export default function DataTable<T extends { id: string }>({
                             )}
                             {onDelete && (
                               <button
-                                onClick={() => onDelete(item)}
-                                className="p-1 text-red-600 hover:text-red-800 transition-colors rounded"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onDelete(item);
+                                }}
+                                className="p-1 text-red-600 hover:text-red-800 transition-colors rounded hover:bg-red-100"
                                 title="Delete"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -180,8 +202,11 @@ export default function DataTable<T extends { id: string }>({
                     {hiddenColumns.length > 0 && (
                       <td className="px-4 py-4">
                         <button
-                          onClick={() => setExpandedRow(expandedRow === item.id ? null : item.id)}
-                          className="p-1 text-gray-500 hover:text-gray-700 transition-colors rounded"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setExpandedRow(expandedRow === item.id ? null : item.id);
+                          }}
+                          className="p-1 text-gray-500 hover:text-gray-700 transition-colors rounded hover:bg-gray-100"
                           title="Show more details"
                         >
                           <MoreHorizontal className="w-5 h-5" />
@@ -220,7 +245,13 @@ export default function DataTable<T extends { id: string }>({
         // Mobile Card Layout
         <div className="space-y-3">
           {data.map((item) => (
-            <div key={item.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div 
+              key={item.id} 
+              className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 transition-colors ${
+                onRowClick ? 'cursor-pointer hover:bg-blue-50 hover:border-blue-200' : ''
+              }`}
+              onClick={onRowClick ? (e) => handleRowClick(item, e) : undefined}
+            >
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   {visibleColumns.filter(c => c.key !== 'actions').map((column) => (
@@ -238,7 +269,10 @@ export default function DataTable<T extends { id: string }>({
                 <div className="flex flex-col items-end space-y-2 ml-4">
                   {hiddenColumns.length > 0 && (
                     <button
-                      onClick={() => setExpandedRow(expandedRow === item.id ? null : item.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedRow(expandedRow === item.id ? null : item.id);
+                      }}
                       className="p-2 text-gray-500 hover:text-gray-700 transition-colors rounded-full hover:bg-gray-100"
                       title="Show more details"
                     >
@@ -249,7 +283,10 @@ export default function DataTable<T extends { id: string }>({
                   <div className="flex space-x-2">
                     {onEdit && (
                       <button
-                        onClick={() => onEdit(item)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit(item);
+                        }}
                         className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
                         title="Edit"
                       >
@@ -258,7 +295,10 @@ export default function DataTable<T extends { id: string }>({
                     )}
                     {onDelete && (
                       <button
-                        onClick={() => onDelete(item)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(item);
+                        }}
                         className="p-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors"
                         title="Delete"
                       >

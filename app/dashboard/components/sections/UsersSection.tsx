@@ -351,8 +351,8 @@ export default function UsersPage() {
                   <div className="text-2xl font-bold">{currentPage}</div>
                   <div className="text-sm opacity-90">Current Page</div>
                 </div>
-                <div className="bg-white bg-opacity-20 p-3 rounded-lg">
-                  <FileText className="w-6 h-6 text-blue-500" />
+                <div className="bg-blue-500 bg-opacity-20 p-3 rounded-lg">
+                  <FileText className="w-6 h-6 text-white-500" />
                 </div>
               </div>
             </div>
@@ -363,8 +363,8 @@ export default function UsersPage() {
                   <div className="text-2xl font-bold">{totalPages}</div>
                   <div className="text-sm opacity-90">Total Pages</div>
                 </div>
-                <div className="bg-white bg-opacity-20 p-3 rounded-lg">
-                  <Database className="w-6 h-6 text-green-500" />
+                <div className="bg-green-500 bg-opacity-20 p-3 rounded-lg">
+                  <Database className="w-6 h-6 text-white" />
                 </div>
               </div>
             </div>
@@ -375,8 +375,8 @@ export default function UsersPage() {
                   <div className="text-2xl font-bold">{itemsPerPage}</div>
                   <div className="text-sm opacity-90">Per Page</div>
                 </div>
-                <div className="bg-white bg-opacity-20 p-3 rounded-lg">
-                  <Users className="w-6 h-6 text-orange-500" />
+                <div className="bg-orange-500 bg-opacity-20 p-3 rounded-lg">
+                  <Users className="w-6 h-6 text-white" />
                 </div>
               </div>
             </div>
