@@ -201,61 +201,65 @@ function OffersContent() {
               {/* Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {/* Total Offers */}
-                <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100">
+                <div className="bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02] hover:-translate-y-1 group">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Total Offers</p>
-                      <p className="text-3xl font-bold text-gray-900">{offers.length}</p>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-blue-50 opacity-90 mb-1">Total Offers</p>
+                      <p className="text-4xl font-extrabold text-white mb-1">{offers.length}</p>
+                      <p className="text-xs text-blue-100 opacity-80">All travel packages</p>
                     </div>
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    <div className="w-14 h-14 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur-md group-hover:bg-white/25 transition-all duration-500 group-hover:rotate-6">
+                      <svg className="w-7 h-7 text-white drop-shadow-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                       </svg>
                     </div>
                   </div>
                 </div>
 
                 {/* Available Offers */}
-                <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100">
+                <div className="bg-gradient-to-br from-emerald-400 via-emerald-500 to-emerald-600 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02] hover:-translate-y-1 group">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Available</p>
-                      <p className="text-3xl font-bold text-green-600">{offers.filter(offer => offer.available).length}</p>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-emerald-50 opacity-90 mb-1">Available</p>
+                      <p className="text-4xl font-extrabold text-white mb-1">{offers.filter(offer => offer.available).length}</p>
+                      <p className="text-xs text-emerald-100 opacity-80">Ready to book</p>
                     </div>
-                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                      <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <div className="w-14 h-14 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur-md group-hover:bg-white/25 transition-all duration-500 group-hover:rotate-6">
+                      <svg className="w-7 h-7 text-white drop-shadow-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
                   </div>
                 </div>
 
                 {/* Unavailable Offers */}
-                <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100">
+                <div className="bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02] hover:-translate-y-1 group">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Sold Out</p>
-                      <p className="text-3xl font-bold text-red-600">{offers.filter(offer => !offer.available).length}</p>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-amber-50 opacity-90 mb-1">Sold Out</p>
+                      <p className="text-4xl font-extrabold text-white mb-1">{offers.filter(offer => !offer.available).length}</p>
+                      <p className="text-xs text-amber-100 opacity-80">Temporarily unavailable</p>
                     </div>
-                    <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                      <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <div className="w-14 h-14 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur-md group-hover:bg-white/25 transition-all duration-500 group-hover:rotate-6">
+                      <svg className="w-7 h-7 text-white drop-shadow-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                       </svg>
                     </div>
                   </div>
                 </div>
 
                 {/* Average Rating */}
-                <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100">
+                <div className="bg-gradient-to-br from-violet-400 via-purple-500 to-purple-600 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02] hover:-translate-y-1 group">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Avg Rating</p>
-                      <p className="text-3xl font-bold text-orange-600">
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-violet-50 opacity-90 mb-1">Avg Rating</p>
+                      <p className="text-4xl font-extrabold text-white mb-1">
                         {offers.length > 0 ? (offers.reduce((sum, offer) => sum + offer.rating, 0) / offers.length).toFixed(1) : '0.0'}
                       </p>
+                      <p className="text-xs text-violet-100 opacity-80">Customer satisfaction</p>
                     </div>
-                    <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                      <svg className="w-6 h-6 text-orange-600" fill="currentColor" viewBox="0 0 24 24">
+                    <div className="w-14 h-14 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur-md group-hover:bg-white/25 transition-all duration-500 group-hover:rotate-6">
+                      <svg className="w-7 h-7 text-white drop-shadow-sm" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                       </svg>
                     </div>
