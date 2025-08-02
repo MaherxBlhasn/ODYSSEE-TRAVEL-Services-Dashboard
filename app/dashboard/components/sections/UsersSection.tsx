@@ -660,7 +660,7 @@ export default function UsersPage() {
                     <h3 className="text-lg font-semibold text-gray-900">Add New User</h3>
                     <button
                       onClick={handleCloseAddModal}
-                      className="p-1 text-gray-400 hover:text-gray-600 rounded bg-orange-500 hover:bg-orange-600 text-white"
+                      className="p-1 text-gray-400 hover:text-gray-600 rounded bg-orange-500 hover:bg-orange-600 "
                     >
                       <X className="h-5 w-5" />
                     </button>
