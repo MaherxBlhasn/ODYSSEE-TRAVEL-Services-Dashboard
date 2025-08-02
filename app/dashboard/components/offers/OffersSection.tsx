@@ -185,9 +185,16 @@ function OffersContent() {
         // Travel Offers Screen
         <div>
           {isLoadingOffers ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Loading offers...</p>
+            <div className="flex items-center justify-center min-h-screen">
+              <div className="text-center">
+                <div className="relative mb-6">
+                  {/* Simple elegant spinner */}
+                  <div className="animate-spin rounded-full h-16 w-16 border-4 border-orange-100 border-t-orange-600 mx-auto"></div>
+                </div>
+                
+                {/* Loading text */}
+                <p className="text-gray-600 text-lg">Loading offers...</p>
+              </div>
             </div>
           ) : (
             <OffersGrid 
