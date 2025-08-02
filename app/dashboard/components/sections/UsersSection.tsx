@@ -459,25 +459,25 @@ export default function UsersPage() {
           </div>
         </div>
 
-        {/* Enhanced Edit User Modal */}
+        {/* Simple Edit User Modal */}
         {isEditModalOpen && (
           <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center">
-              {/* Enhanced background overlay */}
+              {/* Simple background overlay */}
               <div
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+                className="fixed inset-0 bg-black/50 transition-opacity"
                 onClick={handleCloseEditModal}
               ></div>
 
-              {/* Enhanced Modal Panel */}
-              <div className="relative inline-block w-full max-w-md transform transition-all bg-white rounded-2xl shadow-2xl border border-gray-100">
-                {/* Enhanced Header */}
-                <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-4 rounded-t-2xl">
+              {/* Simple Modal Panel */}
+              <div className="relative inline-block w-full max-w-md transform transition-all bg-white rounded-lg shadow-xl">
+                {/* Simple Header */}
+                <div className="px-6 py-4 border-b border-gray-200">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-bold text-white">Edit User</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">Edit User</h3>
                     <button
                       onClick={handleCloseEditModal}
-                      className="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-all duration-200"
+                      className="p-1 text-gray-400 hover:text-orange-500 transition-colors"
                     >
                       <X className="h-5 w-5" />
                     </button>
@@ -496,8 +496,9 @@ export default function UsersPage() {
                         id="username"
                         type="text"
                         {...register('username')}
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${errors.username ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                          }`}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
+                          errors.username ? 'border-red-300' : 'border-gray-300'
+                        }`}
                         placeholder="Enter username"
                         disabled={isSubmitting}
                       />
@@ -515,8 +516,9 @@ export default function UsersPage() {
                         id="Email"
                         type="email"
                         {...register('Email')}
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${errors.Email ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                          }`}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
+                          errors.Email ? 'border-red-300' : 'border-gray-300'
+                        }`}
                         placeholder="Enter email"
                         disabled={isSubmitting}
                       />
@@ -534,8 +536,9 @@ export default function UsersPage() {
                         id="phone"
                         type="tel"
                         {...register('phone')}
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${errors.phone ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                          }`}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
+                          errors.phone ? 'border-red-300' : 'border-gray-300'
+                        }`}
                         placeholder="Enter phone number"
                         disabled={isSubmitting}
                       />
@@ -546,12 +549,12 @@ export default function UsersPage() {
 
                     {/* Password Section */}
                     <div className="pt-2">
-                      <div className="flex items-center space-x-3 mb-4 justify-start p-4 bg-gray-50 rounded-xl">
+                      <div className="flex items-center space-x-2 mb-4 justify-start">
                         <input
                           type="checkbox"
                           checked={isPasswordEditable}
                           onChange={(e) => setIsPasswordEditable(e.target.checked)}
-                          className="w-5 h-5 text-purple-600 border-2 border-gray-300 rounded focus:ring-purple-500"
+                          className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                         />
                         <label className="block text-sm font-medium text-gray-700 text-left">
                           Update Password
@@ -569,8 +572,9 @@ export default function UsersPage() {
                               id="password"
                               type="password"
                               {...register('password')}
-                              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${errors.password ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                                }`}
+                              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
+                                errors.password ? 'border-red-300' : 'border-gray-300'
+                              }`}
                               placeholder="Enter new password"
                               disabled={isSubmitting}
                             />
@@ -588,8 +592,9 @@ export default function UsersPage() {
                               id="confirmPassword"
                               type="password"
                               {...register('confirmPassword')}
-                              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${errors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                                }`}
+                              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
+                                errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
+                              }`}
                               placeholder="Confirm new password"
                               disabled={isSubmitting}
                             />
@@ -603,13 +608,13 @@ export default function UsersPage() {
                   </form>
                 </div>
 
-                {/* Enhanced Modal Footer */}
-                <div className="px-6 py-4 bg-gray-50 rounded-b-2xl flex justify-end space-x-3">
+                {/* Modal Footer */}
+                <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
                   <button
                     type="button"
                     onClick={handleCloseEditModal}
                     disabled={isSubmitting}
-                    className="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 transition-all duration-200"
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50"
                   >
                     Cancel
                   </button>
@@ -617,7 +622,7 @@ export default function UsersPage() {
                     type="submit"
                     onClick={handleSubmit(handleFormSubmit)}
                     disabled={isSubmitting}
-                    className="px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-pink-500 border border-transparent rounded-xl hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 flex items-center transition-all duration-200 shadow-lg hover:shadow-xl"
+                    className="px-4 py-2 text-sm font-medium text-white bg-orange-600 border border-transparent rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 flex items-center"
                   >
                     {isSubmitting ? (
                       <>
@@ -628,7 +633,7 @@ export default function UsersPage() {
                         Saving...
                       </>
                     ) : (
-                      'Save Changes'
+                      'Save'
                     )}
                   </button>
                 </div>
@@ -637,25 +642,25 @@ export default function UsersPage() {
           </div>
         )}
 
-        {/* Enhanced Add User Modal */}
+        {/* Add User Modal */}
         {isAddModalOpen && (
           <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center">
-              {/* Enhanced background overlay */}
+              {/* Background overlay */}
               <div
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+                className="fixed inset-0 bg-black/50"
                 onClick={handleCloseAddModal}
               ></div>
 
-              {/* Enhanced Modal Panel */}
-              <div className="relative inline-block w-full max-w-md transform transition-all bg-white rounded-2xl shadow-2xl border border-gray-100">
-                {/* Enhanced Header */}
-                <div className="bg-gradient-to-r from-orange-500 to-red-500 px-6 py-4 rounded-t-2xl">
+              {/* Modal Panel */}
+              <div className="relative inline-block w-full max-w-md transform bg-white rounded-lg shadow-lg border">
+                {/* Header */}
+                <div className="px-6 py-4 border-b">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-bold text-white">Add New User</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">Add New User</h3>
                     <button
                       onClick={handleCloseAddModal}
-                      className="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-all duration-200"
+                      className="p-1 text-gray-400 hover:text-gray-600 rounded bg-orange-500 hover:bg-orange-600 text-white"
                     >
                       <X className="h-5 w-5" />
                     </button>
@@ -674,7 +679,7 @@ export default function UsersPage() {
                         id="add-username"
                         type="text"
                         {...registerAdd('username')}
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${errorsAdd.username ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${errorsAdd.username ? 'border-red-300' : 'border-gray-300'
                           }`}
                         placeholder="Enter username"
                         disabled={isAddSubmitting}
@@ -693,7 +698,7 @@ export default function UsersPage() {
                         id="add-email"
                         type="email"
                         {...registerAdd('Email')}
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${errorsAdd.Email ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${errorsAdd.Email ? 'border-red-300' : 'border-gray-300'
                           }`}
                         placeholder="Enter email"
                         disabled={isAddSubmitting}
@@ -712,7 +717,7 @@ export default function UsersPage() {
                         id="add-phone"
                         type="tel"
                         {...registerAdd('phone')}
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${errorsAdd.phone ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${errorsAdd.phone ? 'border-red-300' : 'border-gray-300'
                           }`}
                         placeholder="Enter phone number"
                         disabled={isAddSubmitting}
@@ -731,7 +736,7 @@ export default function UsersPage() {
                         id="add-password"
                         type="password"
                         {...registerAdd('password')}
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${errorsAdd.password ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${errorsAdd.password ? 'border-red-300' : 'border-gray-300'
                           }`}
                         placeholder="Enter password"
                         disabled={isAddSubmitting}
@@ -750,7 +755,7 @@ export default function UsersPage() {
                         id="add-confirmPassword"
                         type="password"
                         {...registerAdd('confirmPassword')}
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 ${errorsAdd.confirmPassword ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${errorsAdd.confirmPassword ? 'border-red-300' : 'border-gray-300'
                           }`}
                         placeholder="Confirm password"
                         disabled={isAddSubmitting}
@@ -762,13 +767,13 @@ export default function UsersPage() {
                   </form>
                 </div>
 
-                {/* Enhanced Modal Footer */}
-                <div className="px-6 py-4 bg-gray-50 rounded-b-2xl flex justify-end space-x-3">
+                {/* Modal Footer */}
+                <div className="px-6 py-4 border-t flex justify-end space-x-3">
                   <button
                     type="button"
                     onClick={handleCloseAddModal}
                     disabled={isAddSubmitting}
-                    className="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 transition-all duration-200"
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                   >
                     Cancel
                   </button>
@@ -776,7 +781,7 @@ export default function UsersPage() {
                     type="submit"
                     onClick={handleSubmitAdd(handleAddFormSubmit)}
                     disabled={isAddSubmitting}
-                    className="px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-orange-500 to-red-500 border border-transparent rounded-xl hover:from-orange-600 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 flex items-center transition-all duration-200 shadow-lg hover:shadow-xl"
+                    className="px-4 py-2 text-sm font-medium text-white bg-orange-500 border border-transparent rounded-md hover:bg-orange-600 flex items-center"
                   >
                     {isAddSubmitting ? (
                       <>

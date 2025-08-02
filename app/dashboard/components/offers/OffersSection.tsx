@@ -164,7 +164,7 @@ function OffersContent() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-6" >
       {/* Success/Error Messages */}
       {success && (
         <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg">
