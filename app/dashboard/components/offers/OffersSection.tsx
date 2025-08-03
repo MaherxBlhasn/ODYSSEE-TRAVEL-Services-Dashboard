@@ -595,7 +595,7 @@ function OffersContent() {
                             title="Click to remove search filter"
                           >
                             <span className="flex items-center gap-2">
-                              🔍 "{filters.search}"
+                              🔍 {filters.search}
                               <svg className="w-4 h-4 opacity-60 group-hover:opacity-100 group-hover:rotate-90 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                               </svg>
