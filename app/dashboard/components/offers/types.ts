@@ -12,6 +12,7 @@ export interface Offer {
   rating: number
   available: boolean
   additionalImages?: string[]
+  createdAt?: string  // Optional for backward compatibility with local data
 }
 
 // Backend API response types
@@ -76,6 +77,7 @@ export const apiOfferToOffer = (apiOffer: ApiOffer): Offer => {
     shortDescription: apiOffer.shortDescription || 'No short description available',
     rating: apiOffer.stars || 5,
     available: apiOffer.available ?? true,
+    createdAt: apiOffer.createdAt,
     additionalImages: apiOffer.imageUrls?.map(getImageUrl) || []
   }
 }

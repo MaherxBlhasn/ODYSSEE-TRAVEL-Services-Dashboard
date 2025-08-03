@@ -190,14 +190,20 @@ function OffersContent() {
   }).sort((a, b) => {
     switch (filters.sortBy) {
       case 'oldest':
-        return Number(a.id) - Number(b.id)
+        // Sort by creation date (oldest first)
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : Number(a.id) * 1000
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : Number(b.id) * 1000
+        return dateA - dateB
       case 'rating-high':
         return b.rating - a.rating
       case 'rating-low':
         return a.rating - b.rating
       case 'newest':
       default:
-        return Number(b.id) - Number(a.id)
+        // Sort by creation date (newest first)
+        const dateANew = a.createdAt ? new Date(a.createdAt).getTime() : Number(a.id) * 1000
+        const dateBNew = b.createdAt ? new Date(b.createdAt).getTime() : Number(b.id) * 1000
+        return dateBNew - dateANew
     }
   })
 

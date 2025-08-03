@@ -9,6 +9,7 @@ export const offers = [
     shortDescription: "Experience breathtaking sunsets and white-washed buildings in this stunning Greek island paradise.",
     rating: 4.8,
     available: true,
+    createdAt: "2024-07-15T08:30:00Z",
     additionalImages: [
       "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=400&h=250&fit=crop",
       "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=400&h=250&fit=crop",
@@ -25,6 +26,7 @@ export const offers = [
     shortDescription: "Discover ancient temples, emerald rice terraces, and pristine beaches in this tropical paradise.",
     rating: 4.9,
     available: true,
+    createdAt: "2024-08-01T14:15:00Z",
     additionalImages: [
       "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=400&h=250&fit=crop",
       "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=250&fit=crop",
@@ -42,6 +44,7 @@ export const offers = [
     shortDescription: "Experience where modern technology meets ancient tradition in Japan's vibrant capital city.",
     rating: 4.7,
     available: false,
+    createdAt: "2024-06-20T10:45:00Z",
     additionalImages: [
       "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=400&h=250&fit=crop",
       "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=400&h=250&fit=crop",
