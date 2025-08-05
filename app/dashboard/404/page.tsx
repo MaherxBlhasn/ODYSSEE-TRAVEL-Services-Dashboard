@@ -22,7 +22,7 @@ export default function DashboardNotFoundPage() {
                     </div>
                     <h2 className="text-3xl font-bold text-gray-800 mb-4">Oops! Page Not Found</h2>
                     <p className="text-gray-600 text-lg mb-8 leading-relaxed">
-                        The dashboard page you're looking for seems to have wandered off into the digital wilderness.
+                        The dashboard page you&apos;re looking for seems to have wandered off into the digital wilderness.
                     </p>
                 </div>
 
