@@ -10,6 +10,8 @@ import Link from 'next/link';
 import LoginBackground from '@/components/ui/loginBackground';
 import LoginAnimation from '@/components/ui/loginAnimation';
 import { Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '@/lib/AuthContext'
+
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -18,6 +20,8 @@ export default function LoginPage() {
   // const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { setUser } = useAuth()
+
 
   useEffect(()=>{
     console.log("before auth")
@@ -26,7 +30,7 @@ export default function LoginPage() {
 
       if (authenticated) {
         console.log("authenticated AuthGuard(login):",authenticated)
-
+        
         router.push('/dashboard'); // Redirect if authenticated
       }
     }
@@ -42,6 +46,7 @@ export default function LoginPage() {
     try {
       const response = await authService.login({ Email: email, password: password });
       console.log('response handlelogin:', response);
+      setUser(response.user);
       router.push('/dashboard');
     } catch {
       toast.error('Invalid credentials !', {

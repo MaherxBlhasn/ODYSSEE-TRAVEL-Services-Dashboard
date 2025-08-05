@@ -14,6 +14,8 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { authService } from '@/lib/services/auth.service'
 import { useTransition, useState } from 'react'
+import { useAuth } from '@/lib/AuthContext'
+import { UserData } from '@/lib/types/auth.types'
 
 const sidebarItems = [
   { id: 'home', label: 'Dashboard', icon: Home },
@@ -23,13 +25,31 @@ const sidebarItems = [
   { id: 'users', label: 'Users', icon: User },
 ]
 
+// Generate a consistent avatar based on username
+const generateAvatar = (username:String) => {
+  const colors = [
+    'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-pink-500', 
+    'bg-indigo-500', 'bg-yellow-500', 'bg-red-500', 'bg-teal-500'
+  ]
+  const hash = username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+  return colors[hash % colors.length]
+}
+
 export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  
+  const { user } = useAuth()
+
+
+  // This would typically come from your auth context or user state
+  const currentUser = user;
 
   const activeTab = pathname.split('/').pop() || 'dashboard'
+  const avatarColor = currentUser ? generateAvatar(currentUser.username) : 'bg-gray-500'
+  const userInitials = currentUser ? currentUser.username.split(' ').map(name => name[0]).join('').toUpperCase() : ''
 
   const handleLogout = async () => {
     try {
@@ -41,6 +61,24 @@ export default function Sidebar() {
       console.error('Logout error:', error)
     }
   }
+
+  const ProfileSection = () => (
+    <div className="px-4 py-4 border-t border-slate-700">
+      <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-700/50">
+        <div className={`w-10 h-10 rounded-full ${avatarColor} flex items-center justify-center text-white font-semibold text-sm shadow-lg`}>
+          {userInitials}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-stone-200 font-medium text-sm truncate">
+            {currentUser?.username}
+          </p>
+          <p className="text-stone-400 text-xs truncate">
+            {currentUser?.Email}
+          </p>
+        </div>
+      </div>
+    </div>
+  )
 
   return (
     <>
@@ -97,6 +135,9 @@ export default function Sidebar() {
               </span>
             </button>
           </nav>
+
+          {/* Profile Section */}
+          <ProfileSection />
         </div>
       </div>
 
@@ -143,6 +184,9 @@ export default function Sidebar() {
                   </span>
                 </button>
               </nav>
+
+              {/* Profile Section for Mobile */}
+              <ProfileSection />
             </div>
           </div>
         </div>
