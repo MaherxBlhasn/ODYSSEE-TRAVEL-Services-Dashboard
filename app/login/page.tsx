@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import React from 'react'
 import { authService } from '@/lib/services/auth.service';
 import Spinner from '@/components/ui/Spinner';
@@ -23,48 +23,59 @@ export default function LoginPage() {
   const { setUser } = useAuth()
 
 
-  useEffect(()=>{
-    console.log("before auth")
-    const check = async () => {
-      const { authenticated } = await authService.checkAuth();
 
-      if (authenticated) {
-        console.log("authenticated AuthGuard(login):",authenticated)
-        
-        router.push('/dashboard'); // Redirect if authenticated
-      }
-    }
-    check();
-  });
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // setError('');
 
-    // Your login logic here
     try {
       const response = await authService.login({ Email: email, password: password });
       console.log('response handlelogin:', response);
       setUser(response.user);
+
+      // // Show success toast
+      // toast.success(`Welcome back! ${response?.user?.username}`, {
+      //   position: "top-right",
+      //   autoClose: 5000,
+      //   hideProgressBar: false,
+      //   closeOnClick: true,
+      //   pauseOnHover: true,
+      //   draggable: true,
+      //   progress: undefined,
+      //   theme: "dark",
+      //   transition: Bounce,
+      // });
+      // setTimeout(() => {
+      //   // Redirect to dashboard after a short delay
+      // }, 2000);
       router.push('/dashboard');
-    } catch {
-      toast.error('Invalid credentials !', {
+    } catch (error: any) {
+      // Check if it's a network/server error or a backend error
+      let errorMessage = 'An unexpected error occurred. Please try again.';
+
+      if (error?.message && !error?.message.includes('fetch')) {
+        // If we have a specific error message from backend (not a fetch error)
+        errorMessage = error.message;
+      } else if (error?.name === 'TypeError' || error?.message?.includes('fetch') || error?.code === 'NETWORK_ERROR') {
+        // Server is down or network issues
+        errorMessage = 'Server Error';
+      }
+
+      toast.error(errorMessage, {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
-        closeOnClick: false,
+        closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
         theme: "dark",
         transition: Bounce,
-        });
-      // setError(err instanceof Error ? err.message : 'Login failed');
+      });
     } finally {
       setIsLoading(false);
     }
-
   };
 
   const togglePasswordVisibility = () => {
@@ -73,20 +84,20 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900">
-    <ToastContainer
-      position="top-right"
-      autoClose={5000}
-      hideProgressBar={false}
-      newestOnTop={false}
-      closeOnClick={false}
-      rtl={false}
-      pauseOnFocusLoss
-      draggable
-      pauseOnHover
-      theme="dark"
-      transition={Bounce}
-    />
-    <LoginBackground/>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+        transition={Bounce}
+      />
+      <LoginBackground />
 
       {/* Login Content */}
       <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
@@ -127,10 +138,10 @@ export default function LoginPage() {
                   )}
                 </button>
               </div>
-                  
-              <button 
-                type="submit" 
-                disabled={isLoading} 
+
+              <button
+                type="submit"
+                disabled={isLoading}
                 className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-lg font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? <Spinner /> : 'Login'}
@@ -138,11 +149,11 @@ export default function LoginPage() {
             </form>
 
             <div className="mt-6 text-center">
-          <Link 
-            href="/login/requestResetPassword" 
-            className={`text-slate-400 hover:text-orange-400 text-sm transition-colors duration-300 ${isLoading ? 'pointer-events-none opacity-50' : ''}`}>
-            Forgot your password?
-          </Link>
+              <Link
+                href="/login/requestResetPassword"
+                className={`text-slate-400 hover:text-orange-400 text-sm transition-colors duration-300 ${isLoading ? 'pointer-events-none opacity-50' : ''}`}>
+                Forgot your password?
+              </Link>
             </div>
           </div>
         </div>

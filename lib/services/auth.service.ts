@@ -14,15 +14,18 @@ export const authService = {
         },
         body: JSON.stringify(credentials),
       });
-      console.log('Login response:', response);
+      
+      const data = await response.json();
+      
       if (!response.ok) {
-        const errorData = await response.json();
-        console.log('Login failed:', errorData);
-        throw new Error(errorData.message || 'Login failed');
+        // If response is not ok, throw an error with the backend message
+        throw new Error(data.message || data.error || `HTTP error! status: ${response.status}`);
       }
-      return await response.json();
+      
+      return data;
     } catch (error) {
-      throw new Error('Login failed1:' + error);
+      // Re-throw the error to be caught by the calling function
+      throw error;
     }
   },
 
@@ -44,14 +47,12 @@ export const authService = {
         method: 'GET',
         credentials: 'include' // For cookie-based auth
       });
-      console.log('Auth check response:', response);
       if (!response.ok) {
         return { authenticated: false };
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Auth check error:', error);
       return { authenticated: false };
     }
   },

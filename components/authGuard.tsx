@@ -12,11 +12,14 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const check = async () => {
       const { authenticated } = await authService.checkAuth();
+      console.log('AuthGuard checkAuth response:', authenticated);
+      
       if (!authenticated) {
         router.push('/login'); // Redirect if not authenticated
       } else {
-        setLoading(false);
+        router.push('/dashboard'); // Redirect to dashboard if authenticated
       }
+      setLoading(false);
     };
 
     check();
