@@ -15,7 +15,6 @@ import { usePathname, useRouter } from 'next/navigation'
 import { authService } from '@/lib/services/auth.service'
 import { useTransition, useState } from 'react'
 import { useAuth } from '@/lib/AuthContext'
-import { UserData } from '@/lib/types/auth.types'
 
 const sidebarItems = [
   { id: 'home', label: 'Dashboard', icon: Home },
@@ -26,7 +25,7 @@ const sidebarItems = [
 ]
 
 // Generate a consistent avatar based on username
-const generateAvatar = (username:String) => {
+const generateAvatar = (username: string) => {
   const colors = [
     'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-pink-500', 
     'bg-indigo-500', 'bg-yellow-500', 'bg-red-500', 'bg-teal-500'
