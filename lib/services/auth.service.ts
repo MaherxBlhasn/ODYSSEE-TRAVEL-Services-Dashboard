@@ -14,14 +14,14 @@ export const authService = {
         },
         body: JSON.stringify(credentials),
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
         // If response is not ok, throw an error with the backend message
         throw new Error(data.message || data.error || `HTTP error! status: ${response.status}`);
       }
-      
+
       return data;
     } catch (error) {
       // Re-throw the error to be caught by the calling function
@@ -52,7 +52,7 @@ export const authService = {
       }
 
       return await response.json();
-    } catch (error) {
+    } catch {
       return { authenticated: false };
     }
   },

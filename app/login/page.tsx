@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { use, useEffect, useState } from 'react'
+import {  useState } from 'react'
 import React from 'react'
 import { authService } from '@/lib/services/auth.service';
 import Spinner from '@/components/ui/Spinner';
@@ -50,15 +50,20 @@ export default function LoginPage() {
       //   // Redirect to dashboard after a short delay
       // }, 2000);
       router.push('/dashboard');
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Check if it's a network/server error or a backend error
       let errorMessage = 'An unexpected error occurred. Please try again.';
 
-      if (error?.message && !error?.message.includes('fetch')) {
-        // If we have a specific error message from backend (not a fetch error)
-        errorMessage = error.message;
-      } else if (error?.name === 'TypeError' || error?.message?.includes('fetch') || error?.code === 'NETWORK_ERROR') {
-        // Server is down or network issues
+      if (error instanceof Error) {
+        if (error.message && !error.message.includes('fetch')) {
+          // If we have a specific error message from backend (not a fetch error)
+          errorMessage = error.message;
+        } else if (error.name === 'TypeError' || error.message.includes('fetch')) {
+          // Server is down or network issues
+          errorMessage = 'Server Error';
+        }
+      } else if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'NETWORK_ERROR') {
+        // Handle network error objects
         errorMessage = 'Server Error';
       }
 
