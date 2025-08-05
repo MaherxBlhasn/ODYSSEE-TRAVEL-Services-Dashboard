@@ -1,3 +1,4 @@
+import AuthGuard from '@/components/authGuard'
 import Sidebar from './components/Sidebar'
 
 export default function DashboardLayout({
@@ -6,6 +7,7 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
+    <AuthGuard>
       <div className="min-h-screen bg-stone-200 flex">
         {/* Sidebar will handle its own responsive behavior */}
         <Sidebar />
@@ -17,5 +19,6 @@ export default function DashboardLayout({
           </div>
         </div>
       </div>
+    </AuthGuard>
   )
 }

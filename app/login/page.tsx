@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import {  useState } from 'react'
+import { useEffect, useState } from 'react'
 import React from 'react'
 import { authService } from '@/lib/services/auth.service';
 import Spinner from '@/components/ui/Spinner';
@@ -17,10 +17,29 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  // const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { setUser } = useAuth()
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    const checkAuthAndRedirect = async () => {
+      try {
+        const { authenticated } = await authService.checkAuth();
+        console.log("Login page - authenticated:", authenticated);
+        
+        if (authenticated) {
+          // If already logged in, redirect to dashboard
+          router.push('/dashboard');
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        // If auth check fails, stay on login page
+      }
+    };
+
+    checkAuthAndRedirect();
+  }, [router]);
 
 
 
