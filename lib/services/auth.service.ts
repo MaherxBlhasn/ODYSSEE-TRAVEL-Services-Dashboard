@@ -41,18 +41,39 @@ export const authService = {
     }
   },
 
+  // async checkAuth(): Promise<{ authenticated: boolean; userId?: string }> {
+  //   try {
+  //     const response = await fetch(`${API_BASE_URL}/auth/check`, {
+  //       method: 'GET',
+  //       credentials: 'include' // For cookie-based auth
+  //     });
+  //     if (!response.ok) {
+  //       return { authenticated: false };
+  //     }
+
+  //     return await response.json();
+  //   } catch {
+  //     return { authenticated: false };
+  //   }
+  // },
+
   async checkAuth(): Promise<{ authenticated: boolean; userId?: string }> {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/check`, {
         method: 'GET',
-        credentials: 'include' // For cookie-based auth
+        credentials: 'include' // Needed for cookies
       });
       if (!response.ok) {
+        console.warn('[checkAuth] Response not OK:', response.status);
         return { authenticated: false };
       }
 
-      return await response.json();
-    } catch {
+      const data = await response.json(); // ⚠️ Peut lever une erreur si pas de JSON valide
+      console.log('[checkAuth] Response JSON:', data);
+
+      return data;
+    } catch (error) {
+      console.error('[checkAuth] Error:', error);
       return { authenticated: false };
     }
   },
