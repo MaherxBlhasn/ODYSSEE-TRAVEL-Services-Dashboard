@@ -22,6 +22,11 @@ export const authService = {
         throw new Error(data.message || data.error || `HTTP error! status: ${response.status}`);
       }
 
+
+      // Explicitly read cookies for iOS
+      const cookies = response.headers.get('set-cookie');
+      console.log('Received cookies:', cookies);
+
       return data;
     } catch (error) {
       // Re-throw the error to be caught by the calling function
