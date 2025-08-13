@@ -31,7 +31,11 @@ export const authService = {
       return await response.json();
     } catch (error) {
       console.error('Login failed:', error);
-      throw new Error(error.message || 'Login failed');
+      if (error instanceof Error) {
+        throw new Error(error.message || 'Login failed');
+      } else {
+        throw new Error('Login failed');
+      }
     }
   },
 
