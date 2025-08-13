@@ -2,6 +2,7 @@ import { AuthResponse, LoginCredentials, UserData } from '../types/auth.types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
+
 export const authService = {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
@@ -10,32 +11,21 @@ export const authService = {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'Cache-Control': 'no-store',
-          'Accept': 'application/json'
         },
         body: JSON.stringify(credentials),
       });
 
-      // First check for network errors
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP ${response.status}`);
+        // If response is not ok, throw an error with the backend message
+        throw new Error(data.message || data.error || `HTTP error! status: ${response.status}`);
       }
 
-      // Debugging headers
-      console.log('Auth headers:', {
-        'set-cookie': response.headers.get('set-cookie'),
-        'access-control-expose-headers': response.headers.get('access-control-expose-headers')
-      });
-
-      return await response.json();
+      return data;
     } catch (error) {
-      console.error('Login failed:', error);
-      if (error instanceof Error) {
-        throw new Error(error.message || 'Login failed');
-      } else {
-        throw new Error('Login failed');
-      }
+      // Re-throw the error to be caught by the calling function
+      throw error;
     }
   },
 
@@ -44,44 +34,46 @@ export const authService = {
       const response = await fetch(`${API_BASE_URL}/auth/logout`, {
         method: 'POST',
         credentials: 'include',
-        headers: {
-          'Cache-Control': 'no-store'
-        }
       });
-      
-      if (!response.ok) {
-        throw new Error(`Logout failed with status ${response.status}`);
-      }
-    } catch (error) {
-      console.error('Logout error:', error);
-      throw error;
+      console.log('Logout response:', response);
+    } catch {
+      throw new Error('Logout failed:',);
     }
   },
+
+  // async checkAuth(): Promise<{ authenticated: boolean; userId?: string }> {
+  //   try {
+  //     const response = await fetch(`${API_BASE_URL}/auth/check`, {
+  //       method: 'GET',
+  //       credentials: 'include' // For cookie-based auth
+  //     });
+  //     if (!response.ok) {
+  //       return { authenticated: false };
+  //     }
+
+  //     return await response.json();
+  //   } catch {
+  //     return { authenticated: false };
+  //   }
+  // },
 
   async checkAuth(): Promise<{ authenticated: boolean; userId?: string }> {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/check`, {
         method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Cache-Control': 'no-store'
-        },
-        cache: 'no-store' // Next.js fetch option
+        credentials: 'include' // Needed for cookies
       });
-
-      // Special handling for 401 responses
-      if (response.status === 401) {
-        return { authenticated: false };
-      }
-
       if (!response.ok) {
-        console.warn('[checkAuth] Server error:', response.status);
+        console.warn('[checkAuth] Response not OK:', response.status);
         return { authenticated: false };
       }
 
-      return await response.json();
+      const data = await response.json(); // ⚠️ Peut lever une erreur si pas de JSON valide
+      console.log('[checkAuth] Response JSON:', data);
+
+      return data;
     } catch (error) {
-      console.error('[checkAuth] Network error:', error);
+      console.error('[checkAuth] Error:', error);
       return { authenticated: false };
     }
   },
@@ -91,19 +83,16 @@ export const authService = {
       const response = await fetch(`${API_BASE_URL}/auth/me`, {
         method: 'GET',
         credentials: 'include',
-        headers: {
-          'Cache-Control': 'no-store'
-        }
       });
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || 'Failed to fetch user');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch current user');
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Failed to fetch user:', error);
+      console.error('Fetch current user failed:', error);
       throw error;
     }
   }
