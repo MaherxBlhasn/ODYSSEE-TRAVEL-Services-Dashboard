@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { useOffers } from '../../components/offers/context/OffersContext'
 import { offerService } from '../../../../lib/services/offer.service'
 import ConfirmationModal from '../../../../components/ui/ConfirmationModal'
+import UltimateLanguageSelector, { Language } from '../../components/UltimateLanguageSelector'
 
 interface DetailedOffer {
   id: string | number
@@ -21,6 +22,22 @@ interface DetailedOffer {
   additionalImages?: string[]
   createdAt?: string
   updatedAt?: string
+  // Multilingual support
+  currentLanguage?: string
+  translations?: {
+    en: {
+      title: string
+      shortDescription: string
+      bigDescription: string
+      destination: string
+    }
+    fr: {
+      title: string
+      shortDescription: string
+      bigDescription: string
+      destination: string
+    }
+  }
 }
 
 interface LocalOffer {
@@ -70,9 +87,54 @@ function OfferDetailContent() {
   const [isLoading, setIsLoading] = useState(false)
   const [showDiscardModal, setShowDiscardModal] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle')
+  // Language state for multilingual display
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>('en')
   // const [saveMessage, setSaveMessage] = useState('')
 
   const offerId = params.id as string
+
+  // Helper function to get localized content based on selected language
+  const getLocalizedContent = (offer: DetailedOffer) => {
+    if (!offer.translations) {
+      // Fallback to default content if no translations available
+      return {
+        title: offer.title,
+        destination: offer.destination,
+        shortDescription: offer.shortDescription,
+        description: offer.description
+      }
+    }
+
+    const translation = offer.translations[selectedLanguage]
+    if (translation) {
+      return {
+        title: translation.title,
+        destination: translation.destination,
+        shortDescription: translation.shortDescription,
+        description: translation.bigDescription
+      }
+    }
+
+    // Fallback to the other language if current selection isn't available
+    const fallbackLang = selectedLanguage === 'en' ? 'fr' : 'en'
+    const fallbackTranslation = offer.translations[fallbackLang]
+    if (fallbackTranslation) {
+      return {
+        title: fallbackTranslation.title,
+        destination: fallbackTranslation.destination,
+        shortDescription: fallbackTranslation.shortDescription,
+        description: fallbackTranslation.bigDescription
+      }
+    }
+
+    // Final fallback to default content
+    return {
+      title: offer.title,
+      destination: offer.destination,
+      shortDescription: offer.shortDescription,
+      description: offer.description
+    }
+  }
 
   // Get rating text based on star value
   const getRatingText = (rating: number): string => {
@@ -374,6 +436,18 @@ function OfferDetailContent() {
               <span className="font-medium">Back to Offers</span>
             </button>
             <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+              {/* Language Selector - Icon Only, positioned before Edit button */}
+              {offer.translations && (
+                <UltimateLanguageSelector
+                  currentLanguage={selectedLanguage}
+                  onLanguageChange={setSelectedLanguage}
+                  showLabel={false}
+                  size="sm"
+                  iconOnly={true}
+                  className="self-start sm:self-center"
+                />
+              )}
+              
               {isEditMode ? (
                 <>
                   <button
@@ -868,7 +942,7 @@ function OfferDetailContent() {
                 </div>
               ) : (
                 <>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{offer.title}</h1>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{getLocalizedContent(offer).title}</h1>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1">
                       <Star className="w-5 h-5 text-yellow-400 fill-current" />
@@ -895,7 +969,7 @@ function OfferDetailContent() {
                       placeholder="Enter destination"
                     />
                   ) : (
-                    <p className="font-semibold text-gray-900 truncate">{offer.destination}</p>
+                    <p className="font-semibold text-gray-900 truncate">{getLocalizedContent(offer).destination}</p>
                   )}
                 </div>
               </div>
@@ -932,7 +1006,7 @@ function OfferDetailContent() {
                   placeholder="Enter short description"
                 />
               ) : (
-                <p className="text-gray-600 leading-relaxed break-words">{offer.shortDescription}</p>
+                <p className="text-gray-600 leading-relaxed break-words">{getLocalizedContent(offer).shortDescription}</p>
               )}
             </div>
 
@@ -949,7 +1023,7 @@ function OfferDetailContent() {
                 />
               ) : (
                 <div className="text-gray-600 leading-relaxed">
-                  <p className="break-words overflow-wrap-anywhere whitespace-pre-wrap">{offer.description}</p>
+                  <p className="break-words overflow-wrap-anywhere whitespace-pre-wrap">{getLocalizedContent(offer).description}</p>
                 </div>
               )}
             </div>

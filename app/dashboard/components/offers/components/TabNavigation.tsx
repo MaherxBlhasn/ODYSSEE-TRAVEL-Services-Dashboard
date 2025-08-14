@@ -1,14 +1,24 @@
 'use client'
 
 import { Plus, ArrowLeft } from 'lucide-react'
-import { TabType } from '../types'
+import { TabType, Language } from '../types'
+import UltimateLanguageSelector from '../../UltimateLanguageSelector'
 
 interface TabNavigationProps {
   activeTab: TabType
   setActiveTab: (tab: TabType) => void
+  selectedLanguage?: Language
+  onLanguageChange?: (language: Language) => void
+  showLanguageSelector?: boolean
 }
 
-export default function TabNavigation({ activeTab, setActiveTab }: TabNavigationProps) {
+export default function TabNavigation({ 
+  activeTab, 
+  setActiveTab, 
+  selectedLanguage, 
+  onLanguageChange, 
+  showLanguageSelector = false 
+}: TabNavigationProps) {
   return (
     <div className="flex flex-col gap-6">
       {/* Header Section with buttons aligned */}
@@ -35,26 +45,39 @@ export default function TabNavigation({ activeTab, setActiveTab }: TabNavigation
         </div>
 
         {/* Tab Buttons aligned to the right */}
-        <div className="flex bg-gray-100 rounded-lg p-1">
-          <button
-            onClick={() => setActiveTab('offers')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'offers'
-              ? 'bg-orange-600 text-white shadow-sm'
-              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
-              }`}
-          >
-            Travel Offers
-          </button>
-          <button
-            onClick={() => setActiveTab('add-offer')}
-            className={`px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors ${activeTab === 'add-offer'
-              ? 'bg-orange-600 text-white shadow-sm'
-              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
-              }`}
-          >
-            <Plus className="w-4 h-4" />
-            Add Offer
-          </button>
+        <div className="flex items-center gap-3">
+          {/* Language Selector - Icon Only */}
+          {showLanguageSelector && selectedLanguage && onLanguageChange && activeTab === 'offers' && (
+            <UltimateLanguageSelector
+              currentLanguage={selectedLanguage}
+              onLanguageChange={onLanguageChange}
+              showLabel={false}
+              size="sm"
+              iconOnly={true}
+            />
+          )}
+          
+          <div className="flex bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setActiveTab('offers')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'offers'
+                ? 'bg-orange-600 text-white shadow-sm'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
+                }`}
+            >
+              Travel Offers
+            </button>
+            <button
+              onClick={() => setActiveTab('add-offer')}
+              className={`px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors ${activeTab === 'add-offer'
+                ? 'bg-orange-600 text-white shadow-sm'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
+                }`}
+            >
+              <Plus className="w-4 h-4" />
+              Add Offer
+            </button>
+          </div>
         </div>
       </div>
     </div>

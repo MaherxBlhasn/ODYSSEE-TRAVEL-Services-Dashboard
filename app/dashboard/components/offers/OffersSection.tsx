@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 
 import { offerService } from '../../../../lib/services/offer.service'
 import { useOfferForm } from './hooks/useOfferForm'
-import { NewOffer, ApiOffer, apiOfferToOffer } from './types'
+import { NewOffer, ApiOffer, apiOfferToOffer, Language } from './types'
 import TabNavigation from './components/TabNavigation'
 import OffersGrid from './components/OffersGrid'
 import OfferForm from './components/OfferForm'
@@ -20,6 +20,7 @@ function OffersContent() {
 
   const { offers, setOffers } = useOffers()
   const [activeTab, setActiveTab] = useState<'offers' | 'add-offer'>(defaultTab)
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>('en') // Language state for offers display
   const [mainImage, setMainImage] = useState<string>('')
   const [additionalImages, setAdditionalImages] = useState<string[]>([])
   const [isLoadingOffers, setIsLoadingOffers] = useState(false)
@@ -93,10 +94,10 @@ function OffersContent() {
   })
 
   // Fetch offers from backend
-  const fetchOffers = useCallback(async () => {
+  const fetchOffers = useCallback(async (language: Language = selectedLanguage) => {
     setIsLoadingOffers(true)
     try {
-      const apiOffers: ApiOffer[] = await offerService.getOffers('en', true)
+      const apiOffers: ApiOffer[] = await offerService.getOffers(language, true)
       console.log('Fetched offers from API:', apiOffers)
       
       // Ensure we have an array
@@ -116,7 +117,7 @@ function OffersContent() {
         console.warn(`Filtered out ${apiOffers.length - validOffers.length} invalid offers`)
       }
       
-      const convertedOffers = validOffers.map(offer => apiOfferToOffer(offer, 'en'))
+      const convertedOffers = validOffers.map(offer => apiOfferToOffer(offer, language))
       console.log('Converted offers with image URLs:', convertedOffers.map(offer => ({ 
         id: offer.id, 
         title: offer.title, 
@@ -135,12 +136,18 @@ function OffersContent() {
     } finally {
       setIsLoadingOffers(false)
     }
-  }, [setOffers])
+  }, [setOffers, selectedLanguage])
 
-  // Load offers on component mount
+  // Load offers on component mount and when language changes
   useEffect(() => {
     fetchOffers()
   }, [fetchOffers])
+
+  // Handle language change
+  const handleLanguageChange = (newLanguage: Language) => {
+    setSelectedLanguage(newLanguage)
+    // fetchOffers will be called automatically due to dependency change
+  }
 
   const handleAddOffer = async () => {
     clearValidationErrors()
@@ -247,7 +254,13 @@ function OffersContent() {
       )}
 
       {/* Tab Navigation */}
-      <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
+      <TabNavigation 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab}
+        selectedLanguage={selectedLanguage}
+        onLanguageChange={handleLanguageChange}
+        showLanguageSelector={true}
+      />
 
       {/* Tab Content */}
       {activeTab === 'offers' ? (
