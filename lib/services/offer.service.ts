@@ -4,16 +4,39 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export interface CreateOfferResponse {
     id: string;
-    title: string;
-    shortDescription: string;
-    bigDescription: string;
+    // Multilingual fields
+    title_en?: string;
+    title_fr?: string;
+    shortDescription_en?: string;
+    shortDescription_fr?: string;
+    bigDescription_en?: string;
+    bigDescription_fr?: string;
+    destination_en?: string;
+    destination_fr?: string;
+    // Legacy single-language fields (for backward compatibility)
+    title?: string;
+    shortDescription?: string;
+    bigDescription?: string;
+    destination?: string;
+    // Common fields
     stars: number;
     duration: number;
-    destination: string;
-    mainImageUrl: string;
-    imageUrls: string[];
+    mainImage: string; // Changed from mainImageUrl to match backend
+    images: string[]; // Changed from imageUrls to match backend
     createdAt: string;
     updatedAt: string;
+    available?: boolean;
+    currentLanguage?: string;
+    translations?: any;
+}
+
+export interface GetOffersResponse {
+    offers: CreateOfferResponse[];
+    metadata: {
+        language: string;
+        totalOffers: number;
+        includesTranslations: boolean;
+    };
 }
 
 export interface ApiError {
@@ -23,10 +46,10 @@ export interface ApiError {
 
 export const offerService = {
     /**
-     * Create a new offer with images
+     * Create a new multilingual offer with images
      */
     async createOffer(
-        offerData: OfferFormData,
+        offerData: any, // Will accept both old and new multilingual format
         mainImage: File | null,
         additionalImages: File[]
     ): Promise<CreateOfferResponse> {
@@ -34,13 +57,28 @@ export const offerService = {
             // Create FormData for multipart/form-data request
             const formData = new FormData();
 
-            // Add offer data
-            formData.append('title', offerData.title);
-            formData.append('shortDescription', offerData.shortDescription);
-            formData.append('bigDescription', offerData.bigDescription);
+            // Handle both multilingual and legacy single-language data
+            if (offerData.title_en && offerData.title_fr) {
+                // Multilingual format
+                formData.append('title_en', offerData.title_en);
+                formData.append('title_fr', offerData.title_fr);
+                formData.append('shortDescription_en', offerData.shortDescription_en);
+                formData.append('shortDescription_fr', offerData.shortDescription_fr);
+                formData.append('bigDescription_en', offerData.bigDescription_en);
+                formData.append('bigDescription_fr', offerData.bigDescription_fr);
+                formData.append('destination_en', offerData.destination_en);
+                formData.append('destination_fr', offerData.destination_fr);
+            } else {
+                // Legacy single-language format (backward compatibility)
+                formData.append('title', offerData.title);
+                formData.append('shortDescription', offerData.shortDescription);
+                formData.append('bigDescription', offerData.bigDescription);
+                formData.append('destination', offerData.destination);
+            }
+
+            // Common fields
             formData.append('stars', offerData.stars.toString());
-            formData.append('duration', offerData.duration);
-            formData.append('destination', offerData.destination);
+            formData.append('duration', offerData.duration.toString());
 
             // Add main image if provided
             if (mainImage) {
@@ -73,11 +111,15 @@ export const offerService = {
     },
 
     /**
-     * Get all offers
+     * Get all offers with optional language preference
      */
-    async getOffers(): Promise<CreateOfferResponse[]> {
+    async getOffers(language: string = 'en', includeTranslations: boolean = true): Promise<CreateOfferResponse[]> {
         try {
-            const response = await fetch(`${API_BASE_URL}/offers`, {
+            const url = new URL(`${API_BASE_URL}/offers`);
+            url.searchParams.append('lang', language);
+            url.searchParams.append('includeTranslations', includeTranslations.toString());
+
+            const response = await fetch(url.toString(), {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
@@ -90,7 +132,11 @@ export const offerService = {
                 throw new Error(errorData.details || errorData.error || 'Failed to fetch offers');
             }
 
-            return await response.json();
+            const responseData: GetOffersResponse = await response.json();
+            console.log('API Response:', responseData);
+            
+            // Return just the offers array
+            return responseData.offers || [];
         } catch (error) {
             console.error('Fetch offers failed:', error);
             throw new Error(error instanceof Error ? error.message : 'Failed to fetch offers');

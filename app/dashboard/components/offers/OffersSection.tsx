@@ -32,11 +32,18 @@ function OffersContent() {
     sortBy: 'newest' // 'newest', 'oldest', 'rating-high', 'rating-low', 'title'
   })
   const [newOffer, setNewOffer] = useState<NewOffer>({
-    title: '',
-    destination: '',
+    // English fields
+    title_en: '',
+    destination_en: '',
+    shortDescription_en: '',
+    bigDescription_en: '',
+    // French fields
+    title_fr: '',
+    destination_fr: '',
+    shortDescription_fr: '',
+    bigDescription_fr: '',
+    // Common fields
     duration: '',
-    shortDescription: '',
-    bigDescription: '',
     stars: 5
   })
 
@@ -57,11 +64,18 @@ function OffersContent() {
     onSuccess: () => {
       // Clear form and show success message
       setNewOffer({
-        title: '',
-        destination: '',
+        // English fields
+        title_en: '',
+        destination_en: '',
+        shortDescription_en: '',
+        bigDescription_en: '',
+        // French fields
+        title_fr: '',
+        destination_fr: '',
+        shortDescription_fr: '',
+        bigDescription_fr: '',
+        // Common fields
         duration: '',
-        shortDescription: '',
-        bigDescription: '',
         stars: 5
       })
       setMainImage('')
@@ -82,19 +96,27 @@ function OffersContent() {
   const fetchOffers = useCallback(async () => {
     setIsLoadingOffers(true)
     try {
-      const apiOffers: ApiOffer[] = await offerService.getOffers()
+      const apiOffers: ApiOffer[] = await offerService.getOffers('en', true)
       console.log('Fetched offers from API:', apiOffers)
+      
+      // Ensure we have an array
+      if (!Array.isArray(apiOffers)) {
+        console.error('API did not return an array:', apiOffers)
+        setOffers([])
+        setIsLoadingOffers(false)
+        return
+      }
       
       // Validate and convert API offers to local display format
       const validOffers = apiOffers.filter(offer => 
-        offer && offer.id && offer.title // Basic validation
+        offer && offer.id && (offer.title_en || offer.title_fr || offer.title) // Support multilingual
       )
       
       if (validOffers.length !== apiOffers.length) {
         console.warn(`Filtered out ${apiOffers.length - validOffers.length} invalid offers`)
       }
       
-      const convertedOffers = validOffers.map(apiOfferToOffer)
+      const convertedOffers = validOffers.map(offer => apiOfferToOffer(offer, 'en'))
       console.log('Converted offers with image URLs:', convertedOffers.map(offer => ({ 
         id: offer.id, 
         title: offer.title, 
