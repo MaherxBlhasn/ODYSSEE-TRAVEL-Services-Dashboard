@@ -8,7 +8,8 @@ import {
   LogOut,
   User,
   Menu,
-  X
+  X,
+  Newspaper
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -22,6 +23,7 @@ const sidebarItems = [
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   { id: 'contacts', label: 'Contacts', icon: Mail },
   { id: 'users', label: 'Users', icon: User },
+  { id: 'newspaper', label: 'Newspaper', icon: Newspaper }
 ]
 
 // Generate a consistent avatar based on username
