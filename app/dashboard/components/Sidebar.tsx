@@ -52,6 +52,7 @@ export default function Sidebar() {
 
   const handleLogout = async () => {
     try {
+      setMobileMenuOpen(false) // Close mobile menu if open
       await authService.logout()
       startTransition(() => {
         router.push('/login')
@@ -74,6 +75,22 @@ export default function Sidebar() {
           <p className="text-stone-400 text-xs truncate">
             {currentUser?.Email}
           </p>
+        </div>
+        {/* Logout Button */}
+        <div className="relative group">
+          <button
+            onClick={handleLogout}
+            disabled={isPending}
+            className="p-2 rounded-lg text-stone-400 hover:text-red-400 hover:bg-slate-600/50 transition-all duration-300 transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Logout"
+          >
+            <LogOut className="w-5 h-5" />
+          </button>
+          {/* Tooltip */}
+          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-slate-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap shadow-lg">
+            {isPending ? 'Logging out...' : 'Logout'}
+            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-900"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -123,16 +140,6 @@ export default function Sidebar() {
                 <span className="font-medium">{item.label}</span>
               </Link>
             ))}
-
-            <button
-              onClick={handleLogout}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-stone-300 hover:bg-slate-700 hover:text-white`}
-            >
-              <LogOut className="w-5 h-5" />
-              <span className="font-medium">
-                {isPending ? 'Logging out...' : 'Logout'}
-              </span>
-            </button>
           </nav>
 
           {/* Profile Section */}
@@ -172,16 +179,6 @@ export default function Sidebar() {
                     <span className="font-medium">{item.label}</span>
                   </Link>
                 ))}
-
-                <button
-                  onClick={handleLogout}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-stone-300 hover:bg-slate-700 hover:text-white`}
-                >
-                  <LogOut className="w-5 h-5" />
-                  <span className="font-medium">
-                    {isPending ? 'Logging out...' : 'Logout'}
-                  </span>
-                </button>
               </nav>
 
               {/* Profile Section for Mobile */}
