@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { StatsResponse } from '@/lib/types/stats.types';
-import { BarChart3, LucideIcon } from 'lucide-react';
+import { BarChart3, LucideIcon, Loader2 } from 'lucide-react';
 
 import {
   Package,
@@ -188,6 +188,7 @@ const DashboardSection: React.FC = () => {
   const [statsData, setStatsData] = useState<StatsResponse['data'] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [quickActionLoading, setQuickActionLoading] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -247,9 +248,10 @@ const DashboardSection: React.FC = () => {
   })) ?? [];
 
   const handleQuickAction = (action: string) => {
+    setQuickActionLoading(action);
     switch (action) {
       case 'offers':
-        router.push('/offers');
+        router.push('/dashboard/offers?tab=add-offer');
         break;
       case 'messages':
         router.push('/dashboard/contacts');
@@ -263,6 +265,8 @@ const DashboardSection: React.FC = () => {
       default:
         break;
     }
+    // Reset loading after short delay (navigation is usually instant)
+    setTimeout(() => setQuickActionLoading(null), 1200);
   };
 
   const formatDate = (dateString: string) => {
@@ -372,26 +376,40 @@ const DashboardSection: React.FC = () => {
           <div className="flex flex-wrap gap-4">
             <button
               onClick={() => handleQuickAction('offers')}
-              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-3 rounded-xl flex items-center gap-3 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              disabled={quickActionLoading === 'offers'}
+              className={`bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-3 rounded-xl flex items-center gap-3 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1 ${quickActionLoading === 'offers' ? 'opacity-60 cursor-not-allowed' : ''}`}
             >
-              <Plus className="w-5 h-5" />
+              {quickActionLoading === 'offers' ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Plus className="w-5 h-5" />
+              )}
               New Offer
             </button>
             <button
               onClick={() => handleQuickAction('messages')}
-              className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-6 py-3 rounded-xl flex items-center gap-3 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              disabled={quickActionLoading === 'messages'}
+              className={`bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-6 py-3 rounded-xl flex items-center gap-3 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1 ${quickActionLoading === 'messages' ? 'opacity-60 cursor-not-allowed' : ''}`}
             >
-              <MessageSquare className="w-5 h-5" />
+              {quickActionLoading === 'messages' ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <MessageSquare className="w-5 h-5" />
+              )}
               View Messages
             </button>
             <button
               onClick={() => handleQuickAction('users')}
-              className="bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 text-white px-6 py-3 rounded-xl flex items-center gap-3 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              disabled={quickActionLoading === 'users'}
+              className={`bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 text-white px-6 py-3 rounded-xl flex items-center gap-3 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1 ${quickActionLoading === 'users' ? 'opacity-60 cursor-not-allowed' : ''}`}
             >
-              <Settings className="w-5 h-5" />
+              {quickActionLoading === 'users' ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Settings className="w-5 h-5" />
+              )}
               Manage Admins
             </button>
-
           </div>
         </div>
 
@@ -411,10 +429,17 @@ const DashboardSection: React.FC = () => {
               </div>
               <button
                 onClick={() => handleQuickAction('analytics')}
-                className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 hover:opacity-90 text-white px-6 py-3 rounded-xl flex items-center gap-2 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex-shrink-0"
+                disabled={quickActionLoading === 'analytics'}
+                className={`bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 hover:opacity-90 text-white px-6 py-3 rounded-xl flex items-center gap-2 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex-shrink-0 ${quickActionLoading === 'analytics' ? 'opacity-60 cursor-not-allowed' : ''}`}
               >
+                {quickActionLoading === 'analytics' ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    <ChevronRight className="w-4 h-4" />
+                  </>
+                )}
                 View Analytics
-                <ChevronRight className="w-4 h-4" />
               </button>
             </div>
 
@@ -603,9 +628,15 @@ const DashboardSection: React.FC = () => {
 
                 <button
                   onClick={() => handleQuickAction('messages')}
-                  className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-4 py-3 rounded-xl transition-all duration-300 text-sm font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                  disabled={quickActionLoading === 'messages'}
+                  className={`w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-4 py-3 rounded-xl transition-all duration-300 text-sm font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex justify-center items-center ${quickActionLoading === 'messages' ? 'opacity-60 cursor-not-allowed' : ''}`}
                 >
-                  View All Messages
+                  <span className="flex items-center justify-center gap-2">
+                    {quickActionLoading === 'messages' && (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    )}
+                    View All Messages
+                  </span>
                 </button>
               </div>
             )}
