@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { offers as initialOffers } from '../../data'
 import { useSearchParams } from 'next/navigation';
 
 import { offerService } from '../../../../lib/services/offer.service'
@@ -50,12 +49,8 @@ function OffersContent() {
     }
   }, [searchParams]);
 
-  // Initialize offers with local data
-  useEffect(() => {
-    if (offers.length === 0) {
-      setOffers(initialOffers)
-    }
-  }, [offers.length, setOffers])
+  // Remove automatic initialization with local data
+  // Let the component show empty state when no real offers are available
 
   // Use the custom hook for form validation and submission
   const { isLoading, validationErrors, submitOffer, clearValidationErrors } = useOfferForm({
@@ -108,13 +103,12 @@ function OffersContent() {
       setOffers(convertedOffers)
       
       if (convertedOffers.length === 0) {
-        setError('No valid offers found on server, showing local data')
-        setTimeout(() => setError(''), 3000)
+        console.log('No offers found on server')
       }
     } catch (error) {
       console.error('Failed to fetch offers:', error)
-      // Keep using local data if API fails
-      setError('Failed to load offers from server, showing local data')
+      // Don't fall back to local data, just show empty state
+      setError('Failed to load offers from server')
       setTimeout(() => setError(''), 3000)
     } finally {
       setIsLoadingOffers(false)
@@ -251,8 +245,32 @@ function OffersContent() {
             </div>
           ) : (
             <>
-              {/* Interactive Filter Cards */}
-              <div className="mb-6">
+              {/* Show empty state if no offers, otherwise show all features */}
+              {offers.length === 0 ? (
+                <div className="flex flex-col items-center justify-center min-h-[80vh] px-8 text-center">
+                  <div className="w-32 h-32 mb-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center shadow-lg">
+                    <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2 2v-5m16 0h-2M4 13h2m13-8V4a1 1 0 00-1-1H6a1 1 0 00-1 1v1m16 0H4" />
+                    </svg>
+                  </div>
+                  <h3 className="text-3xl font-bold text-gray-700 mb-4">No offers available</h3>
+                  <p className="text-gray-500 mb-12 max-w-lg text-lg leading-relaxed">
+                    You haven&apos;t created any travel offers yet. Start by adding your first offer to showcase amazing destinations and experiences.
+                  </p>
+                  <button
+                    onClick={() => setActiveTab('add-offer')}
+                    className="inline-flex items-center gap-3 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-lg"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add Your First Offer
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {/* Interactive Filter Cards */}
+                  <div className="mb-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -677,6 +695,8 @@ function OffersContent() {
                 onDelete={handleDeleteOffer}
                 onToggleStatus={toggleOfferStatus}
               />
+                </>
+              )}
             </>
           )}
         </div>
