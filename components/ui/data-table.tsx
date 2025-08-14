@@ -4,7 +4,7 @@ import { Edit, Trash2, ChevronUp, ChevronDown, MoreHorizontal } from 'lucide-rea
 interface DataTableProps<T> {
   data: T[];
   columns: Array<{
-    key: keyof T | 'actions';
+    key: keyof T | 'actions' | string; // 'actions' for action buttons
     label: string;
     sortable?: boolean;
     render?: (item: T) => React.ReactNode;
