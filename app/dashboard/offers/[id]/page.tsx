@@ -54,6 +54,16 @@ interface LocalOffer {
 }
 
 interface UpdateOfferData {
+  // Multilingual fields
+  title_en?: string
+  title_fr?: string
+  destination_en?: string
+  destination_fr?: string
+  shortDescription_en?: string
+  shortDescription_fr?: string
+  bigDescription_en?: string
+  bigDescription_fr?: string
+  // Legacy fields (for backward compatibility)
   title?: string
   destination?: string
   duration?: string
@@ -89,12 +99,17 @@ function OfferDetailContent() {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle')
   // Language state for multilingual display
   const [selectedLanguage, setSelectedLanguage] = useState<Language>('en')
+  // Unsaved changes tracking
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [showLanguageSwitchModal, setShowLanguageSwitchModal] = useState(false)
+  const [pendingLanguage, setPendingLanguage] = useState<Language | null>(null)
+  const [initialEditData, setInitialEditData] = useState<Partial<DetailedOffer>>({})
   // const [saveMessage, setSaveMessage] = useState('')
 
   const offerId = params.id as string
 
-  // Helper function to get localized content based on selected language
-  const getLocalizedContent = (offer: DetailedOffer) => {
+  // Helper function to get localized content based on provided language
+  const getLocalizedContent = (offer: DetailedOffer, language: Language = selectedLanguage) => {
     if (!offer.translations) {
       // Fallback to default content if no translations available
       return {
@@ -105,7 +120,7 @@ function OfferDetailContent() {
       }
     }
 
-    const translation = offer.translations[selectedLanguage]
+    const translation = offer.translations[language]
     if (translation) {
       return {
         title: translation.title,
@@ -116,7 +131,7 @@ function OfferDetailContent() {
     }
 
     // Fallback to the other language if current selection isn't available
-    const fallbackLang = selectedLanguage === 'en' ? 'fr' : 'en'
+    const fallbackLang = language === 'en' ? 'fr' : 'en'
     const fallbackTranslation = offer.translations[fallbackLang]
     if (fallbackTranslation) {
       return {
@@ -225,23 +240,129 @@ function OfferDetailContent() {
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [offer, selectedImageIndex, totalImages])
 
+  // Track unsaved changes
+  useEffect(() => {
+    setHasUnsavedChanges(hasUnsavedEditChanges())
+  }, [editData, newMainImage, newAdditionalImages, imagesToRemove, removeMainImage, isEditMode])
+
   // Edit mode functions
   const enterEditMode = () => {
     if (offer) {
+      // Get localized content for the currently selected language
+      const localizedContent = getLocalizedContent(offer)
+      
       setEditData({
-        title: offer.title,
-        destination: offer.destination,
+        title: localizedContent.title,
+        destination: localizedContent.destination,
         duration: offer.duration,
-        shortDescription: offer.shortDescription,
-        description: offer.description,
+        shortDescription: localizedContent.shortDescription,
+        description: localizedContent.description,
         rating: offer.rating,
       })
       setIsEditMode(true)
     }
   }
 
+  // Handle language change during edit mode - reload edit data with new language content
+  const handleLanguageChangeInEditMode = (newLanguage: Language) => {
+    if (isEditMode && offer) {
+      // Save current edit progress for language-independent fields
+      const currentEditData = { ...editData }
+      
+      // Update language
+      setSelectedLanguage(newLanguage)
+      
+      // Get content for the new language
+      const newLocalizedContent = getLocalizedContent(offer, newLanguage)
+      
+      // Update edit data with new language content, but preserve language-independent fields
+      setEditData({
+        title: newLocalizedContent.title,
+        destination: newLocalizedContent.destination,
+        shortDescription: newLocalizedContent.shortDescription,
+        description: newLocalizedContent.description,
+        // Preserve language-independent fields
+        duration: currentEditData.duration || offer.duration,
+        rating: currentEditData.rating || offer.rating,
+      })
+    } else {
+      // Normal language change when not in edit mode
+      setSelectedLanguage(newLanguage)
+    }
+  }
+
+  // Check if there are unsaved changes
+  const hasUnsavedEditChanges = () => {
+    if (!isEditMode || !offer) return false
+    
+    // Check if any field has been modified from initial state
+    const currentData = getLocalizedContent(offer, selectedLanguage)
+    
+    return (
+      (editData.title !== undefined && editData.title !== currentData.title) ||
+      (editData.destination !== undefined && editData.destination !== currentData.destination) ||
+      (editData.shortDescription !== undefined && editData.shortDescription !== currentData.shortDescription) ||
+      (editData.description !== undefined && editData.description !== currentData.description) ||
+      (editData.duration !== undefined && editData.duration !== offer.duration) ||
+      (editData.rating !== undefined && editData.rating !== offer.rating) ||
+      newMainImage !== null ||
+      newAdditionalImages.length > 0 ||
+      imagesToRemove.length > 0 ||
+      removeMainImage
+    )
+  }
+
+  // Safe language switching with unsaved changes check
+  const handleLanguageChangeWithCheck = (newLanguage: Language) => {
+    if (isEditMode && hasUnsavedEditChanges()) {
+      setPendingLanguage(newLanguage)
+      setShowLanguageSwitchModal(true)
+    } else {
+      handleLanguageChangeInEditMode(newLanguage)
+    }
+  }
+
+  // Confirm language switch without saving
+  const confirmLanguageSwitch = () => {
+    if (pendingLanguage) {
+      handleLanguageChangeInEditMode(pendingLanguage)
+      setPendingLanguage(null)
+    }
+    setShowLanguageSwitchModal(false)
+  }
+
+  // Cancel language switch
+  const cancelLanguageSwitch = () => {
+    setPendingLanguage(null)
+    setShowLanguageSwitchModal(false)
+  }
+
+  // Save changes before switching language
+  const saveAndSwitchLanguage = async () => {
+    try {
+      await saveChanges()
+      if (pendingLanguage && offer) {
+        setSelectedLanguage(pendingLanguage)
+        const newLocalizedContent = getLocalizedContent(offer, pendingLanguage)
+        setEditData({
+          title: newLocalizedContent.title,
+          destination: newLocalizedContent.destination,
+          shortDescription: newLocalizedContent.shortDescription,
+          description: newLocalizedContent.description,
+          duration: offer.duration,
+          rating: offer.rating,
+        })
+        setPendingLanguage(null)
+      }
+      setShowLanguageSwitchModal(false)
+    } catch (error) {
+      console.error('Failed to save before switching language:', error)
+      // Keep modal open if save fails
+    }
+  }
+
   const cancelEdit = () => {
-    if (hasChanges()) {
+    if (hasUnsavedEditChanges()) {
       setShowDiscardModal(true)
     } else {
       resetEditMode()
@@ -313,38 +434,54 @@ function OfferDetailContent() {
     
     setIsLoading(true)
     setSaveStatus('saving')
-    // setSaveMessage('Saving your changes...')
     
     try {
-      // Create update data - only include defined fields
+      // Create update data - only include defined fields for the selected language
       const updateData: UpdateOfferData = {}
       
       // Only add fields that have been edited and are not empty
       if (editData.title && editData.title.trim() !== '') {
-        updateData.title = editData.title.trim()
+        if (selectedLanguage === 'en') {
+          updateData.title_en = editData.title.trim()
+        } else {
+          updateData.title_fr = editData.title.trim()
+        }
       }
       
       if (editData.destination && editData.destination.trim() !== '') {
-        updateData.destination = editData.destination.trim()
+        if (selectedLanguage === 'en') {
+          updateData.destination_en = editData.destination.trim()
+        } else {
+          updateData.destination_fr = editData.destination.trim()
+        }
       }
       
+      if (editData.shortDescription && editData.shortDescription.trim() !== '') {
+        if (selectedLanguage === 'en') {
+          updateData.shortDescription_en = editData.shortDescription.trim()
+        } else {
+          updateData.shortDescription_fr = editData.shortDescription.trim()
+        }
+      }
+      
+      if (editData.description && editData.description.trim() !== '') {
+        if (selectedLanguage === 'en') {
+          updateData.bigDescription_en = editData.description.trim()
+        } else {
+          updateData.bigDescription_fr = editData.description.trim()
+        }
+      }
+      
+      // Duration and stars are language-independent
       if (editData.duration && editData.duration.toString().trim() !== '') {
         updateData.duration = editData.duration.toString().trim()
       }
       
-      if (editData.shortDescription && editData.shortDescription.trim() !== '') {
-        updateData.shortDescription = editData.shortDescription.trim()
-      }
-      
-      if (editData.description && editData.description.trim() !== '') {
-        updateData.bigDescription = editData.description.trim() // Note: backend uses 'bigDescription'
-      }
-      
       if (editData.rating && editData.rating > 0) {
-        updateData.stars = editData.rating // Note: backend uses 'stars'
+        updateData.stars = editData.rating
       }
 
-      console.log('Sending update data:', updateData)
+      console.log(`Sending update data for ${selectedLanguage}:`, updateData)
 
       // Call the update service with all flexible image operations
       await offerService.updateOffer(
@@ -358,13 +495,20 @@ function OfferDetailContent() {
         replaceAllGallery
       )
 
-      // Update local state - this is a simplified version
-      // In a real app, you'd want to refetch the data
-      const updatedOffer = {
-        ...offer,
-        ...editData,
-        // Note: Image updates would need backend confirmation
+      // Update local state with the new language-specific content
+      const updatedOffer = { ...offer }
+      
+      if (updatedOffer.translations) {
+        // Update the specific language in translations
+        if (editData.title) updatedOffer.translations[selectedLanguage].title = editData.title
+        if (editData.destination) updatedOffer.translations[selectedLanguage].destination = editData.destination
+        if (editData.shortDescription) updatedOffer.translations[selectedLanguage].shortDescription = editData.shortDescription
+        if (editData.description) updatedOffer.translations[selectedLanguage].bigDescription = editData.description
       }
+      
+      // Update language-independent fields
+      if (editData.rating) updatedOffer.rating = editData.rating
+      if (editData.duration) updatedOffer.duration = editData.duration
       
       setOffer(updatedOffer)
       
@@ -372,22 +516,31 @@ function OfferDetailContent() {
       setOffers(offers.map(o => o.id === offer.id ? { ...o, ...editData } : o))
       
       setSaveStatus('success')
-      // setSaveMessage('Offer updated successfully!')
       
-      // Navigate back to offers grid after a short delay
+      // Exit edit mode after successful save
+      setIsEditMode(false)
+      setEditData({})
+      
+      // Clear image edit states
+      setNewMainImage(null)
+      setNewAdditionalImages([])
+      setImagesToRemove([])
+      setRemoveMainImage(false)
+      setAddToGallery(false)
+      setReplaceAllGallery(false)
+      
+      // Reset success status after 3 seconds
       setTimeout(() => {
-        router.push('/dashboard/offers')
-      }, 1500)
+        setSaveStatus('idle')
+      }, 3000)
       
     } catch (error) {
       console.error('Failed to update offer:', error)
       setSaveStatus('error')
-      // setSaveMessage('Failed to update offer. Please try again.')
       
       // Reset error status after 3 seconds
       setTimeout(() => {
         setSaveStatus('idle')
-        // setSaveMessage('')
       }, 3000)
     } finally {
       setIsLoading(false)
@@ -440,7 +593,7 @@ function OfferDetailContent() {
               {offer.translations && (
                 <UltimateLanguageSelector
                   currentLanguage={selectedLanguage}
-                  onLanguageChange={setSelectedLanguage}
+                  onLanguageChange={handleLanguageChangeWithCheck}
                   showLabel={false}
                   size="sm"
                   iconOnly={true}
@@ -913,98 +1066,162 @@ function OfferDetailContent() {
 
           {/* Offer Details */}
           <div className="space-y-6">
-            {/* Title and Rating */}
-            <div>
-              {isEditMode ? (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
-                    <input
-                      type="text"
-                      value={editData.title || ''}
-                      onChange={(e) => setEditData(prev => ({ ...prev, title: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      placeholder="Enter offer title"
-                    />
+            {/* Title and Rating - Show normally in view mode */}
+            {!isEditMode && (
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">{getLocalizedContent(offer).title}</h1>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    <Star className="w-5 h-5 text-yellow-400 fill-current" />
+                    <span className="text-lg font-semibold text-gray-900">{offer.rating}</span>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
-                    <select
-                      value={editData.rating || 5}
-                      onChange={(e) => setEditData(prev => ({ ...prev, rating: Number(e.target.value) }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    >
-                      {[1, 2, 3, 4, 5].map(rating => (
-                        <option key={rating} value={rating}>{rating} Star{rating !== 1 ? 's' : ''}</option>
-                      ))}
-                    </select>
-                  </div>
+                  <span className="text-gray-500">• {getRatingText(offer.rating)}</span>
                 </div>
-              ) : (
-                <>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{getLocalizedContent(offer).title}</h1>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1">
-                      <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                      <span className="text-lg font-semibold text-gray-900">{offer.rating}</span>
-                    </div>
-                    <span className="text-gray-500">• {getRatingText(offer.rating)}</span>
-                  </div>
-                </>
-              )}
-            </div>
+              </div>
+            )}
 
-            {/* Responsive Key Details */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex items-center gap-3 p-4 bg-white rounded-lg border">
-                <MapPin className="w-5 h-5 text-orange-600 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-500">Destination</p>
-                  {isEditMode ? (
-                    <input
-                      type="text"
-                      value={editData.destination || ''}
-                      onChange={(e) => setEditData(prev => ({ ...prev, destination: e.target.value }))}
-                      className="w-full mt-1 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
-                      placeholder="Enter destination"
-                    />
-                  ) : (
+            {/* Edit Mode: Language-Independent Fields First */}
+            {isEditMode && (
+              <div className="space-y-6">
+                {/* Language-Independent Fields Section */}
+                <div className="bg-white rounded-lg border p-4 sm:p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
+                    Global Settings
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                      <div className="border border-gray-300 rounded-lg px-4 py-3 bg-white hover:border-orange-500 focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-500 focus-within:ring-opacity-20 transition-all duration-200 h-12 flex items-center">
+                        <div className="flex items-center gap-1 w-full">
+                          {[1, 2, 3, 4, 5].map(rating => (
+                            <button
+                              key={rating}
+                              type="button"
+                              onClick={() => setEditData(prev => ({ ...prev, rating }))}
+                              className={`p-1 rounded-md transition-all duration-200 hover:scale-110 ${
+                                (editData.rating || offer.rating) >= rating
+                                  ? 'text-yellow-400 hover:text-yellow-500'
+                                  : 'text-gray-300 hover:text-yellow-300'
+                              }`}
+                              title={`${rating} star${rating !== 1 ? 's' : ''}`}
+                            >
+                              <Star className="w-5 h-5 fill-current" />
+                            </button>
+                          ))}
+                          <span className="ml-4 text-sm text-gray-600 font-medium flex-1 whitespace-nowrap">
+                            {editData.rating || offer.rating} star{(editData.rating || offer.rating) !== 1 ? 's' : ''}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Duration (days)</label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="365"
+                        value={editData.duration || ''}
+                        onChange={(e) => setEditData(prev => ({ ...prev, duration: e.target.value }))}
+                        className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent hover:border-orange-500 transition-all duration-200"
+                        placeholder="7"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Language-Specific Fields Section */}
+                <div className="bg-white rounded-lg border p-4 sm:p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <div className={`w-3 h-3 rounded-full ${hasUnsavedChanges ? 'bg-orange-500' : 'bg-blue-500'}`}></div>
+                    {selectedLanguage.toUpperCase()} Content
+                    {hasUnsavedChanges && (
+                      <span className="text-xs text-orange-600 ml-2 flex items-center gap-1">
+                        <div className="w-1 h-1 bg-orange-500 rounded-full"></div>
+                        Unsaved changes
+                      </span>
+                    )}
+                    {!hasUnsavedChanges && (
+                      <span className="text-xs text-blue-600 ml-2">
+                        Use flag selector above to switch languages
+                      </span>
+                    )}
+                  </h3>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Title ({selectedLanguage.toUpperCase()})
+                      </label>
+                      <input
+                        type="text"
+                        value={editData.title || ''}
+                        onChange={(e) => setEditData(prev => ({ ...prev, title: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        placeholder={`Enter title in ${selectedLanguage.toUpperCase()}`}
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Destination ({selectedLanguage.toUpperCase()})
+                      </label>
+                      <input
+                        type="text"
+                        value={editData.destination || ''}
+                        onChange={(e) => setEditData(prev => ({ ...prev, destination: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        placeholder={`Enter destination in ${selectedLanguage.toUpperCase()}`}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Responsive Key Details - View Mode Only */}
+            {!isEditMode && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex items-center gap-3 p-4 bg-white rounded-lg border">
+                  <MapPin className="w-5 h-5 text-orange-600 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-500">Destination</p>
                     <p className="font-semibold text-gray-900 truncate">{getLocalizedContent(offer).destination}</p>
-                  )}
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-3 p-4 bg-white rounded-lg border">
-                <Calendar className="w-5 h-5 text-orange-600 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-500">Duration (days)</p>
-                  {isEditMode ? (
-                    <input
-                      type="number"
-                      min="1"
-                      max="365"
-                      value={editData.duration || ''}
-                      onChange={(e) => setEditData(prev => ({ ...prev, duration: e.target.value }))}
-                      className="w-full mt-1 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
-                      placeholder="7"
-                    />
-                  ) : (
+                <div className="flex items-center gap-3 p-4 bg-white rounded-lg border">
+                  <Calendar className="w-5 h-5 text-orange-600 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-500">Duration (days)</p>
                     <p className="font-semibold text-gray-900">{offer.duration} days</p>
-                  )}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Responsive Short Description */}
             <div className="bg-white rounded-lg border p-4 sm:p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Overview</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                Overview 
+                {isEditMode && (
+                  <span className="text-sm text-blue-600 ml-2">
+                    ({selectedLanguage.toUpperCase()})
+                  </span>
+                )}
+              </h3>
               {isEditMode ? (
-                <textarea
-                  value={editData.shortDescription || ''}
-                  onChange={(e) => setEditData(prev => ({ ...prev, shortDescription: e.target.value }))}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none text-sm"
-                  placeholder="Enter short description"
-                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Short Description ({selectedLanguage.toUpperCase()})
+                  </label>
+                  <textarea
+                    value={editData.shortDescription || ''}
+                    onChange={(e) => setEditData(prev => ({ ...prev, shortDescription: e.target.value }))}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none text-sm"
+                    placeholder={`Enter short description in ${selectedLanguage.toUpperCase()}`}
+                  />
+                </div>
               ) : (
                 <p className="text-gray-600 leading-relaxed break-words">{getLocalizedContent(offer).shortDescription}</p>
               )}
@@ -1012,21 +1229,89 @@ function OfferDetailContent() {
 
             {/* Responsive Detailed Description */}
             <div className="bg-white rounded-lg border p-4 sm:p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Detailed Description</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                Detailed Description
+                {isEditMode && (
+                  <span className="text-sm text-blue-600 ml-2">
+                    ({selectedLanguage.toUpperCase()})
+                  </span>
+                )}
+              </h3>
               {isEditMode ? (
-                <textarea
-                  value={editData.description || ''}
-                  onChange={(e) => setEditData(prev => ({ ...prev, description: e.target.value }))}
-                  rows={6}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none text-sm"
-                  placeholder="Enter detailed description"
-                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Detailed Description ({selectedLanguage.toUpperCase()})
+                  </label>
+                  <textarea
+                    value={editData.description || ''}
+                    onChange={(e) => setEditData(prev => ({ ...prev, description: e.target.value }))}
+                    rows={6}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none text-sm"
+                    placeholder={`Enter detailed description in ${selectedLanguage.toUpperCase()}`}
+                  />
+                </div>
               ) : (
                 <div className="text-gray-600 leading-relaxed">
                   <p className="break-words overflow-wrap-anywhere whitespace-pre-wrap">{getLocalizedContent(offer).description}</p>
                 </div>
               )}
             </div>
+
+            {/* Edit Mode Action Buttons */}
+            {isEditMode && (
+              <div className="bg-white rounded-lg border p-6">
+                <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
+                  <button
+                    onClick={() => setShowDiscardModal(true)}
+                    disabled={isLoading || saveStatus === 'saving'}
+                    className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 active:bg-gray-300 transition-all duration-150 ease-out font-medium disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.01] active:scale-[0.99]"
+                  >
+                    <X className="w-4 h-4" />
+                    Cancel Changes
+                  </button>
+                  <button
+                    onClick={saveChanges}
+                    disabled={isLoading || saveStatus === 'saving'}
+                    className="flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 active:bg-green-800 transition-all duration-150 ease-out font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.01] active:scale-[0.99]"
+                  >
+                    {(isLoading || saveStatus === 'saving') ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4" />
+                        Save Changes
+                      </>
+                    )}
+                  </button>
+                </div>
+                
+                {/* Save Status Feedback */}
+                {saveStatus === 'success' && (
+                  <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-green-700 text-sm font-medium flex items-center gap-2">
+                      <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      </div>
+                      Changes saved successfully!
+                    </p>
+                  </div>
+                )}
+                
+                {saveStatus === 'error' && (
+                  <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-700 text-sm font-medium flex items-center gap-2">
+                      <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                        <X className="w-2 h-2 text-white" />
+                      </div>
+                      Failed to save changes. Please try again.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Additional Info */}
             <div className="bg-white rounded-lg border p-6">
@@ -1092,6 +1377,78 @@ function OfferDetailContent() {
         cancelText="Keep Editing"
         confirmVariant="danger"
       />
+
+      {/* Language Switch Modal */}
+      {showLanguageSwitchModal && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              cancelLanguageSwitch()
+            }
+          }}
+        >
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-100 animate-in slide-in-from-bottom-4">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <h3 className="text-xl font-bold text-gray-900 tracking-tight">
+                Unsaved Changes
+              </h3>
+              <button
+                onClick={cancelLanguageSwitch}
+                className="text-gray-400 hover:text-gray-600 transition-colors rounded-full p-1 hover:bg-gray-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            {/* Content */}
+            <div className="p-6">
+              <p className="text-gray-600 leading-relaxed">
+                You have unsaved changes in <span className="font-semibold text-gray-900">{selectedLanguage.toUpperCase()}</span>. 
+                What would you like to do before switching to <span className="font-semibold text-gray-900">{pendingLanguage?.toUpperCase()}</span>?
+              </p>
+            </div>
+            
+            {/* Actions */}
+            <div className="p-6 pt-0 space-y-3">
+              <button
+                onClick={saveAndSwitchLanguage}
+                disabled={isLoading || saveStatus === 'saving'}
+                className="w-full bg-green-600 text-white px-4 py-3 rounded-xl hover:bg-green-700 active:bg-green-800 transition-all duration-150 ease-out flex items-center justify-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.01] active:scale-[0.99]"
+              >
+                {(isLoading || saveStatus === 'saving') ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    Save & Switch to {pendingLanguage?.toUpperCase()}
+                  </>
+                )}
+              </button>
+              
+              <button
+                onClick={confirmLanguageSwitch}
+                disabled={isLoading || saveStatus === 'saving'}
+                className="w-full bg-orange-600 text-white px-4 py-3 rounded-xl hover:bg-orange-700 active:bg-orange-800 transition-all duration-150 ease-out font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.01] active:scale-[0.99]"
+              >
+                Switch Without Saving
+              </button>
+              
+              <button
+                onClick={cancelLanguageSwitch}
+                disabled={isLoading || saveStatus === 'saving'}
+                className="w-full bg-gray-100 text-gray-700 px-4 py-3 rounded-xl hover:bg-gray-200 active:bg-gray-300 transition-all duration-150 ease-out font-medium disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.01] active:scale-[0.99]"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

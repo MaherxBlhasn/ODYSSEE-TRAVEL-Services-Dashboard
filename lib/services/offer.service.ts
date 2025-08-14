@@ -96,6 +96,7 @@ export const offerService = {
                 method: 'POST',
                 credentials: 'include', // Include cookies for authentication
                 body: formData, // Don't set Content-Type, let browser set it with boundary
+                signal: AbortSignal.timeout(30000) // 30 second timeout
             });
 
             if (!response.ok) {
@@ -125,6 +126,7 @@ export const offerService = {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                signal: AbortSignal.timeout(15000) // 15 second timeout for GET requests
             });
 
             if (!response.ok) {
@@ -154,6 +156,7 @@ export const offerService = {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                signal: AbortSignal.timeout(15000) // 15 second timeout
             });
 
             if (!response.ok) {
@@ -242,11 +245,18 @@ export const offerService = {
                 }
             });
 
+            // Create AbortController for timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
             const response = await fetch(`${API_BASE_URL}/offers/${id}`, {
                 method: 'PUT',
                 credentials: 'include',
                 body: formData,
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId); // Clear timeout if request completes
 
             if (!response.ok) {
                 const errorData: ApiError = await response.json();
@@ -255,6 +265,9 @@ export const offerService = {
 
             return await response.json();
         } catch (error) {
+            if (error instanceof Error && error.name === 'AbortError') {
+                throw new Error('Request timed out after 30 seconds. Please try again.');
+            }
             console.error('Update offer failed:', error);
             throw new Error(error instanceof Error ? error.message : 'Failed to update offer');
         }
