@@ -172,9 +172,6 @@ export default function NewsPaperSection() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
-  // Check if all current page items are selected
-  const isAllSelected = filteredSubscribers.length > 0 && filteredSubscribers.every(s => selectedIds.includes(s.id));
-
   // Sorting state
   const [sortField, setSortField] = useState<'email' | 'id'>('email');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
