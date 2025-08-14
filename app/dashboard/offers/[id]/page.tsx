@@ -103,7 +103,6 @@ function OfferDetailContent() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [showLanguageSwitchModal, setShowLanguageSwitchModal] = useState(false)
   const [pendingLanguage, setPendingLanguage] = useState<Language | null>(null)
-  const [initialEditData, setInitialEditData] = useState<Partial<DetailedOffer>>({})
   // const [saveMessage, setSaveMessage] = useState('')
 
   const offerId = params.id as string
@@ -378,19 +377,6 @@ function OfferDetailContent() {
     setRemoveMainImage(false)
     setImagesToRemove([])
     setAddToGallery(false)
-  }
-
-  const hasChanges = () => {
-    return newMainImage || newAdditionalImages.length > 0 || replaceAllGallery || 
-           removeMainImage || imagesToRemove.length > 0 ||
-           JSON.stringify(editData) !== JSON.stringify({
-             title: offer?.title,
-             destination: offer?.destination,
-             duration: offer?.duration,
-             shortDescription: offer?.shortDescription,
-             description: offer?.description,
-             rating: offer?.rating,
-           })
   }
 
   const handleImageUpload = (files: FileList, isMain: boolean = false) => {

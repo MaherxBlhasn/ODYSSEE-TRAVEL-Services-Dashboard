@@ -27,7 +27,20 @@ export interface CreateOfferResponse {
     updatedAt: string;
     available?: boolean;
     currentLanguage?: string;
-    translations?: any;
+    translations?: {
+        en: {
+            title: string;
+            destination: string;
+            shortDescription: string;
+            bigDescription: string;
+        };
+        fr: {
+            title: string;
+            destination: string;
+            shortDescription: string;
+            bigDescription: string;
+        };
+    };
 }
 
 export interface GetOffersResponse {
@@ -49,7 +62,16 @@ export const offerService = {
      * Create a new multilingual offer with images
      */
     async createOffer(
-        offerData: any, // Will accept both old and new multilingual format
+        offerData: Partial<OfferFormData & { 
+            title_en?: string; 
+            title_fr?: string; 
+            shortDescription_en?: string; 
+            shortDescription_fr?: string; 
+            bigDescription_en?: string; 
+            bigDescription_fr?: string; 
+            destination_en?: string; 
+            destination_fr?: string; 
+        }>, // Will accept both old and new multilingual format
         mainImage: File | null,
         additionalImages: File[]
     ): Promise<CreateOfferResponse> {
@@ -62,23 +84,23 @@ export const offerService = {
                 // Multilingual format
                 formData.append('title_en', offerData.title_en);
                 formData.append('title_fr', offerData.title_fr);
-                formData.append('shortDescription_en', offerData.shortDescription_en);
-                formData.append('shortDescription_fr', offerData.shortDescription_fr);
-                formData.append('bigDescription_en', offerData.bigDescription_en);
-                formData.append('bigDescription_fr', offerData.bigDescription_fr);
-                formData.append('destination_en', offerData.destination_en);
-                formData.append('destination_fr', offerData.destination_fr);
+                if (offerData.shortDescription_en) formData.append('shortDescription_en', offerData.shortDescription_en);
+                if (offerData.shortDescription_fr) formData.append('shortDescription_fr', offerData.shortDescription_fr);
+                if (offerData.bigDescription_en) formData.append('bigDescription_en', offerData.bigDescription_en);
+                if (offerData.bigDescription_fr) formData.append('bigDescription_fr', offerData.bigDescription_fr);
+                if (offerData.destination_en) formData.append('destination_en', offerData.destination_en);
+                if (offerData.destination_fr) formData.append('destination_fr', offerData.destination_fr);
             } else {
                 // Legacy single-language format (backward compatibility)
-                formData.append('title', offerData.title);
-                formData.append('shortDescription', offerData.shortDescription);
-                formData.append('bigDescription', offerData.bigDescription);
-                formData.append('destination', offerData.destination);
+                if (offerData.title) formData.append('title', offerData.title);
+                if (offerData.shortDescription) formData.append('shortDescription', offerData.shortDescription);
+                if (offerData.bigDescription) formData.append('bigDescription', offerData.bigDescription);
+                if (offerData.destination) formData.append('destination', offerData.destination);
             }
 
             // Common fields
-            formData.append('stars', offerData.stars.toString());
-            formData.append('duration', offerData.duration.toString());
+            if (offerData.stars !== undefined) formData.append('stars', offerData.stars.toString());
+            if (offerData.duration !== undefined) formData.append('duration', offerData.duration.toString());
 
             // Add main image if provided
             if (mainImage) {

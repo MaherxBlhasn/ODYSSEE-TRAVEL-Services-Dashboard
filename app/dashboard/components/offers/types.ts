@@ -57,7 +57,20 @@ export interface ApiOffer {
   createdAt: string
   updatedAt: string
   currentLanguage?: string
-  translations?: any
+  translations?: {
+    en: {
+      title: string
+      destination: string
+      shortDescription: string
+      bigDescription: string
+    }
+    fr: {
+      title: string
+      destination: string
+      shortDescription: string
+      bigDescription: string
+    }
+  }
 }
 
 // Form data type for multilingual offers
