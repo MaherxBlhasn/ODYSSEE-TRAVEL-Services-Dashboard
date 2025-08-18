@@ -9,148 +9,7 @@ import { Bounce, toast, ToastContainer } from 'react-toastify';
 import { Mail, Users, Send, Trash2, AlertTriangle } from 'lucide-react';
 import DataTable from "@/components/ui/data-table";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
-
-// Email Modal Component
-const EmailModal = ({ isOpen, onClose, subscribers, selectedIds, onSend }: {
-  isOpen: boolean;
-  onClose: () => void;
-  subscribers: Subscriber[];
-  selectedIds: string[];
-  onSend: (subject: string, text: string, isAll: boolean) => void;
-}) => {
-  const [subject, setSubject] = useState('');
-  const [text, setText] = useState('');
-  const [sendToAll, setSendToAll] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      setSubject('');
-      setText('');
-      setSendToAll(selectedIds.length === 0);
-    }
-  }, [isOpen, selectedIds]);
-
-  const handleSend = () => {
-    if (!subject.trim() || !text.trim()) {
-      toast.error('Please fill in both subject and message fields');
-      return;
-    }
-    onSend(subject, text, sendToAll);
-    onClose();
-  };
-
-  if (!isOpen) return null;
-
-  const recipientCount = sendToAll ? subscribers.length : selectedIds.length;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 transition-all duration-300">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-100">
-        <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-6 rounded-t-2xl">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="bg-white bg-opacity-20 p-2 rounded-lg">
-                <Send className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-white">Send Newsletter</h2>
-                <p className="text-blue-100 text-sm">
-                  {sendToAll ? `To all ${subscribers.length} subscribers` : `To ${selectedIds.length} selected subscribers`}
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={onClose}
-              className="text-white hover:text-gray-200 transition-colors duration-200"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <div className="p-6 space-y-6">
-          {/* Recipient Selection */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-gray-800 mb-3">Recipients ({recipientCount})</h3>
-            <div className="space-y-2">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="recipient"
-                  checked={sendToAll}
-                  onChange={(e) => setSendToAll(e.target.checked)}
-                  className="text-blue-500"
-                />
-                <span className="text-gray-700">Send to all subscribers ({subscribers.length})</span>
-              </label>
-              {selectedIds.length > 0 && (
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="recipient"
-                    checked={!sendToAll}
-                    onChange={(e) => setSendToAll(!e.target.checked)}
-                    className="text-blue-500"
-                  />
-                  <span className="text-gray-700">Send to selected subscribers ({selectedIds.length})</span>
-                </label>
-              )}
-            </div>
-          </div>
-
-          {/* Subject Field */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Subject *
-            </label>
-            <input
-              type="text"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-              placeholder="Enter email subject..."
-            />
-          </div>
-
-          {/* Message Field */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Message *
-            </label>
-            <textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              rows={8}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-200"
-              placeholder="Enter your newsletter content here..."
-            />
-            <p className="text-sm text-gray-500 mt-1">
-              This content will be embedded in our branded newsletter template.
-            </p>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex justify-end space-x-3 pt-4 border-t">
-            <button
-              onClick={onClose}
-              className="px-6 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all duration-200"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSend}
-              className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg transform hover:scale-105"
-            >
-              Send Newsletter
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+import EmailModal from "@/components/ui/EmailModal";
 
 export default function NewsPaperSection() {
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
@@ -163,11 +22,11 @@ export default function NewsPaperSection() {
   const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-  // Modal states
+  // Modal states - Fixed the conflicting state management
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
   const [showDeleteSelectedModal, setShowDeleteSelectedModal] = useState(false);
-  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false); // This controls the email modal
   const [subscriberToDelete, setSubscriberToDelete] = useState<Subscriber | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSending, setIsSending] = useState(false);
@@ -239,8 +98,6 @@ export default function NewsPaperSection() {
     }
   ];
 
-
-
   const handleSelectSubscriber = (id: string, checked: boolean) => {
     if (checked) {
       setSelectedIds(prev => [...prev, id]);
@@ -288,6 +145,7 @@ export default function NewsPaperSection() {
   // Update filtered subscribers when the main subscribers list changes
   useEffect(() => {
     setFilteredSubscribers(subscribers);
+    console.log('isSending:', isSending);
   }, [subscribers]);
 
   // Initial load and when dependencies change
@@ -357,7 +215,7 @@ export default function NewsPaperSection() {
       for (const id of selectedIds) {
         await newspaperService.deleteSubscriber(id);
       }
-      
+
       toast.success(`${selectedIds.length} subscriber${selectedIds.length !== 1 ? 's' : ''} deleted successfully!`, {
         position: "top-right",
         autoClose: 2000,
@@ -369,7 +227,7 @@ export default function NewsPaperSection() {
         theme: "light",
         transition: Bounce,
       });
-      
+
       fetchSubscribers();
       setSelectedIds([]);
     } catch (error) {
@@ -405,14 +263,14 @@ export default function NewsPaperSection() {
     }
   };
 
-  const handleSendEmail = async (subject: string, text: string, isAll: boolean) => {
+  const handleSendEmail = async (subject: string, content: string, isAll: boolean) => {
     setIsSending(true);
     try {
       let result;
       if (isAll) {
-        result = await newspaperService.sendEmailToAll({ subject, text });
+        result = await newspaperService.sendEmailToAll({ subject, text: content });
       } else {
-        result = await newspaperService.sendEmail({ subject, text, subscriberIds: selectedIds });
+        result = await newspaperService.sendEmail({ subject, text: content, subscriberIds: selectedIds });
       }
 
       if (result?.success) {
@@ -427,6 +285,8 @@ export default function NewsPaperSection() {
           theme: "light",
           transition: Bounce,
         });
+        setShowEmailModal(false); // Close the modal after successful send
+
       }
     } catch (error) {
       console.error('Error sending email:', error);
@@ -531,7 +391,7 @@ export default function NewsPaperSection() {
                     placeholder="Search subscribers..."
                   />
                 </div>
-                
+
                 <div className="flex space-x-2 flex-shrink-0">
                   <button
                     onClick={() => setShowEmailModal(true)}
@@ -541,7 +401,7 @@ export default function NewsPaperSection() {
                   >
                     <Send className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
-                  
+
                   {selectedIds.length > 0 && (
                     <button
                       onClick={() => setShowDeleteSelectedModal(true)}
@@ -554,7 +414,7 @@ export default function NewsPaperSection() {
                       </span>
                     </button>
                   )}
-                  
+
                   {subscribers.length > 0 && (
                     <button
                       onClick={() => setShowDeleteAllModal(true)}
@@ -645,7 +505,7 @@ export default function NewsPaperSection() {
               <span className="font-bold">Warning: This action cannot be undone!</span>
             </span>
             <span className="block">
-              Are you sure you want to delete <span className="font-bold text-red-500">{selectedIds.length} selected subscriber{selectedIds.length !== 1 ? 's' : ''}</span>? 
+              Are you sure you want to delete <span className="font-bold text-red-500">{selectedIds.length} selected subscriber{selectedIds.length !== 1 ? 's' : ''}</span>?
               This will permanently remove the selected subscriber data.
             </span>
           </span>
@@ -669,7 +529,7 @@ export default function NewsPaperSection() {
               <span className="font-bold">WARNING: This action is irreversible!</span>
             </span>
             <span className="block">
-              Are you sure you want to delete <span className="font-bold text-red-500">ALL {subscribers.length} subscribers</span>? 
+              Are you sure you want to delete <span className="font-bold text-red-500">ALL {subscribers.length} subscribers</span>?
               This will permanently remove all subscriber data and cannot be undone.
             </span>
           </span>
@@ -680,13 +540,14 @@ export default function NewsPaperSection() {
         isLoading={false}
       />
 
-      {/* Email Modal */}
+      {/* Email Modal - Fixed the prop management */}
       <EmailModal
         isOpen={showEmailModal}
         onClose={() => setShowEmailModal(false)}
         subscribers={subscribers}
         selectedIds={selectedIds}
         onSend={handleSendEmail}
+        isLoading={isSending}
       />
     </div>
   );
