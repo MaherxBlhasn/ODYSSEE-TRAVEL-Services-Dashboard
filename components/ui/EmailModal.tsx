@@ -58,14 +58,14 @@ const EmailModal: React.FC<EmailModalProps> = ({
 <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-4 sm:p-6">
+        <div className="bg-white text-black-600 p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="bg-orange bg-opacity-20 p-2 rounded-lg">
-                <Send className="w-5 h-5 sm:w-6 sm:h-6" />
+              <div className="bg-gradient-to-r from-orange-500 to-red-500 bg-opacity-20 p-2 rounded-lg">
+                <Send className="text-white bg-gradient w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div>
-                <h2 className="text-lg sm:text-xl font-bold">Send Newsletter</h2>
+                <h2 className="text-orange-600 sm:text-xl font-bold">Send Newsletter</h2>
                 <p className="text-sm opacity-90">Compose and send your newsletter campaign</p>
               </div>
             </div>
