@@ -545,6 +545,7 @@ export default function NewsPaperSection() {
         isOpen={showEmailModal}
         onClose={() => setShowEmailModal(false)}
         subscribers={subscribers}
+        totalSubscribers={totalItems}
         selectedIds={selectedIds}
         onSend={handleSendEmail}
         isLoading={isSending}

@@ -9,6 +9,7 @@ interface EmailModalProps {
   isOpen: boolean;
   onClose: () => void;
   subscribers: Subscriber[];
+  totalSubscribers: number;
   selectedIds: string[];
   onSend: (subject: string, content: string, isAll: boolean) => Promise<void>;
   isLoading: boolean;
@@ -18,6 +19,7 @@ const EmailModal: React.FC<EmailModalProps> = ({
   isOpen,
   onClose,
   subscribers,
+  totalSubscribers,
   selectedIds,
   onSend,
   isLoading
@@ -51,7 +53,7 @@ const EmailModal: React.FC<EmailModalProps> = ({
     onClose();
   };
 
-  const recipientCount = sendToAll ? subscribers.length : selectedIds.length;
+  const recipientCount = sendToAll ? totalSubscribers : selectedIds.length;
   const canSend = subject.trim() && content.trim() && recipientCount > 0;
 
   return (
@@ -111,7 +113,7 @@ const EmailModal: React.FC<EmailModalProps> = ({
                 <div className="flex items-center space-x-2">
                   <Mail className="w-4 h-4 text-gray-600" />
                   <span className="text-gray-700">
-                    Send to All Subscribers ({subscribers.length} subscriber{subscribers.length !== 1 ? 's' : ''})
+                    Send to All Subscribers ({totalSubscribers} subscriber{totalSubscribers !== 1 ? 's' : ''})
                   </span>
                 </div>
               </label>
