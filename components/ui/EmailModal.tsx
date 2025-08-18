@@ -18,7 +18,6 @@ interface EmailModalProps {
 const EmailModal: React.FC<EmailModalProps> = ({
   isOpen,
   onClose,
-  subscribers,
   totalSubscribers,
   selectedIds,
   onSend,
