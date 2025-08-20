@@ -515,10 +515,10 @@ function OfferDetailContent() {
       setAddToGallery(false)
       setReplaceAllGallery(false)
       
-      // Reset success status after 3 seconds
+      // Redirect to offers list after successful save
       setTimeout(() => {
-        setSaveStatus('idle')
-      }, 3000)
+        router.push('/dashboard/offers')
+      }, 1000) // 1 second delay to show success message
       
     } catch (error) {
       console.error('Failed to update offer:', error)
