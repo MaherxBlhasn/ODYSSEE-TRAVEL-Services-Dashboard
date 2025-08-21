@@ -515,10 +515,10 @@ function OfferDetailContent() {
       setAddToGallery(false)
       setReplaceAllGallery(false)
 
-      // Redirect to offers list after successful save
-      setTimeout(() => {
-        router.push('/dashboard/offers')
-      }, 1000) // 1 second delay to show success message
+      // // Redirect to offers list after successful save
+      // setTimeout(() => {
+      //   router.push('/dashboard/offers')
+      // }, 1000) // 1 second delay to show success message
 
     } catch (error) {
       console.error('Failed to update offer:', error)
