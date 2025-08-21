@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { X, Send, Users, Mail, RotateCcw } from 'lucide-react';
-import { Subscriber } from '@/lib/types/newspaper.types';
+import { Subscriber } from '@/lib/types/newsletter.types';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 
 interface EmailModalProps {

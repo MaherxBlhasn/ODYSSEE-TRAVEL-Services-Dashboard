@@ -3,15 +3,15 @@
 import { useState, useEffect } from "react";
 import { SearchBar } from '@/components/ui/search-bar';
 import { Pagination } from '@/components/ui/pagination';
-import { Subscriber } from '@/lib/types/newspaper.types';
-import { newspaperService } from "@/lib/services/newspaper.service";
+import { Subscriber } from '@/lib/types/newsletter.types';
+import { newsletterService } from "@/lib/services/newsletter.service";
 import { Bounce, toast, ToastContainer } from 'react-toastify';
 import { Mail, Users, Send, Trash2, AlertTriangle } from 'lucide-react';
 import DataTable from "@/components/ui/data-table";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import EmailModal from "@/components/ui/EmailModal";
 
-export default function NewsPaperSection() {
+export default function NewsletterSection() {
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -118,7 +118,7 @@ export default function NewsPaperSection() {
         sortOrder: sortDirection
       };
 
-      const response = await newspaperService.getAllSubscribers(params);
+      const response = await newsletterService.getAllSubscribers(params);
       if (response) {
         setSubscribers(response.data);
         setTotalPages(response.totalPages);
@@ -182,7 +182,7 @@ export default function NewsPaperSection() {
 
     setIsDeleting(true);
     try {
-      await newspaperService.deleteSubscriber(subscriberToDelete.id);
+      await newsletterService.deleteSubscriber(subscriberToDelete.id);
       toast.success('Subscriber deleted successfully!', {
         position: "top-right",
         autoClose: 2000,
@@ -213,7 +213,7 @@ export default function NewsPaperSection() {
     try {
       // Delete selected subscribers one by one
       for (const id of selectedIds) {
-        await newspaperService.deleteSubscriber(id);
+        await newsletterService.deleteSubscriber(id);
       }
 
       toast.success(`${selectedIds.length} subscriber${selectedIds.length !== 1 ? 's' : ''} deleted successfully!`, {
@@ -241,7 +241,7 @@ export default function NewsPaperSection() {
 
   const handleDeleteAll = async () => {
     try {
-      await newspaperService.deleteAllSubscribers();
+      await newsletterService.deleteAllSubscribers();
       toast.success('All subscribers deleted successfully!', {
         position: "top-right",
         autoClose: 2000,
@@ -268,9 +268,9 @@ export default function NewsPaperSection() {
     try {
       let result;
       if (isAll) {
-        result = await newspaperService.sendEmailToAll({ subject, text: content });
+        result = await newsletterService.sendEmailToAll({ subject, text: content });
       } else {
-        result = await newspaperService.sendEmail({ subject, text: content, subscriberIds: selectedIds });
+        result = await newsletterService.sendEmail({ subject, text: content, subscriberIds: selectedIds });
       }
 
       if (result?.success) {

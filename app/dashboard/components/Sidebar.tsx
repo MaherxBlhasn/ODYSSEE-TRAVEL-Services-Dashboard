@@ -23,7 +23,7 @@ const sidebarItems = [
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   { id: 'contacts', label: 'Contacts', icon: Mail },
   { id: 'users', label: 'Users', icon: User },
-  { id: 'newspaper', label: 'Newspaper', icon: Newspaper }
+  { id: 'newsletter', label: 'Newsletter', icon: Newspaper }
 ]
 
 // Generate a consistent avatar based on username

@@ -1,38 +1,38 @@
-import { Subscriber, EmailRequest, EmailAllRequest, SendResponse, QueryParams, PaginatedResponse } from '@/lib/types/newspaper.types';
+import { Subscriber, EmailRequest, EmailAllRequest, SendResponse, QueryParams, PaginatedResponse } from '@/lib/types/newsletter.types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export const newspaperService = {
+export const newsletterService = {
   // Get all subscribers
-async getAllSubscribers(params: QueryParams): Promise<PaginatedResponse<Subscriber>> {
-  try {
-    // Convert params to URL query string
-    const queryParams = new URLSearchParams();
-    if (params.search) queryParams.append('search', params.search);
-    queryParams.append('page', params.page.toString());
-    queryParams.append('limit', params.limit.toString());
-    if (params.sortBy) queryParams.append('sortBy', params.sortBy);
-    if (params.sortOrder) queryParams.append('sortOrder', params.sortOrder);
+  async getAllSubscribers(params: QueryParams): Promise<PaginatedResponse<Subscriber>> {
+    try {
+      // Convert params to URL query string
+      const queryParams = new URLSearchParams();
+      if (params.search) queryParams.append('search', params.search);
+      queryParams.append('page', params.page.toString());
+      queryParams.append('limit', params.limit.toString());
+      if (params.sortBy) queryParams.append('sortBy', params.sortBy);
+      if (params.sortOrder) queryParams.append('sortOrder', params.sortOrder);
 
-    const res = await fetch(
-      `${API_BASE_URL}/newspaper?${queryParams.toString()}`,
-      {
-        method: 'GET',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch(
+        `${API_BASE_URL}/newspaper?${queryParams.toString()}`,
+        {
+          method: 'GET',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error(`Failed to fetch subscribers: ${res.statusText}`);
       }
-    );
 
-    if (!res.ok) {
-      throw new Error(`Failed to fetch subscribers: ${res.statusText}`);
+      return await res.json();
+    } catch (error) {
+      console.error('Error fetching subscribers:', error);
+      throw error;
     }
-
-    return await res.json();
-  } catch (error) {
-    console.error('Error fetching subscribers:', error);
-    throw error;
-  }
-},
+  },
 
   // Get subscriber by ID
   async getSubscriberById(id: string): Promise<Subscriber | null> {
