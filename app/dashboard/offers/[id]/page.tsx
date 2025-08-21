@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, MapPin, Calendar, Star, Clock, Camera, Edit3, Save, X, Trash2, Upload,  Plus } from 'lucide-react'
+import { ArrowLeft, MapPin, Calendar, Star, Clock, Camera, Edit3, Save, X, Trash2, Upload, Plus } from 'lucide-react'
 import Image from 'next/image'
 import { useOffers } from '../../components/offers/context/OffersContext'
 import { offerService } from '../../../../lib/services/offer.service'
@@ -84,7 +84,7 @@ function OfferDetailContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
-  
+
   // Edit mode states - simplified to match backend capabilities
   const [isEditMode, setIsEditMode] = useState(false)
   const [editData, setEditData] = useState<Partial<DetailedOffer>>({})
@@ -173,27 +173,27 @@ function OfferDetailContent() {
   const selectedImage = allImages[selectedImageIndex]
   const totalImages = allImages.length
 
-  
+
 
   useEffect(() => {
     const findOffer = async () => {
       try {
         setLoading(true)
-        
+
         // Try context first - check both string and numeric comparison
-        let foundOffer = offers.find(offer => 
+        let foundOffer = offers.find(offer =>
           offer.id.toString() === offerId || offer.id === parseInt(offerId, 10)
         )
-        
+
         if (!foundOffer && offers.length === 0) {
           // If context is empty, load from local data as fallback
           const { offers: localOffers } = await import('../../data')
           const numericId = parseInt(offerId, 10)
           foundOffer = localOffers.find((o: LocalOffer) => o.id === numericId)
         }
-        
+
         if (foundOffer) {
-          
+
           setOffer({
             ...foundOffer,
             shortDescription: foundOffer.shortDescription || foundOffer.description.substring(0, 150) + '...',
@@ -218,7 +218,7 @@ function OfferDetailContent() {
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (!offer || totalImages <= 1) return
-      
+
       switch (e.key) {
         case 'ArrowLeft':
           e.preventDefault()
@@ -249,7 +249,7 @@ function OfferDetailContent() {
     if (offer) {
       // Get localized content for the currently selected language
       const localizedContent = getLocalizedContent(offer)
-      
+
       setEditData({
         title: localizedContent.title,
         destination: localizedContent.destination,
@@ -267,13 +267,13 @@ function OfferDetailContent() {
     if (isEditMode && offer) {
       // Save current edit progress for language-independent fields
       const currentEditData = { ...editData }
-      
+
       // Update language
       setSelectedLanguage(newLanguage)
-      
+
       // Get content for the new language
       const newLocalizedContent = getLocalizedContent(offer, newLanguage)
-      
+
       // Update edit data with new language content, but preserve language-independent fields
       setEditData({
         title: newLocalizedContent.title,
@@ -293,10 +293,10 @@ function OfferDetailContent() {
   // Check if there are unsaved changes
   const hasUnsavedEditChanges = () => {
     if (!isEditMode || !offer) return false
-    
+
     // Check if any field has been modified from initial state
     const currentData = getLocalizedContent(offer, selectedLanguage)
-    
+
     return (
       (editData.title !== undefined && editData.title !== currentData.title) ||
       (editData.destination !== undefined && editData.destination !== currentData.destination) ||
@@ -396,7 +396,7 @@ function OfferDetailContent() {
     }
   }
 
-  
+
 
   const toggleRemoveMainImage = () => {
     setRemoveMainImage(!removeMainImage)
@@ -417,14 +417,14 @@ function OfferDetailContent() {
 
   const saveChanges = async () => {
     if (!offer) return
-    
+
     setIsLoading(true)
     setSaveStatus('saving')
-    
+
     try {
       // Create update data - only include defined fields for the selected language
       const updateData: UpdateOfferData = {}
-      
+
       // Only add fields that have been edited and are not empty
       if (editData.title && editData.title.trim() !== '') {
         if (selectedLanguage === 'en') {
@@ -433,7 +433,7 @@ function OfferDetailContent() {
           updateData.title_fr = editData.title.trim()
         }
       }
-      
+
       if (editData.destination && editData.destination.trim() !== '') {
         if (selectedLanguage === 'en') {
           updateData.destination_en = editData.destination.trim()
@@ -441,7 +441,7 @@ function OfferDetailContent() {
           updateData.destination_fr = editData.destination.trim()
         }
       }
-      
+
       if (editData.shortDescription && editData.shortDescription.trim() !== '') {
         if (selectedLanguage === 'en') {
           updateData.shortDescription_en = editData.shortDescription.trim()
@@ -449,7 +449,7 @@ function OfferDetailContent() {
           updateData.shortDescription_fr = editData.shortDescription.trim()
         }
       }
-      
+
       if (editData.description && editData.description.trim() !== '') {
         if (selectedLanguage === 'en') {
           updateData.bigDescription_en = editData.description.trim()
@@ -457,12 +457,12 @@ function OfferDetailContent() {
           updateData.bigDescription_fr = editData.description.trim()
         }
       }
-      
+
       // Duration and stars are language-independent
       if (editData.duration && editData.duration.toString().trim() !== '') {
         updateData.duration = editData.duration.toString().trim()
       }
-      
+
       if (editData.rating && editData.rating > 0) {
         updateData.stars = editData.rating
       }
@@ -483,7 +483,7 @@ function OfferDetailContent() {
 
       // Update local state with the new language-specific content
       const updatedOffer = { ...offer }
-      
+
       if (updatedOffer.translations) {
         // Update the specific language in translations
         if (editData.title) updatedOffer.translations[selectedLanguage].title = editData.title
@@ -491,22 +491,22 @@ function OfferDetailContent() {
         if (editData.shortDescription) updatedOffer.translations[selectedLanguage].shortDescription = editData.shortDescription
         if (editData.description) updatedOffer.translations[selectedLanguage].bigDescription = editData.description
       }
-      
+
       // Update language-independent fields
       if (editData.rating) updatedOffer.rating = editData.rating
       if (editData.duration) updatedOffer.duration = editData.duration
-      
+
       setOffer(updatedOffer)
-      
+
       // Update offers context if needed
       setOffers(offers.map(o => o.id === offer.id ? { ...o, ...editData } : o))
-      
+
       setSaveStatus('success')
-      
+
       // Exit edit mode after successful save
       setIsEditMode(false)
       setEditData({})
-      
+
       // Clear image edit states
       setNewMainImage(null)
       setNewAdditionalImages([])
@@ -514,16 +514,16 @@ function OfferDetailContent() {
       setRemoveMainImage(false)
       setAddToGallery(false)
       setReplaceAllGallery(false)
-      
+
       // Redirect to offers list after successful save
       setTimeout(() => {
         router.push('/dashboard/offers')
       }, 1000) // 1 second delay to show success message
-      
+
     } catch (error) {
       console.error('Failed to update offer:', error)
       setSaveStatus('error')
-      
+
       // Reset error status after 3 seconds
       setTimeout(() => {
         setSaveStatus('idle')
@@ -586,7 +586,7 @@ function OfferDetailContent() {
                   className="self-start sm:self-center"
                 />
               )}
-              
+
               {isEditMode ? (
                 <>
                   <button
@@ -600,13 +600,12 @@ function OfferDetailContent() {
                   <button
                     onClick={saveChanges}
                     disabled={isLoading || saveStatus === 'saving'}
-                    className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 text-sm sm:text-base min-w-[120px] order-1 sm:order-2 ${
-                      saveStatus === 'success' 
-                        ? 'bg-green-600 text-white hover:bg-green-700' 
+                    className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 text-sm sm:text-base min-w-[120px] order-1 sm:order-2 ${saveStatus === 'success'
+                        ? 'bg-green-600 text-white hover:bg-green-700'
                         : saveStatus === 'error'
-                        ? 'bg-red-600 text-white hover:bg-red-700'
-                        : 'bg-orange-600 text-white hover:bg-orange-700'
-                    }`}
+                          ? 'bg-red-600 text-white hover:bg-red-700'
+                          : 'bg-orange-600 text-white hover:bg-orange-700'
+                      }`}
                   >
                     {isLoading || saveStatus === 'saving' ? (
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -618,16 +617,16 @@ function OfferDetailContent() {
                       <Save className="w-4 h-4" />
                     )}
                     <span className="hidden sm:inline">
-                      {saveStatus === 'saving' ? 'Saving...' : 
-                       saveStatus === 'success' ? 'Saved!' : 
-                       saveStatus === 'error' ? 'Failed' : 
-                       'Save Changes'}
+                      {saveStatus === 'saving' ? 'Saving...' :
+                        saveStatus === 'success' ? 'Saved!' :
+                          saveStatus === 'error' ? 'Failed' :
+                            'Save Changes'}
                     </span>
                     <span className="sm:hidden">
-                      {saveStatus === 'saving' ? 'Saving...' : 
-                       saveStatus === 'success' ? 'Saved!' : 
-                       saveStatus === 'error' ? 'Error' : 
-                       'Save'}
+                      {saveStatus === 'saving' ? 'Saving...' :
+                        saveStatus === 'success' ? 'Saved!' :
+                          saveStatus === 'error' ? 'Error' :
+                            'Save'}
                     </span>
                   </button>
                 </>
@@ -641,9 +640,8 @@ function OfferDetailContent() {
                   <span className="sm:hidden">Edit</span>
                 </button>
               )}
-              <span className={`px-3 py-1 text-sm rounded-full self-start sm:self-center ${
-                offer.available ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-              }`}>
+              <span className={`px-3 py-1 text-sm rounded-full self-start sm:self-center ${offer.available ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                }`}>
                 {offer.available ? 'Available' : 'Sold Out'}
               </span>
             </div>
@@ -668,7 +666,7 @@ function OfferDetailContent() {
                   target.src = '/globe.svg'
                 }}
               />
-              
+
               {/* Universal Replace Main Controls - Show on ANY Image in Edit Mode */}
               {isEditMode && (
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center">
@@ -696,11 +694,10 @@ function OfferDetailContent() {
                     {selectedImageIndex === 0 && (
                       <button
                         onClick={toggleRemoveMainImage}
-                        className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 shadow-lg backdrop-blur-sm ${
-                          removeMainImage 
-                            ? 'bg-green-500/95 text-white hover:bg-green-600/95' 
+                        className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 shadow-lg backdrop-blur-sm ${removeMainImage
+                            ? 'bg-green-500/95 text-white hover:bg-green-600/95'
                             : 'bg-red-500/95 text-white hover:bg-red-600/95'
-                        }`}
+                          }`}
                       >
                         <Trash2 className="w-4 h-4" />
                         <span className="hidden sm:inline">{removeMainImage ? 'Keep Main' : 'Remove Main'}</span>
@@ -710,14 +707,14 @@ function OfferDetailContent() {
                   </div>
                 </div>
               )}
-              
+
               {/* Image Counter */}
               {totalImages > 1 && (
                 <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-2 rounded-lg text-sm font-medium">
                   {selectedImageIndex + 1} / {totalImages}
                 </div>
               )}
-              
+
               {/* Navigation Arrows */}
               {totalImages > 1 && !isEditMode && (
                 <>
@@ -735,7 +732,7 @@ function OfferDetailContent() {
                   </button>
                 </>
               )}
-              
+
               {/* Image Type Badge */}
               <div className="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1 rounded-lg text-xs">
                 {selectedImageIndex === 0 ? 'Main Image' : `Gallery ${selectedImageIndex}`}
@@ -767,11 +764,10 @@ function OfferDetailContent() {
                   )}
                   <button
                     onClick={toggleRemoveMainImage}
-                    className={`px-3 py-1 rounded-lg text-xs transition-colors ${
-                      removeMainImage 
-                        ? 'bg-green-500 text-white hover:bg-green-600' 
+                    className={`px-3 py-1 rounded-lg text-xs transition-colors ${removeMainImage
+                        ? 'bg-green-500 text-white hover:bg-green-600'
                         : 'bg-red-500 text-white hover:bg-red-600'
-                    }`}
+                      }`}
                   >
                     {removeMainImage ? 'Keep' : 'Remove'}
                   </button>
@@ -787,7 +783,7 @@ function OfferDetailContent() {
                     <Camera className="w-5 h-5 text-gray-600" />
                     Gallery ({totalImages + newAdditionalImages.length + (newMainImage ? 1 : 0)} images)
                   </h4>
-                  
+
                   {/* Gallery Controls - Right next to title */}
                   {isEditMode && (
                     <div className="flex flex-wrap gap-2">
@@ -827,7 +823,7 @@ function OfferDetailContent() {
                       </label>
                     </div>
                   )}
-                  
+
                   {!isEditMode && (
                     <div className="text-sm text-gray-500 flex items-center gap-1">
                       <span>Scroll to browse</span>
@@ -837,11 +833,11 @@ function OfferDetailContent() {
                     </div>
                   )}
                 </div>
-                
+
                 {/* Horizontal Scrolling Carousel with Arrows */}
                 <div className="relative bg-gray-50 rounded-lg p-4">
                   {/* Left Arrow */}
-                  <button 
+                  <button
                     className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white/90 hover:bg-white rounded-full shadow-lg border border-gray-200 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
                     onClick={(e) => {
                       e.preventDefault()
@@ -855,9 +851,9 @@ function OfferDetailContent() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
                   </button>
-                  
+
                   {/* Right Arrow */}
-                  <button 
+                  <button
                     className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white/90 hover:bg-white rounded-full shadow-lg border border-gray-200 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
                     onClick={(e) => {
                       e.preventDefault()
@@ -871,7 +867,7 @@ function OfferDetailContent() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
-                  
+
                   <div className="scrollable-container flex gap-3 overflow-x-auto scrollbar-hide py-2 px-2">
                     {/* Show new main image first if it exists */}
                     {isEditMode && newMainImage && (
@@ -897,25 +893,23 @@ function OfferDetailContent() {
                         </div>
                       </div>
                     )}
-                    
+
                     {/* Existing images */}
                     {allImages.map((img, index) => (
                       <div key={index} className="relative group flex-shrink-0">
                         <button
                           onClick={() => !isEditMode && setSelectedImageIndex(index)}
-                          className={`relative w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-lg overflow-hidden transition-all shadow-sm ${
-                            selectedImageIndex === index 
-                              ? 'ring-2 ring-blue-500 shadow-lg scale-105' 
+                          className={`relative w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-lg overflow-hidden transition-all shadow-sm ${selectedImageIndex === index
+                              ? 'ring-2 ring-blue-500 shadow-lg scale-105'
                               : 'hover:shadow-md hover:scale-102'
-                          } ${
-                            imagesToRemove.includes(img) ? 'opacity-50 ring-2 ring-red-400' : ''
-                          }`}
+                            } ${imagesToRemove.includes(img) ? 'opacity-50 ring-2 ring-red-400' : ''
+                            }`}
                         >
                           {/* Loading State */}
                           <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
                             <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-500 rounded-full animate-spin"></div>
                           </div>
-                          
+
                           <Image
                             src={img || '/globe.svg'}
                             alt={`Image ${index + 1}`}
@@ -944,16 +938,15 @@ function OfferDetailContent() {
                             </div>
                           )}
                         </button>
-                        
+
                         {/* Improved Remove Button for Gallery Images */}
                         {isEditMode && index > 0 && (
                           <button
                             onClick={() => toggleRemoveGalleryImage(img)}
-                            className={`absolute -top-1 -right-1 w-5 h-5 rounded-full text-white flex items-center justify-center text-xs font-bold transition-all shadow-md z-10 border border-white ${
-                              imagesToRemove.includes(img)
+                            className={`absolute -top-1 -right-1 w-5 h-5 rounded-full text-white flex items-center justify-center text-xs font-bold transition-all shadow-md z-10 border border-white ${imagesToRemove.includes(img)
                                 ? 'bg-green-500 hover:bg-green-600 hover:scale-110'
                                 : 'bg-red-500 hover:bg-red-600 hover:scale-110'
-                            }`}
+                              }`}
                             title={imagesToRemove.includes(img) ? 'Keep this image' : 'Remove this image'}
                           >
                             {imagesToRemove.includes(img) ? '✓' : '×'}
@@ -961,7 +954,7 @@ function OfferDetailContent() {
                         )}
                       </div>
                     ))}
-                    
+
                     {/* New Additional Images Preview */}
                     {newAdditionalImages.map((file, index) => (
                       <div key={`new-${index}`} className="relative group flex-shrink-0">
@@ -970,7 +963,7 @@ function OfferDetailContent() {
                           <div className="absolute inset-0 bg-green-50 animate-pulse flex items-center justify-center">
                             <div className="w-4 h-4 border-2 border-green-300 border-t-green-500 rounded-full animate-spin"></div>
                           </div>
-                          
+
                           <Image
                             src={URL.createObjectURL(file)}
                             alt={`New image ${index + 1}`}
@@ -1085,11 +1078,10 @@ function OfferDetailContent() {
                               key={rating}
                               type="button"
                               onClick={() => setEditData(prev => ({ ...prev, rating }))}
-                              className={`p-1 rounded-md transition-all duration-200 hover:scale-110 ${
-                                (editData.rating || offer.rating) >= rating
+                              className={`p-1 rounded-md transition-all duration-200 hover:scale-110 ${(editData.rating || offer.rating) >= rating
                                   ? 'text-yellow-400 hover:text-yellow-500'
                                   : 'text-gray-300 hover:text-yellow-300'
-                              }`}
+                                }`}
                               title={`${rating} star${rating !== 1 ? 's' : ''}`}
                             >
                               <Star className="w-5 h-5 fill-current" />
@@ -1102,7 +1094,7 @@ function OfferDetailContent() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Duration (days)</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Approximate duration (days)</label>
                       <input
                         type="number"
                         min="1"
@@ -1133,7 +1125,7 @@ function OfferDetailContent() {
                       </span>
                     )}
                   </h3>
-                  
+
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1147,7 +1139,7 @@ function OfferDetailContent() {
                         placeholder={`Enter title in ${selectedLanguage.toUpperCase()}`}
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Destination ({selectedLanguage.toUpperCase()})
@@ -1178,7 +1170,7 @@ function OfferDetailContent() {
                 <div className="flex items-center gap-3 p-4 bg-white rounded-lg border">
                   <Calendar className="w-5 h-5 text-orange-600 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-500">Duration (days)</p>
+                    <p className="text-sm text-gray-500">Approximate duration (days)</p>
                     <p className="font-semibold text-gray-900">{offer.duration} days</p>
                   </div>
                 </div>
@@ -1188,7 +1180,7 @@ function OfferDetailContent() {
             {/* Responsive Short Description */}
             <div className="bg-white rounded-lg border p-4 sm:p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                Overview 
+                Overview
                 {isEditMode && (
                   <span className="text-sm text-blue-600 ml-2">
                     ({selectedLanguage.toUpperCase()})
@@ -1273,7 +1265,7 @@ function OfferDetailContent() {
                     )}
                   </button>
                 </div>
-                
+
                 {/* Save Status Feedback */}
                 {saveStatus === 'success' && (
                   <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
@@ -1285,7 +1277,7 @@ function OfferDetailContent() {
                     </p>
                   </div>
                 )}
-                
+
                 {saveStatus === 'error' && (
                   <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
                     <p className="text-red-700 text-sm font-medium flex items-center gap-2">
@@ -1315,7 +1307,7 @@ function OfferDetailContent() {
                     <span>Updated: {new Date(offer.updatedAt).toLocaleDateString()}</span>
                   </div>
                 )}
-                
+
                 {/* Enhanced Image Information */}
                 <div className="border-t pt-3">
                   <div className="flex items-center gap-2 mb-2">
@@ -1366,7 +1358,7 @@ function OfferDetailContent() {
 
       {/* Language Switch Modal */}
       {showLanguageSwitchModal && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
@@ -1387,15 +1379,15 @@ function OfferDetailContent() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             {/* Content */}
             <div className="p-6">
               <p className="text-gray-600 leading-relaxed">
-                You have unsaved changes in <span className="font-semibold text-gray-900">{selectedLanguage.toUpperCase()}</span>. 
+                You have unsaved changes in <span className="font-semibold text-gray-900">{selectedLanguage.toUpperCase()}</span>.
                 What would you like to do before switching to <span className="font-semibold text-gray-900">{pendingLanguage?.toUpperCase()}</span>?
               </p>
             </div>
-            
+
             {/* Actions */}
             <div className="p-6 pt-0 space-y-3">
               <button
@@ -1415,7 +1407,7 @@ function OfferDetailContent() {
                   </>
                 )}
               </button>
-              
+
               <button
                 onClick={confirmLanguageSwitch}
                 disabled={isLoading || saveStatus === 'saving'}
@@ -1423,7 +1415,7 @@ function OfferDetailContent() {
               >
                 Switch Without Saving
               </button>
-              
+
               <button
                 onClick={cancelLanguageSwitch}
                 disabled={isLoading || saveStatus === 'saving'}

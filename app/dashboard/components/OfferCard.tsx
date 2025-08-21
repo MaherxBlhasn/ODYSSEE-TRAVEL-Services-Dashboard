@@ -104,10 +104,10 @@ export default function OfferCard({ offer, onDelete, onToggleStatus }: OfferCard
             <MapPin className="w-4 h-4 text-orange-600" />
             <span className="text-sm font-medium text-orange-700">{offer.destination}</span>
           </div>
-          <div className="flex items-center gap-2 bg-orange-100 px-3 py-2 rounded-lg transition-all duration-500 group-hover:bg-orange-200">
+          {/* <div className="flex items-center gap-2 bg-orange-100 px-3 py-2 rounded-lg transition-all duration-500 group-hover:bg-orange-200">
             <Calendar className="w-4 h-4 text-orange-600" />
             <span className="text-sm font-medium text-orange-700">{offer.duration} days</span>
-          </div>
+          </div> */}
         </div>
         
         <p className="text-gray-600 text-sm mb-4 line-clamp-4 min-h-[4.5rem] leading-snug">
