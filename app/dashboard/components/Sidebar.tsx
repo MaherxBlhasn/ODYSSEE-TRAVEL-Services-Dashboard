@@ -15,7 +15,7 @@ import {
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { authService } from '@/lib/services/auth.service'
-import { dbUsageService, DbUsageResponse } from '@/lib/services/dbUsage.service'
+import { dbUsageService } from '@/lib/services/dbUsage.service'
 import { useTransition, useState, useEffect } from 'react'
 import { useAuth } from '@/lib/AuthContext'
 
