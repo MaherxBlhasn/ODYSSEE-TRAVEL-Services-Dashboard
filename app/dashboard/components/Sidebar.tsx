@@ -9,12 +9,14 @@ import {
   User,
   Menu,
   X,
-  Newspaper
+  Newspaper,
+  Database
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { authService } from '@/lib/services/auth.service'
-import { useTransition, useState } from 'react'
+import { dbUsageService, DbUsageResponse } from '@/lib/services/dbUsage.service'
+import { useTransition, useState, useEffect } from 'react'
 import { useAuth } from '@/lib/AuthContext'
 
 const sidebarItems = [
@@ -29,7 +31,7 @@ const sidebarItems = [
 // Generate a consistent avatar based on username
 const generateAvatar = (username: string) => {
   const colors = [
-    'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-pink-500', 
+    'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-pink-500',
     'bg-indigo-500', 'bg-yellow-500', 'bg-red-500', 'bg-teal-500'
   ]
   const hash = username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
@@ -41,9 +43,10 @@ export default function Sidebar() {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  
-  const { user } = useAuth()
+  const [dbUsage, setDbUsage] = useState<{ size: number; percentage: number } | null>(null)
+  const [isLoadingDbUsage, setIsLoadingDbUsage] = useState(false)
 
+  const { user } = useAuth()
 
   // This would typically come from your auth context or user state
   const currentUser = user;
@@ -51,6 +54,56 @@ export default function Sidebar() {
   const activeTab = pathname.split('/').pop() || 'dashboard'
   const avatarColor = currentUser ? generateAvatar(currentUser.username) : 'bg-gray-500'
   const userInitials = currentUser ? currentUser.username.split(' ').map(name => name[0]).join('').toUpperCase() : ''
+
+  // Fetch database usage function
+  const fetchDbUsage = async () => {
+    try {
+      setIsLoadingDbUsage(true)
+      const response = await dbUsageService.getDbUsage()
+
+      if (response.success) {
+        // Parse the size from string format "XX.XX MB" to number
+        const sizeInMB = parseFloat(response.db_size.replace(' MB', ''))
+        const maxSize = 500 // 500MB limit
+        const percentage = Math.min((sizeInMB / maxSize) * 100, 100)
+
+        setDbUsage({
+          size: sizeInMB,
+          percentage: percentage
+        })
+      }
+    } catch (error) {
+      console.error('Failed to fetch database usage:', error)
+      // Set fallback values or handle error state
+      setDbUsage(null)
+    } finally {
+      setIsLoadingDbUsage(false)
+    }
+  }
+
+  // List of dashboard routes that should trigger DB usage refresh
+  const dbUsageRoutes = [
+    '/dashboard/offers',
+    '/dashboard/users',
+    '/dashboard/contacts',
+    '/dashboard/newsletter'
+  ]
+
+  // Initial fetch on component mount
+  useEffect(() => {
+    fetchDbUsage()
+  }, [])
+
+  // Refresh database usage only when navigating to specific dashboard pages
+  useEffect(() => {
+    const shouldRefresh = dbUsageRoutes.some(route =>
+      pathname === route || pathname.startsWith(route + '/')
+    )
+
+    if (shouldRefresh) {
+      fetchDbUsage()
+    }
+  }, [pathname])
 
   const handleLogout = async () => {
     try {
@@ -63,6 +116,53 @@ export default function Sidebar() {
       console.error('Logout error:', error)
     }
   }
+
+  const DatabaseUsageSection = () => (
+    <div className="px-4 py-3 border-t border-slate-700">
+      <div className="px-4 py-3 rounded-lg bg-slate-700/30">
+        <div className="flex items-center gap-2 mb-2">
+          <Database className="w-4 h-4 text-green-400" />
+          <span className="text-stone-300 text-sm font-medium">Database Usage</span>
+        </div>
+
+        {isLoadingDbUsage ? (
+          <div className="flex items-center gap-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-2 border-green-400 border-t-transparent"></div>
+            <span className="text-stone-400 text-xs">Loading...</span>
+          </div>
+        ) : dbUsage ? (
+          <div className="space-y-2">
+            {/* Progress Bar */}
+            <div className="w-full bg-slate-600 rounded-full h-2 overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${dbUsage.percentage}%` }}
+              ></div>
+            </div>
+
+            {/* Usage Text */}
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-stone-400">
+                {dbUsage.size.toFixed(2)} MB / 500 MB
+              </span>
+              <span className={`font-semibold ${dbUsage.percentage > 90
+                  ? 'text-red-400'
+                  : dbUsage.percentage > 70
+                    ? 'text-yellow-400'
+                    : 'text-green-400'
+                }`}>
+                {dbUsage.percentage.toFixed(1)}%
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="text-stone-400 text-xs">
+            Unable to load usage data
+          </div>
+        )}
+      </div>
+    </div>
+  )
 
   const ProfileSection = () => (
     <div className="px-4 py-4 border-t border-slate-700">
@@ -103,7 +203,7 @@ export default function Sidebar() {
       {/* Mobile Header */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-slate-800 shadow-lg">
         <div className="flex items-center justify-between h-16 px-4">
-          <button 
+          <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="text-stone-300 hover:text-white"
           >
@@ -132,17 +232,19 @@ export default function Sidebar() {
               <Link
                 key={item.id}
                 href={`/dashboard/${item.id}`}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  activeTab === item.id
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${activeTab === item.id
                     ? 'bg-orange-600 text-white shadow-lg'
                     : 'text-stone-300 hover:bg-slate-700 hover:text-white'
-                }`}
+                  }`}
               >
                 <item.icon className="w-5 h-5" />
                 <span className="font-medium">{item.label}</span>
               </Link>
             ))}
           </nav>
+
+          {/* Database Usage Section */}
+          <DatabaseUsageSection />
 
           {/* Profile Section */}
           <ProfileSection />
@@ -152,8 +254,8 @@ export default function Sidebar() {
       {/* Mobile Sidebar - Overlay */}
       {mobileMenuOpen && (
         <div className="md:hidden fixed inset-0 z-40">
-          <div 
-            className="absolute inset-0 bg-black/50" 
+          <div
+            className="absolute inset-0 bg-black/50"
             onClick={() => setMobileMenuOpen(false)}
           ></div>
           <div className="relative z-50 w-64 h-full bg-slate-800 shadow-lg">
@@ -171,17 +273,19 @@ export default function Sidebar() {
                     key={item.id}
                     href={`/dashboard/${item.id}`}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                      activeTab === item.id
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${activeTab === item.id
                         ? 'bg-orange-600 text-white shadow-lg'
                         : 'text-stone-300 hover:bg-slate-700 hover:text-white'
-                    }`}
+                      }`}
                   >
                     <item.icon className="w-5 h-5" />
                     <span className="font-medium">{item.label}</span>
                   </Link>
                 ))}
               </nav>
+
+              {/* Database Usage Section for Mobile */}
+              <DatabaseUsageSection />
 
               {/* Profile Section for Mobile */}
               <ProfileSection />
