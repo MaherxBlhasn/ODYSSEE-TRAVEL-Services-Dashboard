@@ -130,10 +130,10 @@ export default function Sidebar() {
             <div className="animate-spin rounded-full h-4 w-4 border-2 border-green-400 border-t-transparent"></div>
           ) : dbUsage ? (
             <span className={`text-sm font-bold ${dbUsage.percentage > 90
-                ? 'text-red-400'
-                : dbUsage.percentage > 70
-                  ? 'text-yellow-400'
-                  : 'text-green-400'
+              ? 'text-red-400'
+              : dbUsage.percentage > 70
+                ? 'text-yellow-400'
+                : 'text-green-400'
               }`}>
               {dbUsage.percentage}%
             </span>
@@ -147,10 +147,10 @@ export default function Sidebar() {
           <div className="w-full bg-slate-600 rounded-full h-2 overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-500 ease-out ${dbUsage.percentage > 90
-                  ? 'bg-gradient-to-r from-red-500 to-red-400'
-                  : dbUsage.percentage > 70
-                    ? 'bg-gradient-to-r from-yellow-500 to-yellow-400'
-                    : 'bg-gradient-to-r from-green-500 to-green-400'
+                ? 'bg-gradient-to-r from-red-500 to-red-400'
+                : dbUsage.percentage > 70
+                  ? 'bg-gradient-to-r from-yellow-500 to-yellow-400'
+                  : 'bg-gradient-to-r from-green-500 to-green-400'
                 }`}
               style={{ width: `${dbUsage.percentage}%` }}
             ></div>
@@ -207,7 +207,7 @@ export default function Sidebar() {
           </button>
           <div className="text-center">
             <h1 className="text-xl font-bold text-stone-200">ODYSSEE</h1>
-            <p className="text-orange-400 text-xs">TRAVEL SERVICE</p>
+            <p className="text-orange-400 text-xs">TRAVEL SERVICES</p>
           </div>
           <div className="w-6"></div> {/* Spacer for balance */}
         </div>
@@ -219,7 +219,7 @@ export default function Sidebar() {
           <div className="flex items-center justify-center h-16 bg-slate-900 border-b border-slate-700">
             <div className="text-center">
               <h1 className="text-2xl font-bold text-stone-200">ODYSSEE</h1>
-              <p className="text-orange-400 text-sm">TRAVEL SERVICE</p>
+              <p className="text-orange-400 text-sm">TRAVEL SERVICES</p>
             </div>
           </div>
 
@@ -259,7 +259,7 @@ export default function Sidebar() {
               <div className="flex items-center justify-center h-16 bg-slate-900 border-b border-slate-700">
                 <div className="text-center">
                   <h1 className="text-2xl font-bold text-stone-200">ODYSSEE</h1>
-                  <p className="text-orange-400 text-sm">TRAVEL SERVICE</p>
+                  <p className="text-orange-400 text-sm">TRAVEL SERVICES</p>
                 </div>
               </div>
 

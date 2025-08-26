@@ -1,0 +1,24 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main circular ring -->
+  <circle cx="100" cy="100" r="80" fill="none" stroke="#DC2626" stroke-width="20"/>
+  
+  <!-- Admin shield symbol in center -->
+  <g transform="translate(100,100)">
+    <!-- Shield shape -->
+    <path d="M-25,-20 L25,-20 L25,10 L0,30 L-25,10 Z" fill="#DC2626" stroke="#B91C1C" stroke-width="2"/>
+    
+    <!-- Inner shield -->
+    <path d="M-18,-12 L18,-12 L18,6 L0,20 L-18,6 Z" fill="#EF4444"/>
+    
+    <!-- Admin "A" letter -->
+    <path d="M-8,12 L-4,-8 L4,-8 L8,12 M-2,2 L2,2" stroke="#FFFFFF" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  
+  <!-- Corner accent squares -->
+  <rect x="88" y="28" width="6" height="6" fill="#DC2626" rx="1"/>
+  <rect x="168" y="88" width="6" height="6" fill="#DC2626" rx="1"/>
+  <rect x="168" y="108" width="6" height="6" fill="#DC2626" rx="1"/>
+  <rect x="108" y="168" width="6" height="6" fill="#DC2626" rx="1"/>
+  <rect x="28" y="108" width="6" height="6" fill="#DC2626" rx="1"/>
+  <rect x="28" y="88" width="6" height="6" fill="#DC2626" rx="1"/>
+</svg>
