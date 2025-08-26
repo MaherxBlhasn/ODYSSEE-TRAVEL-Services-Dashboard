@@ -123,19 +123,18 @@ export default function Sidebar() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Database className="w-4 h-4 text-green-400" />
-            <span className="text-stone-300 text-sm font-medium">Storage</span>
+            <span className="text-stone-300 text-sm font-medium">Database Usage</span>
           </div>
-          
+
           {isLoadingDbUsage ? (
             <div className="animate-spin rounded-full h-4 w-4 border-2 border-green-400 border-t-transparent"></div>
           ) : dbUsage ? (
-            <span className={`text-sm font-bold ${
-              dbUsage.percentage > 90
+            <span className={`text-sm font-bold ${dbUsage.percentage > 90
                 ? 'text-red-400'
                 : dbUsage.percentage > 70
                   ? 'text-yellow-400'
                   : 'text-green-400'
-            }`}>
+              }`}>
               {dbUsage.percentage}%
             </span>
           ) : (
@@ -147,13 +146,12 @@ export default function Sidebar() {
         {dbUsage && (
           <div className="w-full bg-slate-600 rounded-full h-2 overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all duration-500 ease-out ${
-                dbUsage.percentage > 90
+              className={`h-full rounded-full transition-all duration-500 ease-out ${dbUsage.percentage > 90
                   ? 'bg-gradient-to-r from-red-500 to-red-400'
                   : dbUsage.percentage > 70
                     ? 'bg-gradient-to-r from-yellow-500 to-yellow-400'
                     : 'bg-gradient-to-r from-green-500 to-green-400'
-              }`}
+                }`}
               style={{ width: `${dbUsage.percentage}%` }}
             ></div>
           </div>
@@ -231,8 +229,8 @@ export default function Sidebar() {
                 key={item.id}
                 href={`/dashboard/${item.id}`}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${activeTab === item.id
-                    ? 'bg-orange-600 text-white shadow-lg'
-                    : 'text-stone-300 hover:bg-slate-700 hover:text-white'
+                  ? 'bg-orange-600 text-white shadow-lg'
+                  : 'text-stone-300 hover:bg-slate-700 hover:text-white'
                   }`}
               >
                 <item.icon className="w-5 h-5" />
@@ -272,8 +270,8 @@ export default function Sidebar() {
                     href={`/dashboard/${item.id}`}
                     onClick={() => setMobileMenuOpen(false)}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${activeTab === item.id
-                        ? 'bg-orange-600 text-white shadow-lg'
-                        : 'text-stone-300 hover:bg-slate-700 hover:text-white'
+                      ? 'bg-orange-600 text-white shadow-lg'
+                      : 'text-stone-300 hover:bg-slate-700 hover:text-white'
                       }`}
                   >
                     <item.icon className="w-5 h-5" />
