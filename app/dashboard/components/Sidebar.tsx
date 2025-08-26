@@ -69,7 +69,7 @@ export default function Sidebar() {
 
         setDbUsage({
           size: sizeInMB,
-          percentage: percentage
+          percentage: Math.round(percentage) // Round to integer
         })
       }
     } catch (error) {
@@ -119,45 +119,43 @@ export default function Sidebar() {
 
   const DatabaseUsageSection = () => (
     <div className="px-4 py-3 border-t border-slate-700">
-      <div className="px-4 py-3 rounded-lg bg-slate-700/30">
-        <div className="flex items-center gap-2 mb-2">
-          <Database className="w-4 h-4 text-green-400" />
-          <span className="text-stone-300 text-sm font-medium">Database Usage</span>
+      <div className="px-3 py-3 rounded-lg bg-slate-700/30">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Database className="w-4 h-4 text-green-400" />
+            <span className="text-stone-300 text-sm font-medium">Storage</span>
+          </div>
+          
+          {isLoadingDbUsage ? (
+            <div className="animate-spin rounded-full h-4 w-4 border-2 border-green-400 border-t-transparent"></div>
+          ) : dbUsage ? (
+            <span className={`text-sm font-bold ${
+              dbUsage.percentage > 90
+                ? 'text-red-400'
+                : dbUsage.percentage > 70
+                  ? 'text-yellow-400'
+                  : 'text-green-400'
+            }`}>
+              {dbUsage.percentage}%
+            </span>
+          ) : (
+            <span className="text-stone-500 text-xs">--</span>
+          )}
         </div>
 
-        {isLoadingDbUsage ? (
-          <div className="flex items-center gap-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-2 border-green-400 border-t-transparent"></div>
-            <span className="text-stone-400 text-xs">Loading...</span>
-          </div>
-        ) : dbUsage ? (
-          <div className="space-y-2">
-            {/* Progress Bar */}
-            <div className="w-full bg-slate-600 rounded-full h-2 overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all duration-500 ease-out"
-                style={{ width: `${dbUsage.percentage}%` }}
-              ></div>
-            </div>
-
-            {/* Usage Text */}
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-stone-400">
-                {dbUsage.size.toFixed(2)} MB / 500 MB
-              </span>
-              <span className={`font-semibold ${dbUsage.percentage > 90
-                  ? 'text-red-400'
+        {/* Progress Bar */}
+        {dbUsage && (
+          <div className="w-full bg-slate-600 rounded-full h-2 overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ease-out ${
+                dbUsage.percentage > 90
+                  ? 'bg-gradient-to-r from-red-500 to-red-400'
                   : dbUsage.percentage > 70
-                    ? 'text-yellow-400'
-                    : 'text-green-400'
-                }`}>
-                {dbUsage.percentage.toFixed(1)}%
-              </span>
-            </div>
-          </div>
-        ) : (
-          <div className="text-stone-400 text-xs">
-            Unable to load usage data
+                    ? 'bg-gradient-to-r from-yellow-500 to-yellow-400'
+                    : 'bg-gradient-to-r from-green-500 to-green-400'
+              }`}
+              style={{ width: `${dbUsage.percentage}%` }}
+            ></div>
           </div>
         )}
       </div>
